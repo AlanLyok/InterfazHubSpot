@@ -3,7 +3,6 @@ using InterfazHubSpot.BatchProcess;
 using InterfazHubSpot.Business.Common;
 using InterfazHubSpot.Business.Diagnostics;
 using System.Configuration;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using InterfazHubSpot.Business.Integration;
 using InterfazHubSpot.Business.Managers;
@@ -23,15 +22,6 @@ namespace InterfazHubSpot.Controllers
         public ActionResult Error()
         {
             return View();
-        }
-
-        [HttpPost]
-        public JsonResult EjemploSpertaApi()
-        {
-            var proceso = new EjemploSpertaApiJob();
-            proceso.Contexto = GetContext();
-            proceso.Execute(null, null);
-            return Json(true);
         }
 
         [HttpPost]
@@ -71,7 +61,6 @@ namespace InterfazHubSpot.Controllers
                     empresaId = ctx.EmpresaId,
                     ctx.TenantId,
                     cnPrefix = ctx.CNPrefix,
-                    spertaApiBaseUrl = ConfigurationManager.AppSettings["SpertaAPIBaseUrl"],
                 });
 
             ProcesoColaEjecucionResumen resumen = null;
@@ -84,7 +73,6 @@ namespace InterfazHubSpot.Controllers
                 {
                     Contexto = ctx,
                     PasoReporter = collector,
-                    EmitirTrazaHttpSpertaApi = true,
                 };
 
                 resumen = job.EjecutarColaHubSpotDiagnostic();
@@ -121,7 +109,6 @@ namespace InterfazHubSpot.Controllers
                     empresaId = ctx.EmpresaId,
                     ctx.TenantId,
                     cnPrefix = ctx.CNPrefix,
-                    spertaApiBaseUrl = ConfigurationManager.AppSettings["SpertaAPIBaseUrl"],
                 });
 
             var ok = true;
@@ -176,9 +163,9 @@ namespace InterfazHubSpot.Controllers
             return CrearJsonTrazaSalida(correlacionId, ok, errorFatal, null, collector);
         }
 
-        /// <summary>GET integraciones cliente con traza; <paramref name="clienteId"/> opcional (query) o primera fila pendiente HubSpot.</summary>
+        /// <summary>SP integraciones cliente con traza; <paramref name="clienteId"/> opcional (query) o primera fila pendiente HubSpot.</summary>
         [HttpPost]
-        public async Task<JsonResult> ProcesarColaHubSpotTrazaCliente(int? clienteId = null)
+        public JsonResult ProcesarColaHubSpotTrazaCliente(int? clienteId = null)
         {
             var correlacionId = Guid.NewGuid();
             var collector = new ProcesoPasoCollector();
@@ -188,35 +175,21 @@ namespace InterfazHubSpot.Controllers
                 ProcesoPasoSeverity.Information,
                 ProcesoPasoCategoria.Infraestructura,
                 "batchmvc.ejecucion_inicio",
-                "Inicio traza: GET SpertaAPI integraciones cliente (sin HubSpot).",
+                "Inicio traza: SP integraciones cliente (sin HubSpot).",
                 new
                 {
                     correlacionId,
                     empresaId = ctx.EmpresaId,
                     ctx.TenantId,
                     cnPrefix = ctx.CNPrefix,
-                    spertaApiBaseUrl = ConfigurationManager.AppSettings["SpertaAPIBaseUrl"],
                     clienteIdParametro = clienteId,
                 });
 
             var ok = true;
             string errorFatal = null;
-            const bool instrumentarHttp = true;
-
-            if (instrumentarHttp)
-            {
-                HttpSpertaApiClient.SetOAuthDiagnosticsListener((oauthOk, msg) =>
-                    collector.RegistrarPaso(
-                        oauthOk ? ProcesoPasoSeverity.Information : ProcesoPasoSeverity.Warning,
-                        ProcesoPasoCategoria.SpertaApi,
-                        "spertaapi.oauth.token",
-                        oauthOk ? "OAuth completado contra SpertaAPI." : "Fallo en OAuth contra SpertaAPI.",
-                        new { ok = oauthOk, mensaje = msg }));
-            }
 
             try
             {
-                var api = new TracingSpertaApiClient(new HttpSpertaApiClient(), collector);
                 int resolvedClienteId;
                 string origenResolucion;
 
@@ -259,10 +232,23 @@ namespace InterfazHubSpot.Controllers
                     ProcesoPasoSeverity.Information,
                     ProcesoPasoCategoria.Cola,
                     "batchmvc.cliente_id_resuelto",
-                    "ClienteId para GET integraciones.",
+                    "ClienteId para SP integraciones.",
                     new { clienteId = resolvedClienteId, origenResolucion });
 
-                await api.GetIntegracionesClienteAsync(resolvedClienteId).ConfigureAwait(false);
+                var cliMgr = new ClienteIntegracionManager(ctx);
+                var dto = cliMgr.ObtenerClienteParaHubSpot(resolvedClienteId);
+
+                collector.RegistrarPaso(
+                    ProcesoPasoSeverity.Information,
+                    ProcesoPasoCategoria.Infraestructura,
+                    "bd.sp.cliente_obtener",
+                    dto != null ? "SP ejecutado. Datos de cliente cargados." : "SP ejecutado pero sin datos para el cliente.",
+                    new
+                    {
+                        clienteId = resolvedClienteId,
+                        encontrado = dto != null,
+                        codigoCliente = dto != null ? dto.CodigoCliente : null,
+                    });
             }
             catch (Exception ex)
             {
@@ -272,13 +258,6 @@ namespace InterfazHubSpot.Controllers
                 Logger.Log(
                     "[Traza MVC " + correlacionId + "] " + nameof(HomeController.ProcesarColaHubSpotTrazaCliente) + ": " +
                     ex);
-            }
-            finally
-            {
-                if (instrumentarHttp)
-                {
-                    HttpSpertaApiClient.ClearOAuthDiagnosticsListener();
-                }
             }
 
             return CrearJsonTrazaSalida(correlacionId, ok, errorFatal, null, collector);

@@ -3,7 +3,6 @@ using System.Xml;
 using InterfazHubSpot.Business;
 using InterfazHubSpot.Business.Common;
 using InterfazHubSpot.Business.Diagnostics;
-using InterfazHubSpot.Business.Integration;
 using InterfazHubSpot.Business.Managers;
 using InterfazHubSpot.Entities;
 using InterfazHubSpot.Business.HubSpot;
@@ -19,9 +18,6 @@ namespace InterfazHubSpot.BatchProcess
 
         /// <summary>Acumula pasos MVC/diagnóstico; opcional.</summary>
         public IProcesoPasoReporter PasoReporter { get; set; }
-
-        /// <summary>Si es true enciende traza HTTP/oauth vía <see cref="TracingSpertaApiClient"/> y listener OAuth.</summary>
-        public bool EmitirTrazaHttpSpertaApi { get; set; }
 
         public bool Finished { get; set; }
 
@@ -79,32 +75,10 @@ namespace InterfazHubSpot.BatchProcess
         private ProcesoColaEjecucionResumen EjecutarColaInterno()
         {
             var rep = PasoReporter ?? NullProcesoPasoReporter.Instance;
-            var instrumentarHttp = EmitirTrazaHttpSpertaApi;
-            try
-            {
-                if (instrumentarHttp)
-                {
-                    HttpSpertaApiClient.SetOAuthDiagnosticsListener((ok, msg) =>
-                        rep.RegistrarPaso(
-                            ok ? ProcesoPasoSeverity.Information : ProcesoPasoSeverity.Warning,
-                            ProcesoPasoCategoria.SpertaApi,
-                            "spertaapi.oauth.token",
-                            ok ? "OAuth completado contra SpertaAPI." : "Fallo en OAuth contra SpertaAPI.",
-                            new { ok, mensaje = msg }));
-                }
-
-                var runner = new HubSpotIntegracionRunner(Contexto, rep);
-                ProcesoColaEjecucionResumen r;
-                runner.ProcesarColaHubSpot(25, out r);
-                return r;
-            }
-            finally
-            {
-                if (instrumentarHttp)
-                {
-                    HttpSpertaApiClient.ClearOAuthDiagnosticsListener();
-                }
-            }
+            var runner = new HubSpotIntegracionRunner(Contexto, rep);
+            ProcesoColaEjecucionResumen r;
+            runner.ProcesarColaHubSpot(25, out r);
+            return r;
         }
     }
 }
