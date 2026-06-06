@@ -1,6 +1,6 @@
 using System;
 
-namespace ServiciosApi.Areas.HelpPage.ModelDescriptions
+namespace InterfazHubSpot.Areas.HelpPage.ModelDescriptions
 {
     /// <summary>
     /// Describes a type model.

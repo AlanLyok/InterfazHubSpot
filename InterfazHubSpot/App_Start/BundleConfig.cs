@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Optimization;
 
-namespace BatchSpertaAPI
+namespace InterfazHubSpot
 {
     public class BundleConfig
     {

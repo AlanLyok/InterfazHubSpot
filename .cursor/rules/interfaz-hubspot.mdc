@@ -1,0 +1,31 @@
+---
+description: Convenciones InterfazHubSpot — nombres, build/test y stack .NET 4.5.2
+alwaysApply: true
+---
+
+# InterfazHubSpot — reglas del repo
+
+## Nomenclatura (bloqueada)
+
+- Solución: `InterfazHubSpot.sln` y proyectos `InterfazHubSpot.*`
+- Tabla cola: `dbo.ProcesosSpertaHubSpot` (nunca `ProcesosSpertaAPI`)
+- Marca: siempre `HubSpot` (S mayúscula). Prohibido `Hubspot`
+- Prohibido reintroducir: `BatchSpertaAPI`, `ProcesosSpertaAPI`
+- Runners HubSpot viven en `InterfazHubSpot.Business/HubSpot/` (namespace `InterfazHubSpot.Business.HubSpot`)
+
+## Comandos obligatorios (no improvisar MSBuild/dotnet)
+
+| Acción | Comando |
+|--------|---------|
+| Build completo | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1` |
+| Solo librerías | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly` |
+| Tests | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1` |
+| Verificar todo | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1` |
+
+Variables opcionales: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
+
+## Stack
+
+- .NET Framework **4.5.2** — no aplicar patrones de .NET 8 (`dotnet-best-practices` es para otro proyecto)
+- SPs datos HubSpot: prefijo `USER_HS_*` (sin cambios)
+- Gate WinForms antes de `sp_rename` tabla: ver `sql/001_ProcesosSpertaHubSpot.sql` y PRD §5.1

@@ -7,8 +7,8 @@
     <ProjectGuid>{79FD1637-9F3E-40C5-9A06-D41FDCE89F35}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BatchSpertaAPI.Mapping</RootNamespace>
-    <AssemblyName>BatchSpertaAPI.Mapping</AssemblyName>
+    <RootNamespace>InterfazHubSpot.Mapping</RootNamespace>
+    <AssemblyName>InterfazHubSpot.Mapping</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -63,7 +63,7 @@
     <Compile Include="Mapping\EmpresasMap.cs" />
     <Compile Include="Mapping\ErroresMap.cs" />
     <Compile Include="Mapping\IntegracionEjecucionLogMap.cs" />
-    <Compile Include="Mapping\ProcesosSpertaApiMap.cs" />
+    <Compile Include="Mapping\ProcesosSpertaHubSpotMap.cs" />
     <Compile Include="Mapping\PerfilesWebMap.cs" />
     <Compile Include="Mapping\UsuariosWebMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -75,7 +75,7 @@
   <ItemGroup>
     <ProjectReference Include="..\InterfazHubSpot.Entities\InterfazHubSpot.Entities.csproj">
       <Project>{8ad22b91-5590-4ff0-8ea4-a969fe0b7620}</Project>
-      <Name>BatchSpertaAPI.Entities</Name>
+      <Name>InterfazHubSpot.Entities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

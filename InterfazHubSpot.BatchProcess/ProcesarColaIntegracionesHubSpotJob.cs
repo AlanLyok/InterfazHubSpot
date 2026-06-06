@@ -1,18 +1,18 @@
 using System;
 using System.Xml;
-using BatchSpertaAPI.Business;
-using BatchSpertaAPI.Business.Common;
-using BatchSpertaAPI.Business.Diagnostics;
-using BatchSpertaAPI.Business.Integration;
-using BatchSpertaAPI.Business.Managers;
-using BatchSpertaAPI.Entities;
-using InterfazHubSpot;
+using InterfazHubSpot.Business;
+using InterfazHubSpot.Business.Common;
+using InterfazHubSpot.Business.Diagnostics;
+using InterfazHubSpot.Business.Integration;
+using InterfazHubSpot.Business.Managers;
+using InterfazHubSpot.Entities;
+using InterfazHubSpot.Business.HubSpot;
 using Mastersoft.Framework.Standard;
 using Mastersoft.Scheduler452.Intefaces;
 
-namespace BatchSpertaAPI.BatchProcess
+namespace InterfazHubSpot.BatchProcess
 {
-    /// <summary>Despacha filas <c>dbo.ProcesosSpertaAPI</c> con destino HubSpot (flujo 2A).</summary>
+    /// <summary>Despacha filas <c>dbo.ProcesosSpertaHubSpot</c> con destino HubSpot (flujo 2A).</summary>
     public sealed class ProcesarColaIntegracionesHubSpotJob : IScheduler
     {
         public MSContext Contexto { get; set; }

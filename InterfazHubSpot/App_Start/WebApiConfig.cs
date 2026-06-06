@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
-using BatchSpertaAPI.Filters;
+using InterfazHubSpot.Filters;
 using Newtonsoft.Json;
 
-namespace BatchSpertaAPI
+namespace InterfazHubSpot
 {
     public static class WebApiConfig
     {

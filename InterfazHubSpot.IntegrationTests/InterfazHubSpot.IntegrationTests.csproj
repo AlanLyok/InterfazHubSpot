@@ -3,7 +3,7 @@
         <TargetFramework>net452</TargetFramework>
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <RootNamespace>BatchSpertaAPI.IntegrationTests</RootNamespace>
+        <RootNamespace>InterfazHubSpot.IntegrationTests</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System.Net.Http" />

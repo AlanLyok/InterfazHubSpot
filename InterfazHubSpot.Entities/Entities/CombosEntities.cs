@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
     //---------------------------------------------------------
     // Clases para proyectar resultados de combos,

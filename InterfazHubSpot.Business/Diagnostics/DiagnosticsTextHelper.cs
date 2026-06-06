@@ -1,6 +1,6 @@
 using System.Configuration;
 
-namespace BatchSpertaAPI.Business.Diagnostics
+namespace InterfazHubSpot.Business.Diagnostics
 {
     /// <summary>Trunca textos grandes en pasos (<c>Diagnostics:PasoDatosMaxChars</c>).</summary>
     public static class DiagnosticsTextHelper

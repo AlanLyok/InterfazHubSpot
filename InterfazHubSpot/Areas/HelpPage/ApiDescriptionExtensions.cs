@@ -3,7 +3,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http.Description;
 
-namespace ServiciosApi.Areas.HelpPage
+namespace InterfazHubSpot.Areas.HelpPage
 {
     public static class ApiDescriptionExtensions
     {

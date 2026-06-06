@@ -43,7 +43,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-06)
 
 ## Session Notes
 
-- Repo brownfield: BatchSpertaAPI ya tiene jobs HubSpot vía SpertaAPI; objetivo es migrar a SQL directo.
+- Repo brownfield: InterfazHubSpot ya tiene jobs HubSpot vía SpertaAPI; objetivo es migrar a SQL directo.
 - Git inicializado 2026-06-06.
 - Skills del proyecto: `.cursor/skills/get-shit-done`, `dotnet-best-practices` (aplica a otro stack — este proyecto es .NET 4.5.2).
 

@@ -2,11 +2,11 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using InterfazHubSpot;
+using InterfazHubSpot.Business.HubSpot;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace BatchSpertaAPI.Tests.Unit
+namespace InterfazHubSpot.Tests.Unit
 {
     public sealed class DevelopmentHubSpotStubTests
     {

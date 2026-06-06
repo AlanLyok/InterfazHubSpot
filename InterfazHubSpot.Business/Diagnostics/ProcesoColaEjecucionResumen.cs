@@ -1,4 +1,4 @@
-namespace BatchSpertaAPI.Business.Diagnostics
+namespace InterfazHubSpot.Business.Diagnostics
 {
     /// <summary>Estadísticas agregadas de una corrida de cola por destino (neutral).</summary>
     public sealed class ProcesoColaEjecucionResumen

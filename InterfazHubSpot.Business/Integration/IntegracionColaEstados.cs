@@ -1,6 +1,6 @@
-namespace BatchSpertaAPI.Business.Integration
+namespace InterfazHubSpot.Business.Integration
 {
-    /// <summary>Valores de la columna Estado en dbo.ProcesosSpertaAPI.</summary>
+    /// <summary>Valores de la columna Estado en dbo.ProcesosSpertaHubSpot.</summary>
     public static class IntegracionColaEstados
     {
         public const byte Pendiente = 0;
@@ -24,7 +24,7 @@ namespace BatchSpertaAPI.Business.Integration
         public const string Modificacion = "Modificacion";
     }
 
-    /// <summary>Valores de <c>TipoEntidad</c> en dbo.ProcesosSpertaAPI.</summary>
+    /// <summary>Valores de <c>TipoEntidad</c> en dbo.ProcesosSpertaHubSpot.</summary>
     public static class IntegracionTipoEntidad
     {
         public const string Cliente = "Cliente";

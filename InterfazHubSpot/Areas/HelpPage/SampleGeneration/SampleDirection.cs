@@ -1,4 +1,4 @@
-namespace ServiciosApi.Areas.HelpPage
+namespace InterfazHubSpot.Areas.HelpPage
 {
     /// <summary>
     /// Indicates whether the sample is used for request or response

@@ -1,7 +1,7 @@
 using Autofac;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
-using BatchSpertaAPI.Interfaces;
+using InterfazHubSpot.Interfaces;
 using Mastersoft.Framework.Cache;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 
-namespace BatchSpertaAPI
+namespace InterfazHubSpot
 {
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -37,7 +37,7 @@ namespace BatchSpertaAPI
 
             builder.RegisterType<MSContextProvider>().As<IMSContextProvider>().InstancePerRequest();
 
-            builder.RegisterAssemblyTypes(Assembly.Load("BatchSpertaAPI.Business"))
+            builder.RegisterAssemblyTypes(Assembly.Load("InterfazHubSpot.Business"))
                    .Where(t => t.Name.EndsWith("Manager"))
                    .AsImplementedInterfaces()
                    .InstancePerLifetimeScope();

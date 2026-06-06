@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using BatchSpertaAPI.Core;
-using BatchSpertaAPI.Interfaces;
+using InterfazHubSpot.Core;
+using InterfazHubSpot.Interfaces;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI
+namespace InterfazHubSpot
 {
     public class MSContextProvider : IMSContextProvider
     {

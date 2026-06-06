@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Interfaces;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Interfaces
+namespace InterfazHubSpot.Interfaces
 {
     public interface IUsuariosWebManager
     {

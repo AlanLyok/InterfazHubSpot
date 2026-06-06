@@ -1,14 +1,14 @@
 using System;
 using System.Xml;
-using BatchSpertaAPI.Business;
-using BatchSpertaAPI.Business.Common;
-using BatchSpertaAPI.Business.Managers;
-using BatchSpertaAPI.Entities;
-using InterfazHubSpot;
+using InterfazHubSpot.Business;
+using InterfazHubSpot.Business.Common;
+using InterfazHubSpot.Business.Managers;
+using InterfazHubSpot.Entities;
+using InterfazHubSpot.Business.HubSpot;
 using Mastersoft.Framework.Standard;
 using Mastersoft.Scheduler452.Intefaces;
 
-namespace BatchSpertaAPI.BatchProcess
+namespace InterfazHubSpot.BatchProcess
 {
     /// <summary>Sincronización masiva de cuenta corriente text en HubSpot (flujo 2B).</summary>
     public sealed class HubSpotSincronizarCuentaCorrienteJob : IScheduler

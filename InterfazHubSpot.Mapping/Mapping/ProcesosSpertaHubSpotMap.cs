@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
-    public class ProcesosSpertaApiMap : EntityTypeConfiguration<ProcesosSpertaApi>
+    public class ProcesosSpertaHubSpotMap : EntityTypeConfiguration<ProcesosSpertaHubSpot>
     {
-        public ProcesosSpertaApiMap()
+        public ProcesosSpertaHubSpotMap()
         {
             HasKey(t => t.ProcesoId);
 
@@ -17,7 +17,7 @@ namespace BatchSpertaAPI.Entities
             Property(t => t.TipoOperacion).IsRequired().HasMaxLength(20);
             Property(t => t.MensajeUltimoError).IsMaxLength();
 
-            ToTable("ProcesosSpertaAPI");
+            ToTable("ProcesosSpertaHubSpot");
             Property(t => t.ProcesoId).HasColumnName("ProcesoId");
             Property(t => t.TenantId).HasColumnName("TenantId");
             Property(t => t.EmpresaId).HasColumnName("EmpresaId");

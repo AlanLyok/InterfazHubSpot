@@ -1,4 +1,4 @@
-namespace BatchSpertaAPI.Business.Diagnostics
+namespace InterfazHubSpot.Business.Diagnostics
 {
     /// <summary>No-op para ejecución sin traza HTTP.</summary>
     public sealed class NullProcesoPasoReporter : IProcesoPasoReporter

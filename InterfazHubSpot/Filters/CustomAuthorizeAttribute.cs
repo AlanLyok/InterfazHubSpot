@@ -7,14 +7,14 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Xml;
-using BatchSpertaAPI.Business;
-using BatchSpertaAPI.Core;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Business;
+using InterfazHubSpot.Core;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Standard;
 using Mastersoft.Framework.WebRenderMvc.HtmlHelpers;
 
-namespace BatchSpertaAPI.Filters
+namespace InterfazHubSpot.Filters
 {
     public class CustomAuthorizeAttribute : AuthorizeAttribute
     {

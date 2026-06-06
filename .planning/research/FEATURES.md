@@ -6,7 +6,7 @@
 
 | Feature | Complejidad | Dependencias |
 |---------|-------------|--------------|
-| Cola outbox `ProcesosSpertaAPI` | Baja | Tabla existente |
+| Cola outbox `ProcesosSpertaHubSpot` | Baja | Tabla existente |
 | SP post-grabación WinForms | Baja | `USER_POS_Clientes_Agregar` |
 | Job 2A — procesar cola | Alta | SPs + HubSpotClient |
 | Sync compañía HubSpot (search/create/patch) | Media | CRM v3 companies |

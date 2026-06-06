@@ -8,12 +8,12 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using BatchSpertaAPI.Business;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Business;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Filters
+namespace InterfazHubSpot.Filters
 {
     public class CustomExceptionHandlerAttribute : FilterAttribute, IExceptionFilter
     {

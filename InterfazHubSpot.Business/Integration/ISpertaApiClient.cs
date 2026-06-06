@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace BatchSpertaAPI.Business.Integration
+namespace InterfazHubSpot.Business.Integration
 {
     /// <summary>Cliente HTTP mínimo alineado a SpertaAPI <c>api/v100</c> (token OAuth, health, clientes, pedidos/comprobantes).</summary>
     public interface ISpertaApiClient

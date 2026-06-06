@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
+    <RootNamespace>InterfazHubSpot.BatchProcess</RootNamespace>
+    <AssemblyName>InterfazHubSpot.BatchProcess</AssemblyName>
     <AssemblyVersion>100.2.1</AssemblyVersion>
     <FileVersion>100.2.1</FileVersion>
   </PropertyGroup>

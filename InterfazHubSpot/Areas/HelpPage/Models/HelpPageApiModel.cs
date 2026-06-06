@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Web.Http.Description;
-using ServiciosApi.Areas.HelpPage.ModelDescriptions;
+using InterfazHubSpot.Areas.HelpPage.ModelDescriptions;
 
-namespace ServiciosApi.Areas.HelpPage.Models
+namespace InterfazHubSpot.Areas.HelpPage.Models
 {
     /// <summary>
     /// The model that represents an API displayed on the help page.

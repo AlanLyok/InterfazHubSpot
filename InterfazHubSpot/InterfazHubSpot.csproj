@@ -13,8 +13,8 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BatchSpertaAPI</RootNamespace>
-    <AssemblyName>BatchSpertaAPI</AssemblyName>
+    <RootNamespace>InterfazHubSpot</RootNamespace>
+    <AssemblyName>InterfazHubSpot</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
@@ -2227,19 +2227,19 @@
   <ItemGroup>
     <ProjectReference Include="..\InterfazHubSpot.BatchProcess\InterfazHubSpot.BatchProcess.csproj">
       <Project>{BA4771AF-6452-48C4-A0CC-FAA47F7BAE10}</Project>
-      <Name>BatchSpertaAPI.BatchProcess</Name>
+      <Name>InterfazHubSpot.BatchProcess</Name>
     </ProjectReference>
     <ProjectReference Include="..\InterfazHubSpot.Business\InterfazHubSpot.Business.csproj">
       <Project>{B886CB44-5D74-4384-8616-773DF75D7A69}</Project>
-      <Name>BatchSpertaAPI.Business</Name>
+      <Name>InterfazHubSpot.Business</Name>
     </ProjectReference>
     <ProjectReference Include="..\InterfazHubSpot.Entities\InterfazHubSpot.Entities.csproj">
       <Project>{8AD22B91-5590-4FF0-8EA4-A969FE0B7620}</Project>
-      <Name>BatchSpertaAPI.Entities</Name>
+      <Name>InterfazHubSpot.Entities</Name>
     </ProjectReference>
     <ProjectReference Include="..\InterfazHubSpot.Interfaces\InterfazHubSpot.Interfaces.csproj">
       <Project>{748944e7-1fa4-4c63-9f4a-12a92c0eb481}</Project>
-      <Name>BatchSpertaAPI.Interfaces</Name>
+      <Name>InterfazHubSpot.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

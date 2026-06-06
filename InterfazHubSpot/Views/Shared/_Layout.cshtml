@@ -6,11 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     @{ 
-        var currentMSContext = BatchSpertaAPI.Core.Util.GetMSContext();
+        var currentMSContext = InterfazHubSpot.Core.Util.GetMSContext();
         var currentTheme = currentMSContext.KendoTheme;
         var currentHeaderColor = currentMSContext.HeaderColor;
-        var currentImagenFondo = BatchSpertaAPI.Core.Util.GetImagenFondo(currentMSContext);
-        var currentColorEtiquetas = BatchSpertaAPI.Core.Util.GetColorEtiquetas(currentMSContext);
+        var currentImagenFondo = InterfazHubSpot.Core.Util.GetImagenFondo(currentMSContext);
+        var currentColorEtiquetas = InterfazHubSpot.Core.Util.GetColorEtiquetas(currentMSContext);
     }
     @Styles.Render("~/Content/awesome/css")
     @Styles.Render("~/Content/bootstrap/css")

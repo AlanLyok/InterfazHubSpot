@@ -1,4 +1,4 @@
-namespace ServiciosApi.Areas.HelpPage.ModelDescriptions
+namespace InterfazHubSpot.Areas.HelpPage.ModelDescriptions
 {
     public class DictionaryModelDescription : KeyValuePairModelDescription
     {

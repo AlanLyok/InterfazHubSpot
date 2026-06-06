@@ -1,11 +1,11 @@
 using System;
-using BatchSpertaAPI.Providers;
+using InterfazHubSpot.Providers;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.OAuth;
 using Owin;
 
-[assembly: OwinStartup(typeof(BatchSpertaAPI.Startup))]
-namespace BatchSpertaAPI
+[assembly: OwinStartup(typeof(InterfazHubSpot.Startup))]
+namespace InterfazHubSpot
 {
     public class Startup
     {

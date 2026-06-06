@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-El proyecto es una refactorización brownfield de BatchSpertaAPI: conservar la arquitectura de jobs, consola MVC y conector HubSpot existente, pero **reemplazar SpertaAPI por stored procedures SQL**. Los dos flujos (cola de clientes/contactos y cuenta corriente diaria) están bien definidos en el PRD con endpoints HubSpot CRM v3, manejo de errores y rate limiting.
+El proyecto es una refactorización brownfield de InterfazHubSpot: conservar la arquitectura de jobs, consola MVC y conector HubSpot existente, pero **reemplazar SpertaAPI por stored procedures SQL**. Los dos flujos (cola de clientes/contactos y cuenta corriente diaria) están bien definidos en el PRD con endpoints HubSpot CRM v3, manejo de errores y rate limiting.
 
 El mayor riesgo no es técnico sino de **datos**: tres puntos abiertos con Calzetta (tabla HubSpotCompanyId, campos origen cliente, estructura cuenta corriente) deben resolverse en la Fase 1 antes de cerrar los SPs.
 

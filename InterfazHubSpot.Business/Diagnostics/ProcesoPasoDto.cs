@@ -1,6 +1,6 @@
 using System;
 
-namespace BatchSpertaAPI.Business.Diagnostics
+namespace InterfazHubSpot.Business.Diagnostics
 {
     /// <summary>Entrada de traza serializable hacia MVC u otros consumidores.</summary>
     public sealed class ProcesoPasoDto

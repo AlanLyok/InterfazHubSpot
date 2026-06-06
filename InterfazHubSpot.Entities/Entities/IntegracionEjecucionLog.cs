@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mastersoft.Framework.Interfaces;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
     /// <summary>Auditoría por corrida de integración (OK / error detallado).</summary>
     public partial class IntegracionEjecucionLog : Entity

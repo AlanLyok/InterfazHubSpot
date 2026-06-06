@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Google.Authenticator;
-using BatchSpertaAPI.Entities;
-using BatchSpertaAPI.Interfaces;
-using BatchSpertaAPI.Mapping.Context;
+using InterfazHubSpot.Entities;
+using InterfazHubSpot.Interfaces;
+using InterfazHubSpot.Mapping.Context;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Interfaces;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Business
+namespace InterfazHubSpot.Business
 {
     public class UsuariosWebManager : IUsuariosWebManager
     {

@@ -7,7 +7,7 @@
 
 ### Base de Datos (SQL)
 
-- [ ] **SQL-01**: Verificar estructura de `dbo.ProcesosSpertaAPI` y `dbo.IntegracionEjecucionLog`
+- [ ] **SQL-01**: Verificar estructura de `dbo.ProcesosSpertaHubSpot` y `dbo.IntegracionEjecucionLog`
 - [ ] **SQL-02**: Implementar `USER_POS_Clientes_Agregar` con deduplicación de filas Pendiente
 - [ ] **SQL-03**: Implementar `USER_HS_Cliente_ObtenerDatos` con todos los campos del PRD
 - [ ] **SQL-04**: Implementar `USER_HS_ClienteContactos_Buscar`

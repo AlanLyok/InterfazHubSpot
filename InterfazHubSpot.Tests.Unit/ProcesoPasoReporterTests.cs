@@ -1,7 +1,7 @@
-using BatchSpertaAPI.Business.Diagnostics;
+using InterfazHubSpot.Business.Diagnostics;
 using Xunit;
 
-namespace BatchSpertaAPI.Tests.Unit
+namespace InterfazHubSpot.Tests.Unit
 {
     public sealed class ProcesoPasoReporterTests
     {

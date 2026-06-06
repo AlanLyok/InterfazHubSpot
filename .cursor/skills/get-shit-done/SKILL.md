@@ -5,6 +5,12 @@ description: Structured spec-driven workflow for planning and executing software
 
 # Get Shit Done (GSD) Skill for Claude Code
 
+## Contexto InterfazHubSpot (este repo)
+
+- Solución: `InterfazHubSpot.sln`
+- Build/test/verify: `InterfazHubSpot/Scripts/agent/*.ps1` (ver `AGENTS.md`)
+- Tabla cola: `ProcesosSpertaHubSpot`
+
 ## Contexto repos SpertaAPI (bases de datos)
 
 Si el proyecto activo incluye **`AGENTS.md`** de SpertaAPI y el MCP **`mssql-spertaapi-dev`** está configurado en Cursor, los planes y la verificación pueden apoyarse en exploración **`execute_sql`** según **`docs/reference/mcp-mssql-spertaapi-dev.md`** y **`.cursor/skills/mssql-mcp-desarrollo/SKILL.md`**, siempre manteniendo la fuente canónica en scripts y migraciones versionados.

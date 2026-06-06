@@ -1,10 +1,10 @@
 using System;
-using BatchSpertaAPI.Entities;
-using BatchSpertaAPI.Mapping.Context;
+using InterfazHubSpot.Entities;
+using InterfazHubSpot.Mapping.Context;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Business.Managers
+namespace InterfazHubSpot.Business.Managers
 {
     public sealed class IntegracionEjecucionLogManager
     {

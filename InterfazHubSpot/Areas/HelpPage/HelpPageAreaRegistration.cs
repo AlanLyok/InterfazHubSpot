@@ -1,7 +1,7 @@
 using System.Web.Http;
 using System.Web.Mvc;
 
-namespace ServiciosApi.Areas.HelpPage
+namespace InterfazHubSpot.Areas.HelpPage
 {
     public class HelpPageAreaRegistration : AreaRegistration
     {

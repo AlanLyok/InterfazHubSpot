@@ -1,6 +1,6 @@
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Interfaces
+namespace InterfazHubSpot.Interfaces
 {
     public interface IMSContextProvider
     {

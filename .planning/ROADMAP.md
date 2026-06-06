@@ -32,9 +32,9 @@
 
 **Deliverables:**
 - `sql/001`..`008` según PRD §13
-- `BatchSpertaAPI.Interfaces/ISqlDataAccess.cs`
-- `BatchSpertaAPI.Business/SqlDataAccess.cs`
-- DTOs en `BatchSpertaAPI.Entities`
+- `InterfazHubSpot.Interfaces/ISqlDataAccess.cs`
+- `InterfazHubSpot.Business/SqlDataAccess.cs`
+- DTOs en `InterfazHubSpot.Entities`
 
 **UI hint:** no
 
@@ -107,7 +107,7 @@
 **Success Criteria:**
 1. Cuatro botones MVC del PRD §9 operativos con trazas
 2. Cero referencias a `HttpSpertaApiClient` en código HubSpot
-3. `dotnet test` / script `Run-Tests-BatchSpertaAPI.ps1` pasa
+3. `dotnet test` / script `Run-Tests-InterfazHubSpot.ps1` pasa
 4. Web.config listo para deploy (mock=false, emails, HubSpot keys documentadas)
 5. README actualizado reflejando arquitectura SQL directa
 

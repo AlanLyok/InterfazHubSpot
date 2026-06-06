@@ -3,12 +3,12 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http.Filters;
-using BatchSpertaAPI.Business;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Business;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Filters
+namespace InterfazHubSpot.Filters
 {
     public class CustomWebApiExceptionHandlerAttribute : ExceptionFilterAttribute
     {
@@ -16,7 +16,7 @@ namespace BatchSpertaAPI.Filters
         //  Constantes Privadas
         //--------------------------------------------------
 
-        private const string DefaultCNPrefix = "BatchSpertaAPI";
+        private const string DefaultCNPrefix = "InterfazHubSpot";
 
         //--------------------------------------------------
         //  Metodos Publicos

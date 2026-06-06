@@ -5,7 +5,7 @@ using System.Text;
 
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Business
+namespace InterfazHubSpot.Business
 {
     public class MSSecurity
     {

@@ -1,4 +1,4 @@
-# AGENTS.md — Integración HubSpot BatchSpertaAPI
+# AGENTS.md — Integración HubSpot InterfazHubSpot
 
 Guía para agentes AI (Cursor) trabajando en este repositorio.
 
@@ -13,13 +13,25 @@ Guía para agentes AI (Cursor) trabajando en este repositorio.
 | Componente | Tecnología |
 |------------|------------|
 | Framework | **.NET Framework 4.5.2** (NO .NET 8) |
-| Web | ASP.NET MVC |
-| Batch | `BatchSpertaAPI.BatchProcess` / IScheduler |
-| Datos HubSpot | SQL Server — **solo stored procedures** |
+| Web | ASP.NET MVC (`InterfazHubSpot/`) |
+| Batch | `InterfazHubSpot.BatchProcess` / IScheduler |
+| HubSpot runners | `InterfazHubSpot.Business/HubSpot/` |
+| Datos cola | SQL Server — tabla `dbo.ProcesosSpertaHubSpot` |
 | API externa | HubSpot CRM v3 — Private App Token |
-| Tests | xUnit (`BatchSpertaAPI.Tests.Unit`, `IntegrationTests`) |
+| Tests | xUnit (`InterfazHubSpot.Tests.Unit`, `InterfazHubSpot.IntegrationTests`) |
 
 > El skill `.cursor/skills/dotnet-best-practices` describe **OrdenTrabajoApi (.NET 8)**. No aplicar esos patrones aquí salvo migración futura explícita.
+
+## Comandos canónicos
+
+| Acción | Comando |
+|--------|---------|
+| Build completo | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1` |
+| Solo librerías | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly` |
+| Tests | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1` |
+| Verificar todo | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1` |
+
+Variables MSBuild: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
 
 ## Skills a usar
 
@@ -27,40 +39,34 @@ Guía para agentes AI (Cursor) trabajando en este repositorio.
 |-------|--------|
 | `.cursor/skills/get-shit-done` | Planificación, fases, ejecución GSD |
 | `.cursor/skills/documentation-writer` | Documentación técnica |
-| `.cursor/skills/cursor-best-practices` | Workflow Cursor |
+| `.cursor/rules/interfaz-hubspot.mdc` | Nombres y comandos obligatorios |
 | `systematic-debugging` | Bugs y fallos de jobs |
 | `verification-before-completion` | Antes de declarar fase completa |
 
-## Workflow GSD
-
-1. Leer `.planning/STATE.md` y fase actual en `ROADMAP.md`
-2. `/gsd-discuss-phase N` → `/gsd-plan-phase N` → `/gsd-execute-phase N`
-3. Verificar con tests: `pwsh -NoProfile -File .\scripts\Run-Tests-BatchSpertaAPI.ps1`
-4. Build: `pwsh -NoProfile -File .\scripts\Build-BatchSpertaAPI.ps1 -LibrariesOnly`
-
 ## Reglas críticas
 
-- **Nunca** versionar `HubSpot:PrivateAppToken` en Web.config
-- **No** usar `HttpSpertaApiClient` en código nuevo HubSpot — usar `ISqlDataAccess`
+- **Nunca** versionar `HubSpot:PrivateAppToken` en Web.config (usar `Web.config.example`)
 - Errores cola 2A: marcar `Error`, **no reintentar** automáticamente
 - Rate limit HubSpot: delay 120ms; backoff 429 (máx. 3); detener en 401
-- Confirmar con Calzetta los 3 puntos abiertos del PRD §14 antes de cerrar SPs
+- **Gate WinForms** antes de `sp_rename` tabla en BD: desplegar `sql/002` y verificar SP activo (PRD §5.1)
+- Convención bloqueada: `InterfazHubSpot`, `ProcesosSpertaHubSpot`, `HubSpot` (S mayúscula)
 
 ## Estructura clave
 
 ```
-BatchSpertaAPI.sln
-├── InterfazHubSpot/          # Runners 2A y 2B
-├── BatchSpertaAPI.Business/  # SqlDataAccess, EmailsManager
-├── BatchSpertaAPI.BatchProcess/  # Jobs scheduler
-├── sql/                      # Scripts SP (crear según PRD)
+InterfazHubSpot.sln
+├── InterfazHubSpot/                  # MVC
+├── InterfazHubSpot.Business/HubSpot/ # Runners 2A y 2B
+├── InterfazHubSpot.BatchProcess/     # Jobs scheduler
+├── sql/                              # Migración cola + USER_POS
+├── InterfazHubSpot/Scripts/agent/    # Build, Test, Verify PS1
 └── docs/PRD_Integracion_HubSpot_2A_2B.md
 ```
 
 ## MCP SQL (desarrollo)
 
-Servidores MCP disponibles: `user-mssql-mcp-msgestion`, `user-mssql-mcp-msfwk`, `user-mssql-mcp-msordentrabajo`. Usar para validar tablas y probar SPs en desarrollo.
+Servidores MCP: `user-mssql-mcp-msgestion`, `user-mssql-mcp-msfwk`, `user-mssql-mcp-msordentrabajo`.
 
 ## Fase actual
 
-**Phase 1: SQL y capa de datos** — Ver `.planning/ROADMAP.md`
+Ver `.planning/ROADMAP.md` y `.planning/STATE.md`.

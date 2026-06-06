@@ -1,7 +1,7 @@
 using System.Data.Entity.ModelConfiguration;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Entities;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
     public class EmpresasMap : EntityTypeConfiguration<Empresas>
     {

@@ -8,10 +8,10 @@
 ERP WinForms
     │ USER_POS_Clientes_Agregar
     ▼
-dbo.ProcesosSpertaAPI (cola)
+dbo.ProcesosSpertaHubSpot (cola)
     │
     ▼
-BatchSpertaAPI.BatchProcess (IScheduler)
+InterfazHubSpot.BatchProcess (IScheduler)
     │ ProcesarColaHubSpotJob (2A, cada 5 min)
     │ HubSpotSincronizarCuentaCorrienteJob (2B, diario 3AM)
     ▼
@@ -21,10 +21,10 @@ InterfazHubSpot (runners 2A / 2B)
     └── HubSpotClient ──► HubSpot CRM v3 API
               │
               ▼
-BatchSpertaAPI.Business (EmailsManager, managers)
-BatchSpertaAPI.Entities (DTOs)
-BatchSpertaAPI.Interfaces (IHubSpotClient, ISqlDataAccess)
-BatchSpertaAPI (MVC consola manual)
+InterfazHubSpot.Business (EmailsManager, managers)
+InterfazHubSpot.Entities (DTOs)
+InterfazHubSpot.Interfaces (IHubSpotClient, ISqlDataAccess)
+InterfazHubSpot (MVC consola manual)
 ```
 
 ## Flujo de datos 2A

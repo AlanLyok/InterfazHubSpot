@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Mastersoft.Framework.Business;
 
-namespace BatchSpertaAPI.Security
+namespace InterfazHubSpot.Security
 {
     /// <summary>
     /// Autentica usuarios contra dbo.Usuarios de la base MSFwk (misma lógica que SpertaAPI).

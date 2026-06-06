@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
     public class DatosIniAbmEmpresas
     {

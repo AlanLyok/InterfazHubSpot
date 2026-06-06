@@ -1,7 +1,7 @@
-using BatchSpertaAPI.Business.Integration;
+using InterfazHubSpot.Business.Integration;
 using Xunit;
 
-namespace BatchSpertaAPI.Tests.Unit
+namespace InterfazHubSpot.Tests.Unit
 {
     public sealed class IntegracionColaEstadosTests
     {

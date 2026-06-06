@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Versión limpia de **BatchSpertaAPI** para Calzetta que sincroniza datos del ERP Mastersoft hacia **HubSpot CRM** mediante dos flujos batch: **2A** (clientes y contactos en tiempo casi real vía cola) y **2B** (cuenta corriente diaria). Reemplaza las lecturas vía SpertaAPI por **stored procedures directos** a SQL Server y conserva la consola web MVC para operación manual y soporte.
+Versión limpia de **InterfazHubSpot** para Calzetta que sincroniza datos del ERP Mastersoft hacia **HubSpot CRM** mediante dos flujos batch: **2A** (clientes y contactos en tiempo casi real vía cola) y **2B** (cuenta corriente diaria). Reemplaza las lecturas vía SpertaAPI por **stored procedures directos** a SQL Server y conserva la consola web MVC para operación manual y soporte.
 
 **Ticket:** #116367 · **Cliente:** Calzetta · **PRD:** `docs/PRD_Integracion_HubSpot_2A_2B.md`
 
@@ -14,8 +14,8 @@ Cuando un cliente se crea o modifica en el ERP, su compañía y contactos deben 
 
 ### Validated
 
-- ✓ Solución `BatchSpertaAPI.sln` con proyectos MVC, Business, Entities, Interfaces, BatchProcess e `InterfazHubSpot` — existente
-- ✓ Tablas `dbo.ProcesosSpertaAPI` y `dbo.IntegracionEjecucionLog` — existentes (verificar estructura)
+- ✓ Solución `InterfazHubSpot.sln` con proyectos MVC, Business, Entities, Interfaces, BatchProcess e `InterfazHubSpot` — existente
+- ✓ Tablas `dbo.ProcesosSpertaHubSpot` y `dbo.IntegracionEjecucionLog` — existentes (verificar estructura)
 - ✓ `IScheduler` con jobs HubSpot (`ProcesarColaIntegracionesHubSpotJob`, `HubSpotSincronizarCuentaCorrienteJob`) — existente
 - ✓ Consola MVC con botones de prueba HubSpot en Home — existente
 - ✓ `EmailsManager` para notificaciones de error — existente

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace BatchSpertaAPI.Interfaces.Managers
+namespace InterfazHubSpot.Interfaces.Managers
 {
     public interface IEmailsManager
     {

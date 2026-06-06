@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BatchSpertaAPI.Business.Modulos
+namespace InterfazHubSpot.Business.Modulos
 {
     public class LoginRequest
     {

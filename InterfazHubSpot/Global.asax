@@ -1,3 +1,3 @@
-<%@ Application Codebehind="Global.asax.cs" Inherits="BatchSpertaAPI.MvcApplication" Language="C#" %>
+<%@ Application Codebehind="Global.asax.cs" Inherits="InterfazHubSpot.MvcApplication" Language="C#" %>
 
 

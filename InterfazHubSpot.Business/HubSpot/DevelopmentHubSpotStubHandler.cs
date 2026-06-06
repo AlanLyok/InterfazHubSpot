@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace InterfazHubSpot
+namespace InterfazHubSpot.Business.HubSpot
 {
     /// <summary>Intercepta llamadas CRM v3 y devuelve JSON mínimo para desarrollo (sin HubSpot real).</summary>
     internal sealed class DevelopmentHubSpotStubHandler : HttpMessageHandler

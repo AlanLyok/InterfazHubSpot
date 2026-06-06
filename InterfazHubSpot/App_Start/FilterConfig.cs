@@ -1,9 +1,9 @@
 using System.Web;
 using System.Web.Mvc;
 
-using BatchSpertaAPI.Filters;
+using InterfazHubSpot.Filters;
 
-namespace BatchSpertaAPI
+namespace InterfazHubSpot
 {
     public class FilterConfig
     {

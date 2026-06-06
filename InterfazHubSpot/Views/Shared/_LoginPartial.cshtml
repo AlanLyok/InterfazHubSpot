@@ -1,7 +1,7 @@
 @using Microsoft.AspNet.Identity
 @if (Request.IsAuthenticated)
 {
-    var currentMSContext = BatchSpertaAPI.Core.Util.GetMSContext();
+    var currentMSContext = InterfazHubSpot.Core.Util.GetMSContext();
 
     var currentIniciales = currentMSContext.Iniciales;
  

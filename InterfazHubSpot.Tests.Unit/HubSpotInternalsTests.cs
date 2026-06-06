@@ -3,10 +3,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using InterfazHubSpot;
+using InterfazHubSpot.Business.HubSpot;
 using Xunit;
 
-namespace BatchSpertaAPI.Tests.Unit
+namespace InterfazHubSpot.Tests.Unit
 {
     public sealed class HubSpotInternalsTests
     {

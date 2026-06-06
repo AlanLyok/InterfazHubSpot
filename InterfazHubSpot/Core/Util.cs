@@ -12,11 +12,11 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using System.Xml;
-using BatchSpertaAPI.Business;
+using InterfazHubSpot.Business;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Core
+namespace InterfazHubSpot.Core
 {
     public static class Util
     {
@@ -24,7 +24,7 @@ namespace BatchSpertaAPI.Core
         //  Constantes Privadas
         //--------------------------------------------------
 
-        private const string DefaultCNPrefix = "BatchSpertaAPI";
+        private const string DefaultCNPrefix = "InterfazHubSpot";
 
         //------------------------------------------------------------------------------------------------
         //  ObjectState

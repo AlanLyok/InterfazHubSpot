@@ -1,10 +1,10 @@
 using System;
 using System.Web.Http;
 using System.Web.Mvc;
-using ServiciosApi.Areas.HelpPage.ModelDescriptions;
-using ServiciosApi.Areas.HelpPage.Models;
+using InterfazHubSpot.Areas.HelpPage.ModelDescriptions;
+using InterfazHubSpot.Areas.HelpPage.Models;
 
-namespace ServiciosApi.Areas.HelpPage.Controllers
+namespace InterfazHubSpot.Areas.HelpPage.Controllers
 {
     /// <summary>
     /// The controller that will handle requests for the help page.

@@ -1,5 +1,5 @@
 # PRD — Integración HubSpot · Flujos 2A y 2B
-**Proyecto:** BatchSpertaAPI (limpio) — Solo HubSpot + SQL  
+**Proyecto:** InterfazHubSpot (limpio) — Solo HubSpot + SQL  
 **Ticket:** #116367  
 **Cliente:** Calzetta  
 **Versión:** 1.0  
@@ -9,7 +9,7 @@
 
 ## 1. Contexto y Objetivo
 
-Desarrollar, sobre la estructura existente de `BatchSpertaAPI`, una versión limpia que implemente exclusivamente los dos flujos de sincronización de Mastersoft ERP hacia HubSpot CRM. Se elimina toda dependencia de otras APIs (SpertaAPI, Mercado Libre, MKP, APPro) y se reemplaza por consultas directas a SQL Server mediante stored procedures.
+Desarrollar, sobre la estructura existente de `InterfazHubSpot`, una versión limpia que implemente exclusivamente los dos flujos de sincronización de Mastersoft ERP hacia HubSpot CRM. Se elimina toda dependencia de otras APIs (SpertaAPI, Mercado Libre, MKP, APPro) y se reemplaza por consultas directas a SQL Server mediante stored procedures.
 
 **Flujo 2A** — Cuando se crea o modifica un cliente en el ERP (WinForms), sincronizar la Compañía y sus Contactos en HubSpot.
 
@@ -22,7 +22,7 @@ Desarrollar, sobre la estructura existente de `BatchSpertaAPI`, una versión lim
 | Componente | Decisión |
 |---|---|
 | Framework | .NET Framework 4.5.2 (igual al proyecto existente) |
-| Scheduler | `IScheduler` (Quartz.NET o similar, ya presente en BatchSpertaAPI) |
+| Scheduler | `IScheduler` (Quartz.NET o similar, ya presente en InterfazHubSpot) |
 | Web dev console | ASP.NET MVC — login + botones manuales en Home |
 | Datos | SQL Server — acceso exclusivo por Stored Procedures |
 | API externa | HubSpot CRM v3 — autenticación con Private App Token |
@@ -48,12 +48,12 @@ El token se configura en `Web.config` bajo la clave `HubSpot:PrivateAppToken`. *
 ## 4. Estructura del Proyecto (limpio)
 
 ```
-BatchSpertaAPI.sln
-├── BatchSpertaAPI/                  # MVC — consola web (login + Home con botones)
-├── BatchSpertaAPI.Business/         # Managers + HubSpotClient + SqlDataAccess + EmailsManager
-├── BatchSpertaAPI.Entities/         # DTOs: ClienteHS, ContactoHS, CuentaCorrienteHS
-├── BatchSpertaAPI.Interfaces/       # IHubSpotClient, ISqlDataAccess
-├── BatchSpertaAPI.BatchProcess/     # IScheduler — jobs 2A y 2B
+InterfazHubSpot.sln
+├── InterfazHubSpot/                  # MVC — consola web (login + Home con botones)
+├── InterfazHubSpot.Business/         # Managers + HubSpotClient + SqlDataAccess + EmailsManager
+├── InterfazHubSpot.Entities/         # DTOs: ClienteHS, ContactoHS, CuentaCorrienteHS
+├── InterfazHubSpot.Interfaces/       # IHubSpotClient, ISqlDataAccess
+├── InterfazHubSpot.BatchProcess/     # IScheduler — jobs 2A y 2B
 ├── InterfazHubSpot/                 # Lógica de negocio HubSpot (runners 2A y 2B)
 └── sql/                             # Scripts SQL (tablas + stored procedures)
 ```
@@ -65,13 +65,13 @@ Se conserva: `EmailsManager` (notificaciones de error en ambos flujos).
 
 ## 5. Base de Datos
 
-### 5.1 Tabla `dbo.ProcesosSpertaAPI` (ya existente)
+### 5.1 Tabla `dbo.ProcesosSpertaHubSpot` (ya existente)
 
 Cola de trabajo. El ERP inserta filas; el batch las consume.
 
 ```sql
 -- Estructura relevante (ya existe, no recrear)
-CREATE TABLE dbo.ProcesosSpertaAPI (
+CREATE TABLE dbo.ProcesosSpertaHubSpot (
     Id            INT IDENTITY PRIMARY KEY,
     Destino       VARCHAR(50)   NOT NULL,  -- 'HubSpot'
     Identificador VARCHAR(100)  NOT NULL,  -- ClienteId (como string)
@@ -110,13 +110,13 @@ Se ejecuta desde el ERP WinForms cada vez que se crea o modifica un cliente. Ins
 **Lógica:**
 ```sql
 IF NOT EXISTS (
-    SELECT 1 FROM dbo.ProcesosSpertaAPI
+    SELECT 1 FROM dbo.ProcesosSpertaHubSpot
     WHERE Destino = 'HubSpot'
       AND Identificador = CAST(@ClienteId AS VARCHAR)
       AND Estado = 'Pendiente'
 )
 BEGIN
-    INSERT INTO dbo.ProcesosSpertaAPI (Destino, Identificador, Estado, FechaAlta)
+    INSERT INTO dbo.ProcesosSpertaHubSpot (Destino, Identificador, Estado, FechaAlta)
     VALUES ('HubSpot', CAST(@ClienteId AS VARCHAR), 'Pendiente', GETDATE())
 END
 ```
@@ -219,7 +219,7 @@ Persiste el `HubSpotCompanyId` devuelto por HubSpot en la tabla de clientes de M
 
 ### 6.1 Trigger
 
-El ERP WinForms llama a `USER_POS_Clientes_Agregar @ClienteId` tras crear o modificar un cliente. Esto inserta una fila `Pendiente` en `dbo.ProcesosSpertaAPI`.
+El ERP WinForms llama a `USER_POS_Clientes_Agregar @ClienteId` tras crear o modificar un cliente. Esto inserta una fila `Pendiente` en `dbo.ProcesosSpertaHubSpot`.
 
 ### 6.2 Job: `ProcesarColaHubSpotJob`
 
@@ -227,7 +227,7 @@ El ERP WinForms llama a `USER_POS_Clientes_Agregar @ClienteId` tras crear o modi
 
 **Paso a paso:**
 
-1. Consultar `dbo.ProcesosSpertaAPI` WHERE `Destino='HubSpot'` AND `Estado='Pendiente'` ORDER BY `FechaAlta ASC`. Tomar hasta N registros por ciclo (configurable, default 50).
+1. Consultar `dbo.ProcesosSpertaHubSpot` WHERE `Destino='HubSpot'` AND `Estado='Pendiente'` ORDER BY `FechaAlta ASC`. Tomar hasta N registros por ciclo (configurable, default 50).
 
 2. Para cada fila:
    a. Marcar `Estado='EnProceso'` via `USER_HS_Cola_ActualizarEstado`.
@@ -319,12 +319,12 @@ Las claves ya existentes en el proyecto se conservan tal cual. A continuación e
 ```xml
 <appSettings>
   <!-- App -->
-  <add key="Title"                          value="BatchSpertaAPI" />
+  <add key="Title"                          value="InterfazHubSpot" />
   <add key="TenantId"                       value="MS" />
   <add key="EmpresaId"                      value="1" />
   <add key="EnableErrorLogInDataBase"       value="true" />
-  <add key="ErrorLogConnectionName"         value="BatchSpertaAPI" />
-  <add key="PathLog"                        value="C:\...\BatchSpertaAPI.txt" />
+  <add key="ErrorLogConnectionName"         value="InterfazHubSpot" />
+  <add key="PathLog"                        value="C:\...\InterfazHubSpot.txt" />
 
   <!-- Email (ya configurado) -->
   <add key="smtpserver"                     value="smtp.office365.com" />
@@ -482,7 +482,7 @@ public class CuentaCorrienteItemDto {
 
 | Archivo | Descripción |
 |---|---|
-| `sql/001_ProcesosSpertaAPI.sql` | Creación tabla cola (ya existe, verificar estructura) |
+| `sql/001_ProcesosSpertaHubSpot.sql` | Creación tabla cola (ya existe, verificar estructura) |
 | `sql/002_IntegracionEjecucionLog.sql` | Creación tabla log (ya existe, verificar) |
 | `sql/003_USER_POS_Clientes_Agregar.sql` | SP post-grabación WinForms |
 | `sql/004_USER_HS_Cliente_ObtenerDatos.sql` | SP datos compañía |
@@ -490,6 +490,31 @@ public class CuentaCorrienteItemDto {
 | `sql/006_USER_HS_CuentaCorriente_ObtenerTodos.sql` | SP cuenta corriente todos los clientes |
 | `sql/007_USER_HS_Cola_ActualizarEstado.sql` | SP actualizar estado cola |
 | `sql/008_USER_HS_Cliente_GuardarHubSpotId.sql` | SP persistir HubSpotCompanyId en Mastersoft |
+
+---
+
+## 15. Convenciones de nombres y tooling para agentes
+
+| Tema | Convención |
+|------|------------|
+| Solución | `InterfazHubSpot.sln` — 8 proyectos, sin proyecto conector suelto |
+| Runners HubSpot | `InterfazHubSpot.Business/HubSpot/` → namespace `InterfazHubSpot.Business.HubSpot` |
+| Tabla cola | `dbo.ProcesosSpertaHubSpot` (EF `ToTable`, SP `USER_POS_Clientes_Agregar`) |
+| Prohibido | nombres legacy de solución/tabla/cola y variante HubSpot con s minúscula (ver regla Cursor) |
+
+### Scripts canónicos (`InterfazHubSpot/Scripts/agent/`)
+
+| Script | Uso |
+|--------|-----|
+| `Build-InterfazHubSpot.ps1` | `nuget restore` + MSBuild; `-LibrariesOnly` omite sitio MVC |
+| `Test-InterfazHubSpot.ps1` | `dotnet test` en Tests.Unit + IntegrationTests; excluye `Category=Live` |
+| `Verify-InterfazHubSpot.ps1` | Build + Test + grep legacy → 0 hits en `.cs`, `.sql`, `.md` |
+
+### Gate WinForms (deploy BD)
+
+Antes de `sp_rename` / migración `sql/001`: desplegar `sql/002_USER_POS_Clientes_Agregar.sql`, verificar SP activo en WinForms Calzetta, coordinar ventana de mantenimiento. Ver §5.1 y comentarios en `sql/001`.
+
+Reglas Cursor: `.cursor/rules/interfaz-hubspot.mdc` (always-on). Comandos resumidos en `AGENTS.md`.
 
 ---
 

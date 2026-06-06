@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
     public class IntegracionEjecucionLogMap : EntityTypeConfiguration<IntegracionEjecucionLog>
     {

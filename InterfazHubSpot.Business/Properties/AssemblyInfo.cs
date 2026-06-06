@@ -5,16 +5,16 @@ using System.Runtime.InteropServices;
 // La información general de un ensamblado se controla mediante el siguiente 
 // conjunto de atributos. Cambie estos valores de atributo para modificar la información
 // asociada con un ensamblado.
-[assembly: AssemblyTitle("BatchSpertaAPI.Business")]
+[assembly: AssemblyTitle("InterfazHubSpot.Business")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("BatchSpertaAPI.Business")]
+[assembly: AssemblyProduct("InterfazHubSpot.Business")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: InternalsVisibleTo("BatchSpertaAPI.IntegrationTests")]
-[assembly: InternalsVisibleTo("BatchSpertaAPI.Tests.Unit")]
+[assembly: InternalsVisibleTo("InterfazHubSpot.IntegrationTests")]
+[assembly: InternalsVisibleTo("InterfazHubSpot.Tests.Unit")]
 
 // Si establece ComVisible en false, los tipos de este ensamblado no estarán visibles 
 // para los componentes COM.  Si necesita obtener acceso a un tipo de este ensamblado desde 

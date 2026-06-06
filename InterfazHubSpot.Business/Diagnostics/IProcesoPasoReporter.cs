@@ -1,4 +1,4 @@
-namespace BatchSpertaAPI.Business.Diagnostics
+namespace InterfazHubSpot.Business.Diagnostics
 {
     /// <summary>Recibe pasos neutros durante la ejecución de un proceso (cola / integraciones / batch).</summary>
     public interface IProcesoPasoReporter

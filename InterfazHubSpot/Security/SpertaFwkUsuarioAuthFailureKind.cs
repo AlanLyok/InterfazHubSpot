@@ -1,4 +1,4 @@
-namespace BatchSpertaAPI.Security
+namespace InterfazHubSpot.Security
 {
     public enum SpertaFwkUsuarioAuthFailureKind
     {

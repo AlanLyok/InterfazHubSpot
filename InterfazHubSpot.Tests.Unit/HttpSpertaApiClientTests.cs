@@ -3,10 +3,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using BatchSpertaAPI.Business.Integration;
+using InterfazHubSpot.Business.Integration;
 using Xunit;
 
-namespace BatchSpertaAPI.Tests.Unit
+namespace InterfazHubSpot.Tests.Unit
 {
     public sealed class HttpSpertaApiClientTests
     {

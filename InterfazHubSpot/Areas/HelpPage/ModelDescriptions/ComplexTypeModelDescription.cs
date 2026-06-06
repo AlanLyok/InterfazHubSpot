@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace ServiciosApi.Areas.HelpPage.ModelDescriptions
+namespace InterfazHubSpot.Areas.HelpPage.ModelDescriptions
 {
     public class ComplexTypeModelDescription : ModelDescription
     {

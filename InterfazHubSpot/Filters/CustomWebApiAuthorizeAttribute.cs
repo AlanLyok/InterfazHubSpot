@@ -5,10 +5,10 @@ using System.Security.Claims;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using BatchSpertaAPI.Core;
+using InterfazHubSpot.Core;
 using Mastersoft.Framework.WebRenderMvc.HtmlHelpers;
 
-namespace BatchSpertaAPI.Filters
+namespace InterfazHubSpot.Filters
 {
     public class CustomWebApiAuthorizeAttribute : AuthorizeAttribute
     {

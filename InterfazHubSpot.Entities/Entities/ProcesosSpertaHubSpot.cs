@@ -3,10 +3,10 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mastersoft.Framework.Interfaces;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
     /// <summary>Fila de cola outbox para integraciones (ERP → sistemas externos).</summary>
-    public partial class ProcesosSpertaApi : Entity
+    public partial class ProcesosSpertaHubSpot : Entity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long ProcesoId { get; set; }

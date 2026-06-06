@@ -5,10 +5,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
     public class DatosIniAbmUsuariosWeb
     {

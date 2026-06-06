@@ -1,10 +1,10 @@
 using System.Configuration;
 using System.Data.Entity;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Mapping.Context
+namespace InterfazHubSpot.Mapping.Context
 {
     public class MSGestionContext : DataContext
     {
@@ -19,7 +19,7 @@ namespace BatchSpertaAPI.Mapping.Context
 
         /// <summary>
         /// El método base <see cref="DataContext"/> espera una entrada en <c>connectionStrings</c>
-        /// derivada de <see cref="MSContext.CNPrefix"/> (p. ej. <c>BatchSpertaAPI_MSGestion</c>);
+        /// derivada de <see cref="MSContext.CNPrefix"/> (p. ej. <c>InterfazHubSpot_MSGestion</c>);
         /// este proyecto suele declarar solo <c>MSGestion</c>, igual que la Web API principal.
         /// </summary>
         private static string ResolveGestionConnectionString(MSContext oContexto)
@@ -43,7 +43,7 @@ namespace BatchSpertaAPI.Mapping.Context
                     ? "MSGestion"
                     : prefix + "_MSGestion, " + prefix + " o MSGestion";
                 throw new ConfigurationErrorsException(
-                    "Falta la cadena de conexión para Entity Framework (cola ProcesosSpertaAPI, errores, etc.). "
+                    "Falta la cadena de conexión para Entity Framework (cola ProcesosSpertaHubSpot, errores, etc.). "
                     + "Defina en Web.config una de: " + nombreAlternativo + ".");
             }
 
@@ -56,7 +56,7 @@ namespace BatchSpertaAPI.Mapping.Context
             modelBuilder.Configurations.Add(new ErroresMap());
             modelBuilder.Configurations.Add(new PerfilesWebMap());
             modelBuilder.Configurations.Add(new UsuariosWebMap());
-            modelBuilder.Configurations.Add(new ProcesosSpertaApiMap());
+            modelBuilder.Configurations.Add(new ProcesosSpertaHubSpotMap());
             modelBuilder.Configurations.Add(new IntegracionEjecucionLogMap());
         }
     }

@@ -1,16 +1,16 @@
 using System;
-using BatchSpertaAPI.BatchProcess;
-using BatchSpertaAPI.Business.Common;
-using BatchSpertaAPI.Business.Diagnostics;
+using InterfazHubSpot.BatchProcess;
+using InterfazHubSpot.Business.Common;
+using InterfazHubSpot.Business.Diagnostics;
 using System.Configuration;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using BatchSpertaAPI.Business.Integration;
-using BatchSpertaAPI.Business.Managers;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Business.Integration;
+using InterfazHubSpot.Business.Managers;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Controllers
+namespace InterfazHubSpot.Controllers
 {
     [AllowAnonymous]
     public class HomeController : Controller
@@ -139,7 +139,7 @@ namespace BatchSpertaAPI.Controllers
                     bdDatos);
 
                 var destino = IntegracionDestinos.HubSpot;
-                var mgr = new ProcesosSpertaApiManager(ctx);
+                var mgr = new ProcesosSpertaHubSpotManager(ctx);
                 var pendientes = mgr.ContarPendientes(destino);
                 var enProceso = mgr.ContarEnProceso(destino);
                 collector.RegistrarPaso(
@@ -228,7 +228,7 @@ namespace BatchSpertaAPI.Controllers
                 else
                 {
                     var destino = IntegracionDestinos.HubSpot;
-                    var mgr = new ProcesosSpertaApiManager(ctx);
+                    var mgr = new ProcesosSpertaHubSpotManager(ctx);
                     var muestra = mgr.ListarMuestraPendientes(destino, 1);
                     if (muestra == null || muestra.Count == 0)
                     {
@@ -243,7 +243,7 @@ namespace BatchSpertaAPI.Controllers
 
                     var fila = muestra[0];
                     string parseErr;
-                    if (!IntegracionColaIdentificador.TryGetClienteId(new ProcesosSpertaApi
+                    if (!IntegracionColaIdentificador.TryGetClienteId(new ProcesosSpertaHubSpot
                     {
                         TipoEntidad = fila.TipoEntidad,
                         Identificador = fila.Identificador,
@@ -297,7 +297,7 @@ namespace BatchSpertaAPI.Controllers
         {
             var context = new MSContext();
             var prefix = ConfigurationManager.AppSettings["FrameworkCNPrefix"];
-            context.CNPrefix = string.IsNullOrEmpty(prefix) ? "BatchSpertaAPI" : prefix;
+            context.CNPrefix = string.IsNullOrEmpty(prefix) ? "InterfazHubSpot" : prefix;
 
             int empresaIdValue;
             if (int.TryParse(ConfigurationManager.AppSettings["EmpresaId"], out empresaIdValue))

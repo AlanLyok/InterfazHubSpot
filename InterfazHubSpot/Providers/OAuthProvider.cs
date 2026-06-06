@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Xml;
-using BatchSpertaAPI.Core;
-using BatchSpertaAPI.Security;
+using InterfazHubSpot.Core;
+using InterfazHubSpot.Security;
 using Mastersoft.Framework.Standard;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OAuth;
 
-namespace BatchSpertaAPI.Providers
+namespace InterfazHubSpot.Providers
 {
     public class OAuthProvider : OAuthAuthorizationServerProvider
     {

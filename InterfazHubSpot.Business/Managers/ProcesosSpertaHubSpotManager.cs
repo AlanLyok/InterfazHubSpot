@@ -2,21 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-using BatchSpertaAPI.Business.Integration;
-using BatchSpertaAPI.Entities;
-using BatchSpertaAPI.Mapping.Context;
+using InterfazHubSpot.Business.Integration;
+using InterfazHubSpot.Entities;
+using InterfazHubSpot.Mapping.Context;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Interfaces;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Business.Managers
+namespace InterfazHubSpot.Business.Managers
 {
-    /// <summary>Lectura y actualización atómica de la cola <c>dbo.ProcesosSpertaAPI</c>.</summary>
-    public sealed class ProcesosSpertaApiManager
+    /// <summary>Lectura y actualización atómica de la cola <c>dbo.ProcesosSpertaHubSpot</c>.</summary>
+    public sealed class ProcesosSpertaHubSpotManager
     {
         private readonly MSContext _ctx;
 
-        public ProcesosSpertaApiManager(MSContext ctx)
+        public ProcesosSpertaHubSpotManager(MSContext ctx)
         {
             _ctx = ctx;
         }
@@ -30,7 +30,7 @@ namespace BatchSpertaAPI.Business.Managers
         public int ContarPendientes(string destino)
         {
             var uow = CreateUow();
-            var repo = uow.Repository<ProcesosSpertaApi>();
+            var repo = uow.Repository<ProcesosSpertaHubSpot>();
             return repo.Queryable().Count(x => x.Destino == destino && x.Estado == IntegracionColaEstados.Pendiente);
         }
 
@@ -38,7 +38,7 @@ namespace BatchSpertaAPI.Business.Managers
         public int ContarEnProceso(string destino)
         {
             var uow = CreateUow();
-            var repo = uow.Repository<ProcesosSpertaApi>();
+            var repo = uow.Repository<ProcesosSpertaHubSpot>();
             return repo.Queryable().Count(x => x.Destino == destino && x.Estado == IntegracionColaEstados.EnProceso);
         }
 
@@ -49,7 +49,7 @@ namespace BatchSpertaAPI.Business.Managers
                 return new List<ColaIntegracionPendienteMuestra>();
 
             var uow = CreateUow();
-            var repo = uow.Repository<ProcesosSpertaApi>();
+            var repo = uow.Repository<ProcesosSpertaHubSpot>();
             var lista = repo.Queryable()
                 .Where(x => x.Destino == destino && x.Estado == IntegracionColaEstados.Pendiente)
                 .OrderBy(x => x.FechaCreacionUtc)
@@ -59,7 +59,7 @@ namespace BatchSpertaAPI.Business.Managers
             return lista.ConvertAll(ProjectarMuestra);
         }
 
-        private static ColaIntegracionPendienteMuestra ProjectarMuestra(ProcesosSpertaApi x)
+        private static ColaIntegracionPendienteMuestra ProjectarMuestra(ProcesosSpertaHubSpot x)
         {
             return new ColaIntegracionPendienteMuestra
             {
@@ -76,10 +76,10 @@ namespace BatchSpertaAPI.Business.Managers
         }
 
         /// <summary>Toma hasta <paramref name="maxItems"/> filas pendientes y las marca en proceso (aislamiento serializable).</summary>
-        public IList<ProcesosSpertaApi> ReclamarPendientes(string destino, int maxItems)
+        public IList<ProcesosSpertaHubSpot> ReclamarPendientes(string destino, int maxItems)
         {
             if (maxItems <= 0)
-                return new List<ProcesosSpertaApi>();
+                return new List<ProcesosSpertaHubSpot>();
 
             using (var scope = new TransactionScope(
                        TransactionScopeOption.Required,
@@ -90,7 +90,7 @@ namespace BatchSpertaAPI.Business.Managers
                        }))
             {
                 var uow = CreateUow();
-                var repo = uow.Repository<ProcesosSpertaApi>();
+                var repo = uow.Repository<ProcesosSpertaHubSpot>();
                 var candidatos = repo.Queryable()
                     .Where(x => x.Destino == destino && x.Estado == IntegracionColaEstados.Pendiente)
                     .OrderBy(x => x.FechaCreacionUtc)
@@ -115,7 +115,7 @@ namespace BatchSpertaAPI.Business.Managers
         public void MarcarOk(long procesoId)
         {
             var uow = CreateUow();
-            var repo = uow.Repository<ProcesosSpertaApi>();
+            var repo = uow.Repository<ProcesosSpertaHubSpot>();
             var p = repo.Queryable().FirstOrDefault(x => x.ProcesoId == procesoId);
             if (p == null)
                 return;
@@ -129,7 +129,7 @@ namespace BatchSpertaAPI.Business.Managers
         public void MarcarError(long procesoId, string mensaje)
         {
             var uow = CreateUow();
-            var repo = uow.Repository<ProcesosSpertaApi>();
+            var repo = uow.Repository<ProcesosSpertaHubSpot>();
             var p = repo.Queryable().FirstOrDefault(x => x.ProcesoId == procesoId);
             if (p == null)
                 return;
@@ -144,7 +144,7 @@ namespace BatchSpertaAPI.Business.Managers
         public void ReponerEnCola(long procesoId)
         {
             var uow = CreateUow();
-            var repo = uow.Repository<ProcesosSpertaApi>();
+            var repo = uow.Repository<ProcesosSpertaHubSpot>();
             var p = repo.Queryable().FirstOrDefault(x => x.ProcesoId == procesoId);
             if (p == null)
                 return;
@@ -156,7 +156,7 @@ namespace BatchSpertaAPI.Business.Managers
         }
     }
 
-    /// <summary>Proyección segura para vistas de depuración sobre <see cref="ProcesosSpertaApi"/> pendiente.</summary>
+    /// <summary>Proyección segura para vistas de depuración sobre <see cref="ProcesosSpertaHubSpot"/> pendiente.</summary>
     public sealed class ColaIntegracionPendienteMuestra
     {
         public long ProcesoId { get; set; }

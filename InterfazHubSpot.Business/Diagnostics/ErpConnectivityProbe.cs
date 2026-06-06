@@ -1,10 +1,10 @@
 using System;
 using System.Data.Entity;
 using System.Data.SqlClient;
-using BatchSpertaAPI.Mapping.Context;
+using InterfazHubSpot.Mapping.Context;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Business.Diagnostics
+namespace InterfazHubSpot.Business.Diagnostics
 {
     /// <summary>Verifica lectura contra la base donde viven cola y errores ERP (MSGestion).</summary>
     public static class ErpConnectivityProbe

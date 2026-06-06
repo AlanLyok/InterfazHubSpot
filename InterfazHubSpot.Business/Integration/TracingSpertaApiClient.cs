@@ -3,10 +3,10 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
-using BatchSpertaAPI.Business.Diagnostics;
+using InterfazHubSpot.Business.Diagnostics;
 using Newtonsoft.Json.Linq;
 
-namespace BatchSpertaAPI.Business.Integration
+namespace InterfazHubSpot.Business.Integration
 {
     /// <summary>
     /// Decora un <see cref="ISpertaApiClient"/> con pasos neutros sobre llamadas seleccionadas (GET integraciones cliente / cuenta corriente).

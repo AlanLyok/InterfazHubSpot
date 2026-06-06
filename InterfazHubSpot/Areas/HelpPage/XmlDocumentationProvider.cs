@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
 using System.Xml.XPath;
-using ServiciosApi.Areas.HelpPage.ModelDescriptions;
+using InterfazHubSpot.Areas.HelpPage.ModelDescriptions;
 
-namespace ServiciosApi.Areas.HelpPage
+namespace InterfazHubSpot.Areas.HelpPage
 {
     /// <summary>
     /// A custom <see cref="IDocumentationProvider"/> that reads the API documentation from an XML documentation file.

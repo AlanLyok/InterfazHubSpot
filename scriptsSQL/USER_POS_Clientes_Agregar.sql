@@ -25,7 +25,7 @@ BEGIN
     SET NOCOUNT ON;
 
 
-    INSERT INTO dbo.ProcesosSpertaAPI (
+    INSERT INTO dbo.ProcesosSpertaHubSpot (
         TenantId,
         EmpresaId,
         Destino,

@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace ServiciosApi.Areas.HelpPage.ModelDescriptions
+namespace InterfazHubSpot.Areas.HelpPage.ModelDescriptions
 {
     public interface IModelDocumentationProvider
     {

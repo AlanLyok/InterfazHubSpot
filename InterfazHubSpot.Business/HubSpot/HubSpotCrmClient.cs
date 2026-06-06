@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace InterfazHubSpot
+namespace InterfazHubSpot.Business.HubSpot
 {
     internal sealed class HubSpotConfiguration
     {

@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.Interfaces;
 
-namespace BatchSpertaAPI.Business
+namespace InterfazHubSpot.Business
 {
     public class CombosQueries
     {

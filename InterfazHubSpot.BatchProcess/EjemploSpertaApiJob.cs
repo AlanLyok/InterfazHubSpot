@@ -1,14 +1,14 @@
 using System;
 using System.Xml;
-using BatchSpertaAPI.Business;
-using BatchSpertaAPI.Business.Common;
-using BatchSpertaAPI.Business.Integration;
-using BatchSpertaAPI.Business.Managers;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Business;
+using InterfazHubSpot.Business.Common;
+using InterfazHubSpot.Business.Integration;
+using InterfazHubSpot.Business.Managers;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.Standard;
 using Mastersoft.Scheduler452.Intefaces;
 
-namespace BatchSpertaAPI.BatchProcess
+namespace InterfazHubSpot.BatchProcess
 {
     /// <summary>Proceso plantilla: llama a <c>GET api/v100/health</c> y registra el resultado (extender con llamadas reales a la API).</summary>
     public sealed class EjemploSpertaApiJob : IScheduler

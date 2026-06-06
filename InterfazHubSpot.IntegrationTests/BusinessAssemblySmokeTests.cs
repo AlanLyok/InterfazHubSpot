@@ -1,7 +1,7 @@
-using BatchSpertaAPI.Business;
+using InterfazHubSpot.Business;
 using Xunit;
 
-namespace BatchSpertaAPI.IntegrationTests
+namespace InterfazHubSpot.IntegrationTests
 {
     /// <summary>Humo mínimo: referencia compilada contra Business sin BD/API (pruebas "Live" usarán Trait Category=Live).</summary>
     public sealed class BusinessAssemblySmokeTests

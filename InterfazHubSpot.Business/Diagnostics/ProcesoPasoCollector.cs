@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BatchSpertaAPI.Business.Diagnostics
+namespace InterfazHubSpot.Business.Diagnostics
 {
     /// <summary>Acumula pasos en memoria durante una corrida (thread-safe ante future paralelismo).</summary>
     public sealed class ProcesoPasoCollector : IProcesoPasoReporter

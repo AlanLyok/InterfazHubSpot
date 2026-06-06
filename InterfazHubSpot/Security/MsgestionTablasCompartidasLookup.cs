@@ -3,7 +3,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace BatchSpertaAPI.Security
+namespace InterfazHubSpot.Security
 {
     /// <summary>
     /// Igual que <c>SpertaAPI.Services.TablasCompartidasLookup</c>: consulta <c>dbo.TablasCompartidas</c> en MSGestion.

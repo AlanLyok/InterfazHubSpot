@@ -6,13 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Configuration;
 using System.Web;
-using BatchSpertaAPI.Interfaces.Managers;
-using BatchSpertaAPI.Mapping.Context;
+using InterfazHubSpot.Interfaces.Managers;
+using InterfazHubSpot.Mapping.Context;
 using Mastersoft.Framework.DataRepository;
 using Mastersoft.Framework.Interfaces;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Business.Managers
+namespace InterfazHubSpot.Business.Managers
 {
     public class EmailsManager : IEmailsManager, IDisposable
     {

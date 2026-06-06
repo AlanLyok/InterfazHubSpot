@@ -1,9 +1,9 @@
 using System.Xml;
-using BatchSpertaAPI.Business.Managers;
+using InterfazHubSpot.Business.Managers;
 using Mastersoft.Framework.Standard;
 using Mastersoft.Scheduler452.Intefaces;
 
-namespace BatchSpertaAPI.BatchProcess
+namespace InterfazHubSpot.BatchProcess
 {
     /// <summary>Encola un correo de prueba usando <see cref="EmailsManager"/> y claves <c>EmailErrDE</c> / <c>EmailErrPara</c> en configuración.</summary>
     public sealed class GrabarEmailError : IScheduler

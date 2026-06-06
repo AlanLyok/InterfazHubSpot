@@ -1,6 +1,6 @@
 using System.Data.Entity.ModelConfiguration;
 
-namespace BatchSpertaAPI.Entities
+namespace InterfazHubSpot.Entities
 {
     public class PerfilesWebMap : EntityTypeConfiguration<PerfilesWeb>
     {

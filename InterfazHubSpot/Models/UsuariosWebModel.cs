@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Models
+namespace InterfazHubSpot.Models
 {
     public class DatosIniAbmUsuariosWebModel
     {

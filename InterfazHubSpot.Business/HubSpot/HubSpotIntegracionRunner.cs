@@ -4,17 +4,17 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using BatchSpertaAPI.Business.Diagnostics;
-using BatchSpertaAPI.Business.Integration;
-using BatchSpertaAPI.Business.Managers;
-using BatchSpertaAPI.Entities;
+using InterfazHubSpot.Business.Diagnostics;
+using InterfazHubSpot.Business.Integration;
+using InterfazHubSpot.Business.Managers;
+using InterfazHubSpot.Entities;
 using Mastersoft.Framework.Standard;
 using Newtonsoft.Json.Linq;
 
-namespace InterfazHubSpot
+namespace InterfazHubSpot.Business.HubSpot
 {
     /// <summary>
-    /// Orquesta flujo 2A (cola <see cref="ProcesosSpertaApi"/>) y 2B (cuenta corriente paginada) usando <see cref="ISpertaApiClient"/>.
+    /// Orquesta flujo 2A (cola <see cref="ProcesosSpertaHubSpot"/>) y 2B (cuenta corriente paginada) usando <see cref="ISpertaApiClient"/>.
     /// </summary>
     public sealed class HubSpotIntegracionRunner
     {
@@ -24,7 +24,7 @@ namespace InterfazHubSpot
 
         private HubSpotCrmClient _hub;
 
-        private readonly ProcesosSpertaApiManager _cola;
+        private readonly ProcesosSpertaHubSpotManager _cola;
 
         private readonly IntegracionEjecucionLogManager _log;
 
@@ -69,7 +69,7 @@ namespace InterfazHubSpot
                     useDevelopmentMock = _hubCfg.UseDevelopmentMock,
                 });
 
-            _cola = new ProcesosSpertaApiManager(ctx);
+            _cola = new ProcesosSpertaHubSpotManager(ctx);
             _log = new IntegracionEjecucionLogManager(ctx);
         }
 

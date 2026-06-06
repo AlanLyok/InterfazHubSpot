@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
-    <RootNamespace>BatchSpertaAPI.Tests.Unit</RootNamespace>
+    <RootNamespace>InterfazHubSpot.Tests.Unit</RootNamespace>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <LangVersion>7.3</LangVersion>

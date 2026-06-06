@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BatchSpertaAPI.Business.Common
+namespace InterfazHubSpot.Business.Common
 {
     public class Logger
     {

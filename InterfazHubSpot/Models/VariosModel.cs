@@ -6,7 +6,7 @@ using System.Web;
 
 using Mastersoft.Framework.Standard;
 
-namespace BatchSpertaAPI.Models
+namespace InterfazHubSpot.Models
 {
     public class ResultExportModel
     {

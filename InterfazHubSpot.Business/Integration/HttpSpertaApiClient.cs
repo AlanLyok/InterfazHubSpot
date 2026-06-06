@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace BatchSpertaAPI.Business.Integration
+namespace InterfazHubSpot.Business.Integration
 {
     /// <summary>Implementación de <see cref="ISpertaApiClient"/> sobre rutas <c>api/v100</c> documentadas en SpertaAPI.</summary>
     public sealed class HttpSpertaApiClient : ISpertaApiClient

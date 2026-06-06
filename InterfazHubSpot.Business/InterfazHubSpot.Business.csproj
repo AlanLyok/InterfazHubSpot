@@ -7,8 +7,8 @@
     <ProjectGuid>{B886CB44-5D74-4384-8616-773DF75D7A69}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BatchSpertaAPI.Business</RootNamespace>
-    <AssemblyName>BatchSpertaAPI.Business</AssemblyName>
+    <RootNamespace>InterfazHubSpot.Business</RootNamespace>
+    <AssemblyName>InterfazHubSpot.Business</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -90,7 +90,7 @@
     <Compile Include="Managers\EmailsManager.cs" />
     <Compile Include="Managers\ErroresManager.cs" />
     <Compile Include="Managers\IntegracionEjecucionLogManager.cs" />
-    <Compile Include="Managers\ProcesosSpertaApiManager.cs" />
+    <Compile Include="Managers\ProcesosSpertaHubSpotManager.cs" />
     <Compile Include="Managers\UsuariosWebManager.cs" />
     <Compile Include="Modulos\LoginRequest.cs" />
     <Compile Include="Modulos\MSSecurity.cs" />
@@ -106,15 +106,15 @@
   <ItemGroup>
     <ProjectReference Include="..\InterfazHubSpot.Entities\InterfazHubSpot.Entities.csproj">
       <Project>{8ad22b91-5590-4ff0-8ea4-a969fe0b7620}</Project>
-      <Name>BatchSpertaAPI.Entities</Name>
+      <Name>InterfazHubSpot.Entities</Name>
     </ProjectReference>
     <ProjectReference Include="..\InterfazHubSpot.Interfaces\InterfazHubSpot.Interfaces.csproj">
       <Project>{748944e7-1fa4-4c63-9f4a-12a92c0eb481}</Project>
-      <Name>BatchSpertaAPI.Interfaces</Name>
+      <Name>InterfazHubSpot.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\InterfazHubSpot.Mapping\InterfazHubSpot.Mapping.csproj">
       <Project>{79fd1637-9f3e-40c5-9a06-d41fdce89f35}</Project>
-      <Name>BatchSpertaAPI.Mapping</Name>
+      <Name>InterfazHubSpot.Mapping</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
