@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 
-$filter = if ($IncludeLive) { '' } else { '--filter "Category!=Live"' }
+$filterArgs = if ($IncludeLive) { @() } else { @('--filter', 'Category!=Live') }
 
 $projects = @(
     'InterfazHubSpot.Tests.Unit\InterfazHubSpot.Tests.Unit.csproj',
@@ -15,11 +15,7 @@ $projects = @(
 
 foreach ($p in $projects) {
     $path = Join-Path $repoRoot $p
-    if ($filter) {
-        dotnet test $path $filter --no-restore
-    } else {
-        dotnet test $path --no-restore
-    }
+    & dotnet test $path @filterArgs --no-restore
     if ($LASTEXITCODE -ne 0) { throw "dotnet test falló: $p" }
 }
 

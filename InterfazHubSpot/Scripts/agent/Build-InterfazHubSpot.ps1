@@ -34,24 +34,52 @@ function Invoke-NuGetRestore {
 Invoke-NuGetRestore
 $msbuild = Get-MsBuildExe
 
+$schedulerDll = Join-Path $repoRoot 'Componentes\Mastersoft.Scheduler452.Intefaces.dll'
+$batchProcessAvailable = Test-Path $schedulerDll
+if (-not $batchProcessAvailable) {
+    Write-Warning "Omitiendo InterfazHubSpot.BatchProcess: falta $schedulerDll"
+}
+
 if ($LibrariesOnly) {
     $projects = @(
         'InterfazHubSpot.Business\InterfazHubSpot.Business.csproj',
         'InterfazHubSpot.Entities\InterfazHubSpot.Entities.csproj',
         'InterfazHubSpot.Interfaces\InterfazHubSpot.Interfaces.csproj',
         'InterfazHubSpot.Mapping\InterfazHubSpot.Mapping.csproj',
-        'InterfazHubSpot.BatchProcess\InterfazHubSpot.BatchProcess.csproj',
         'InterfazHubSpot.Tests.Unit\InterfazHubSpot.Tests.Unit.csproj',
         'InterfazHubSpot.IntegrationTests\InterfazHubSpot.IntegrationTests.csproj'
     )
+    if ($batchProcessAvailable) {
+        $projects = @(
+            'InterfazHubSpot.BatchProcess\InterfazHubSpot.BatchProcess.csproj'
+        ) + $projects
+    }
     foreach ($p in $projects) {
         $path = Join-Path $repoRoot $p
         & $msbuild $path /p:Configuration=Debug /v:m
         if ($LASTEXITCODE -ne 0) { throw "MSBuild falló: $p" }
     }
 } else {
-    & $msbuild $sln /p:Configuration=Debug /v:m
-    if ($LASTEXITCODE -ne 0) { throw "MSBuild falló en solución" }
+    if ($batchProcessAvailable) {
+        & $msbuild $sln /p:Configuration=Debug /v:m
+        if ($LASTEXITCODE -ne 0) { throw "MSBuild falló en solución" }
+    } else {
+        Write-Warning 'Build sin BatchProcess: copie DLLs Mastersoft en Componentes/ para compilar jobs IScheduler.'
+        $projects = @(
+            'InterfazHubSpot.Business\InterfazHubSpot.Business.csproj',
+            'InterfazHubSpot.Entities\InterfazHubSpot.Entities.csproj',
+            'InterfazHubSpot.Interfaces\InterfazHubSpot.Interfaces.csproj',
+            'InterfazHubSpot.Mapping\InterfazHubSpot.Mapping.csproj',
+            'InterfazHubSpot\InterfazHubSpot.csproj',
+            'InterfazHubSpot.Tests.Unit\InterfazHubSpot.Tests.Unit.csproj',
+            'InterfazHubSpot.IntegrationTests\InterfazHubSpot.IntegrationTests.csproj'
+        )
+        foreach ($p in $projects) {
+            $path = Join-Path $repoRoot $p
+            & $msbuild $path /p:Configuration=Debug /v:m
+            if ($LASTEXITCODE -ne 0) { throw "MSBuild falló: $p" }
+        }
+    }
 }
 
 Write-Host 'Build-InterfazHubSpot: OK'

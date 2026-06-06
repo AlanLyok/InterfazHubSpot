@@ -8,11 +8,18 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $agentDir = $PSScriptRoot
+$schedulerDll = Join-Path $repoRoot 'Componentes\Mastersoft.Scheduler452.Intefaces.dll'
 
 if (-not $SkipBuild) {
-    $buildArgs = @()
-    if ($LibrariesOnly) { $buildArgs += '-LibrariesOnly' }
-    & (Join-Path $agentDir 'Build-InterfazHubSpot.ps1') @buildArgs
+    $useLibrariesOnly = $LibrariesOnly -or -not (Test-Path $schedulerDll)
+    if (-not (Test-Path $schedulerDll)) {
+        Write-Warning 'Componentes sin Scheduler DLL; verify usa -LibrariesOnly.'
+    }
+    if ($useLibrariesOnly) {
+        & (Join-Path $agentDir 'Build-InterfazHubSpot.ps1') -LibrariesOnly
+    } else {
+        & (Join-Path $agentDir 'Build-InterfazHubSpot.ps1')
+    }
 }
 
 if (-not $SkipTests) {
