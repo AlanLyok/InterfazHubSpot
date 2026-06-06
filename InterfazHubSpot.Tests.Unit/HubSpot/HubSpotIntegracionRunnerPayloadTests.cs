@@ -213,7 +213,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
 
             var result = InvokeBuildCompanyProperties(runner, dto, 999, "C999");
 
-            // La propiedad "mastersoft_id_" debe existir y contener el pk como string
+            // _hubCfg fue creado con PropertyMastersoftId = "mastersoft_id_" en CreateUninitializedRunner
             Assert.Equal("999", (string)result["mastersoft_id_"]);
         }
 

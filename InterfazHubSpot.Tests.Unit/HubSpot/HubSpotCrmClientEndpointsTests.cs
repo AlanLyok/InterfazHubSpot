@@ -80,7 +80,8 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             Assert.Contains("/crm/v3/objects/companies/search", req.RequestUri.AbsolutePath);
             Assert.Equal("Bearer", req.Headers.Authorization.Scheme);
             var bodyText = _handler.RequestBodies[0];
-            Assert.Contains("mastersoft_id_", bodyText);
+            // La propiedad puede ser "mastersoft_id_" (default) o lo configurado en App.config
+            Assert.Contains(_cfg.PropertyMastersoftId, bodyText);
             Assert.Contains(mastersoftId, bodyText);
         }
 
@@ -280,7 +281,10 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             foreach (var item in inputs)
             {
                 Assert.NotNull(item["id"]);
-                Assert.NotNull(item["properties"]?["manejo_cuenta_corriente"]);
+                // La propiedad puede ser "manejo_cuenta_corriente" (default) o lo configurado en App.config
+                var props = item["properties"] as JObject;
+                Assert.NotNull(props);
+                Assert.NotNull(props.Property(_cfg.PropertyManejoCuentaCorriente));
             }
         }
 
