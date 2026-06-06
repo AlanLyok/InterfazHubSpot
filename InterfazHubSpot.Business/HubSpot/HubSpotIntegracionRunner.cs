@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using InterfazHubSpot.Business.Diagnostics;
 using InterfazHubSpot.Business.Integration;
+using InterfazHubSpot.Business.Integration.Dtos;
 using InterfazHubSpot.Business.Managers;
 using InterfazHubSpot.Entities;
 using Mastersoft.Framework.Standard;
@@ -14,11 +15,11 @@ using Newtonsoft.Json.Linq;
 namespace InterfazHubSpot.Business.HubSpot
 {
     /// <summary>
-    /// Orquesta flujo 2A (cola <see cref="ProcesosSpertaHubSpot"/>) y 2B (cuenta corriente paginada) usando <see cref="ISpertaApiClient"/>.
+    /// Orquesta flujo 2A (cola <see cref="ProcesosSpertaHubSpot"/>) y 2B (cuenta corriente paginada) usando <see cref="ClienteIntegracionManager"/>.
     /// </summary>
     public sealed class HubSpotIntegracionRunner
     {
-        private readonly ISpertaApiClient _api;
+        private readonly ClienteIntegracionManager _cli;
 
         private readonly HubSpotConfiguration _hubCfg;
 
@@ -34,23 +35,13 @@ namespace InterfazHubSpot.Business.HubSpot
 
         public HubSpotIntegracionRunner(
             MSContext ctx,
-            ISpertaApiClient apiClient = null,
-            IProcesoPasoReporter pasos = null,
-            bool instrumentarClienteHttpSpertaApi = false)
+            IProcesoPasoReporter pasos = null)
         {
             if (ctx == null)
                 throw new ArgumentNullException(nameof(ctx));
             _msCtx = ctx;
             _pasos = pasos ?? NullProcesoPasoReporter.Instance;
-
-            ISpertaApiClient resolvedApi;
-            if (apiClient != null)
-                resolvedApi = apiClient;
-            else if (instrumentarClienteHttpSpertaApi)
-                resolvedApi = new TracingSpertaApiClient(new HttpSpertaApiClient(), _pasos);
-            else
-                resolvedApi = new HttpSpertaApiClient();
-            _api = resolvedApi;
+            _cli = new ClienteIntegracionManager(ctx);
 
             _hubCfg = new HubSpotConfiguration();
             _pasos.RegistrarPaso(
@@ -237,24 +228,18 @@ namespace InterfazHubSpot.Business.HubSpot
                 var tam = Math.Min(500, Math.Max(1, _hubCfg.CuentaCorrientePageSize));
                 while (true)
                 {
-                    var json = await _api.GetIntegracionesHubSpotCuentaCorrienteAsync(cursor, tam).ConfigureAwait(false);
-                    var envelope = JObject.Parse(json);
-                    if (envelope.Value<bool>("HayError"))
-                        throw new InvalidOperationException("SpertaAPI cuenta corriente: " + LeerPrimerError(envelope, json));
-
-                    var datos = envelope["Datos"] as JObject;
-                    if (datos == null)
+                    var pagina = _cli.ObtenerPaginaCuentaCorriente(cursor, tam);
+                    if (pagina == null || pagina.Items.Count == 0)
                         break;
 
-                    var hayMas = datos.Value<bool>("HayMas");
-                    var siguiente = datos["SiguienteCursor"]?.Value<int?>();
-                    var items = datos["Items"] as JArray ?? new JArray();
+                    var hayMas = pagina.HayMas;
+                    var siguiente = pagina.SiguienteCursor;
 
                     var batchTuples = new List<Tuple<string, string>>();
-                    foreach (var it in items)
+                    foreach (var it in pagina.Items)
                     {
-                        var clienteId = it["ClienteId"]?.Value<int>() ?? 0;
-                        var texto = it["ManejoCuentaCorriente"]?.Value<string>() ?? string.Empty;
+                        var clienteId = it.ClienteId;
+                        var texto = it.ManejoCuentaCorriente ?? string.Empty;
                         if (clienteId <= 0)
                             continue;
 
@@ -280,10 +265,8 @@ namespace InterfazHubSpot.Business.HubSpot
 
                     if (!hayMas)
                         break;
-                    if (!siguiente.HasValue)
-                        break;
 
-                    cursor = siguiente.Value;
+                    cursor = siguiente;
                 }
 
                 _log.Registrar(null, IntegracionDestinos.HubSpot, null, "BatchCcCompleto", true, "OK");
@@ -292,32 +275,31 @@ namespace InterfazHubSpot.Business.HubSpot
 
         private async Task SincronizarClienteColaAsync(long procesoId, int clienteIdCola)
         {
-            var json = await _api.GetIntegracionesClienteAsync(clienteIdCola).ConfigureAwait(false);
-            var envelope = JObject.Parse(json);
-            if (envelope.Value<bool>("HayError"))
-                throw new InvalidOperationException("SpertaAPI cliente: " + LeerPrimerError(envelope, json));
+            _pasos.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "bd.sp.cliente_obtener",
+                "Ejecutando SP para obtener datos del cliente.",
+                new { procesoId, clienteId = clienteIdCola });
 
-            var datos = envelope["Datos"] as JObject;
-            if (datos == null)
-                throw new InvalidOperationException("Respuesta sin Datos.");
+            var dto = _cli.ObtenerClienteParaHubSpot(clienteIdCola);
+            if (dto == null)
+                throw new InvalidOperationException("SP no devolvió datos para clienteId " + clienteIdCola + ".");
 
-            var clientePk = datos.Value<int?>("ClienteId") ?? clienteIdCola;
-            var codigoCliente = datos["CodigoCliente"]?.Value<string>();
-            var ms = datos["Clientes"] as JObject;
-            if (ms == null)
-                throw new InvalidOperationException("Respuesta sin nodo Clientes.");
+            var clientePk = dto.ClienteId > 0 ? dto.ClienteId : clienteIdCola;
+            var codigoCliente = dto.CodigoCliente;
 
             _pasos.RegistrarPaso(
                 ProcesoPasoSeverity.Information,
                 ProcesoPasoCategoria.Mapeo,
                 "integraciones.cliente.payload_parseado",
-                "Envelope integraciones cliente parseado.",
+                "Datos SP cliente cargados.",
                 new
                 {
                     procesoId,
                     clientePk,
                     codigoCliente,
-                    muestraDatosTruncada = DiagnosticsTextHelper.TruncateForTrace(datos.ToString()),
+                    muestraDatosTruncada = DiagnosticsTextHelper.TruncateForTrace(Newtonsoft.Json.JsonConvert.SerializeObject(dto)),
                 });
 
             var mastersoftKey = clientePk.ToString(CultureInfo.InvariantCulture);
@@ -330,7 +312,7 @@ namespace InterfazHubSpot.Business.HubSpot
                 hubCompanyExistingId == null ? "Sin compañía existente por mastersoft id." : "Compañía existente encontrada.",
                 new { procesoId, mastersoftKey, hubSpotCompanyId = hubCompanyExistingId ?? "(crear nueva)" });
 
-            var companyProps = BuildCompanyProperties(ms, clientePk, codigoCliente);
+            var companyProps = BuildCompanyProperties(dto.Cliente, clientePk, codigoCliente);
             var envelopeCompany = new JObject { ["properties"] = companyProps };
             _pasos.RegistrarPaso(
                 ProcesoPasoSeverity.Information,
@@ -356,16 +338,15 @@ namespace InterfazHubSpot.Business.HubSpot
             if (string.IsNullOrEmpty(hubCompanyId))
                 throw new InvalidOperationException("HubSpot no devolvió id de compañía.");
 
-            var contactos = ms["ListaClientesContactos"] as JArray ?? new JArray();
+            var contactos = dto.Cliente.ListaClientesContactos ?? new List<ContactoDto>();
             var idxContacto = 0;
             foreach (var c in contactos)
             {
                 idxContacto++;
-                var jo = c as JObject;
-                if (jo == null)
+                if (c == null)
                     continue;
 
-                var email = jo["CorreoElectronico"]?.Value<string>();
+                var email = c.CorreoElectronico;
                 if (string.IsNullOrWhiteSpace(email))
                 {
                     _log.Registrar(procesoId, IntegracionDestinos.HubSpot, clientePk, "ContactoSinEmail", false,
@@ -379,9 +360,9 @@ namespace InterfazHubSpot.Business.HubSpot
                     ProcesoPasoCategoria.DestinoExterno,
                     "destinoexterno.hubspot.contact.search_by_email",
                     hubContactExisting == null ? "Contacto nuevo por email." : "Contacto existente.",
-                    new { procesoId, indice = idxContacto, email = email.Trim(), hubSpotContactId = hubContactExisting ?? "(crear nuevo)" });
+                    new { procesoId, indice = idxContacto, email = (c.CorreoElectronico ?? string.Empty).Trim(), hubSpotContactId = hubContactExisting ?? "(crear nuevo)" });
 
-                var contactProps = BuildContactProperties(jo);
+                var contactProps = BuildContactProperties(c);
                 var envelopeContact = new JObject { ["properties"] = contactProps };
                 _pasos.RegistrarPaso(
                     ProcesoPasoSeverity.Information,
@@ -421,11 +402,11 @@ namespace InterfazHubSpot.Business.HubSpot
             }
         }
 
-        private JObject BuildCompanyProperties(JObject ms, int clientePk, string codigoCliente)
+        private JObject BuildCompanyProperties(ClienteDatosDto ms, int clientePk, string codigoCliente)
         {
-            var raz = Coalesce(ms["RazonSocial"]?.ToString(), ms["ApellidoYNombre"]?.ToString(), ms["Contacto"]?.ToString());
-            var fantasy = ms["ApellidoYNombre"]?.ToString();
-            var nroDoc = ms["NumeroDocumento"]?.ToString();
+            var raz = Coalesce(ms.RazonSocial, ms.ApellidoYNombre, ms.Contacto);
+            var fantasy = ms.ApellidoYNombre;
+            var nroDoc = ms.NumeroDocumento;
 
             var props = new JObject
             {
@@ -434,68 +415,53 @@ namespace InterfazHubSpot.Business.HubSpot
                 ["cuitcuil"] = nroDoc ?? string.Empty,
                 ["nro_cliente"] = codigoCliente ?? string.Empty,
                 [_hubCfg.PropertyMastersoftId] = clientePk.ToString(CultureInfo.InvariantCulture),
-                ["adress"] = ms["Calle"]?.ToString() ?? string.Empty,
-                ["puerta"] = ms["Puerta"]?.ToString() ?? string.Empty,
-                ["city"] = ms["Localidad"]?.ToString() ?? string.Empty,
-                ["zip"] = ms["CodigoPostal"]?.ToString() ?? string.Empty,
-                ["state"] = ms["CodigoProvinciaCliente"]?.ToString() ?? string.Empty,
-                ["Country"] = CodigoPaisAString(ms["CodigoPais"]),
-                ["zona_vta"] = ms["ZonaId"]?.ToString() ?? string.Empty,
-                ["vendedor"] = ms["VendedorId"]?.ToString() ?? string.Empty,
-                ["responsable_de_cuenta"] = ms["ResponsableCuentaId"]?.ToString() ?? string.Empty,
-                ["lista_de_precios"] = ms["ListaPreciosId"]?.ToString() ?? string.Empty,
-                ["condicion_de_venta"] = ms["CondicionVentaId"]?.ToString() ?? string.Empty,
-                ["dias_para_deuda"] = ms["DiasParaDeuda"]?.ToString() ?? string.Empty,
-                ["limite_de_credito"] = ms["LimiteCredito"]?.ToString() ?? string.Empty,
-                ["categoria_cliente"] = ms["CategoriaClienteId"]?.ToString() ?? string.Empty,
+                ["adress"] = ms.Calle ?? string.Empty,
+                ["puerta"] = ms.Puerta ?? string.Empty,
+                ["city"] = ms.Localidad ?? string.Empty,
+                ["zip"] = ms.CodigoPostal ?? string.Empty,
+                ["state"] = ms.CodigoProvinciaCliente ?? string.Empty,
+                ["Country"] = ms.CodigoPais ?? string.Empty,
+                ["zona_vta"] = ms.ZonaId ?? string.Empty,
+                ["vendedor"] = ms.VendedorId ?? string.Empty,
+                ["responsable_de_cuenta"] = ms.ResponsableCuentaId ?? string.Empty,
+                ["lista_de_precios"] = ms.ListaPreciosId ?? string.Empty,
+                ["condicion_de_venta"] = ms.CondicionVentaId ?? string.Empty,
+                ["dias_para_deuda"] = ms.DiasParaDeuda ?? string.Empty,
+                ["limite_de_credito"] = ms.LimiteCredito ?? string.Empty,
+                ["categoria_cliente"] = ms.CategoriaClienteId ?? string.Empty,
             };
 
-            var dirs = ms["ListaDireccionEntregas"] as JArray;
+            var dirs = ms.ListaDireccionEntregas;
             if (dirs != null)
             {
                 for (var i = 0; i < dirs.Count && i < 3; i++)
                 {
-                    var d = dirs[i] as JObject;
+                    var d = dirs[i];
                     if (d == null)
                         continue;
 
                     var n = i + 1;
-                    props["direccion_" + n + "_domicilio"] = Coalesce(d["Domicilio"]?.ToString(), d["Descripcion"]?.ToString()) ?? string.Empty;
-                    props["direccion_" + n + "_cp"] = d["CodigoPostal"]?.ToString() ?? string.Empty;
-                    props["direccion_" + n + "_localidad"] = d["Localidad"]?.ToString() ?? string.Empty;
-                    props["direccion_" + n + "_provincia"] = d["ProvinciaId"]?.ToString() ?? string.Empty;
+                    props["direccion_" + n + "_domicilio"] = d.Domicilio ?? string.Empty;
+                    props["direccion_" + n + "_cp"] = d.CodigoPostal ?? string.Empty;
+                    props["direccion_" + n + "_localidad"] = d.Localidad ?? string.Empty;
+                    props["direccion_" + n + "_provincia"] = d.ProvinciaId ?? string.Empty;
                 }
             }
 
             return props;
         }
 
-        private static JObject BuildContactProperties(JObject jo)
+        private static JObject BuildContactProperties(ContactoDto jo)
         {
-            var nombre = jo["ApellidoYNombre"]?.ToString() ?? string.Empty;
-            var sector = jo["SectorId"]?.ToString() ?? string.Empty;
+            var nombre = jo.ApellidoYNombre ?? string.Empty;
+            var sector = jo.SectorId ?? string.Empty;
             return new JObject
             {
                 ["firstname"] = nombre,
-                ["email"] = jo["CorreoElectronico"]?.ToString() ?? string.Empty,
-                ["phone"] = jo["Telefono"]?.ToString() ?? string.Empty,
+                ["email"] = jo.CorreoElectronico ?? string.Empty,
+                ["phone"] = jo.Telefono ?? string.Empty,
                 ["sector"] = sector,
             };
-        }
-
-        private static string CodigoPaisAString(JToken codigoPais)
-        {
-            if (codigoPais == null || codigoPais.Type == JTokenType.Null)
-                return string.Empty;
-            return codigoPais.ToString();
-        }
-
-        private static string LeerPrimerError(JObject envelope, string fallbackJson)
-        {
-            var listaErr = envelope["ListaErrores"] as JArray;
-            if (listaErr != null && listaErr.Count > 0)
-                return listaErr[0]["DescripcionError"]?.ToString() ?? listaErr.ToString();
-            return fallbackJson;
         }
 
         private static string Coalesce(params string[] valores)

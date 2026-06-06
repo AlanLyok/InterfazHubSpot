@@ -93,7 +93,7 @@ namespace InterfazHubSpot.BatchProcess
                             new { ok, mensaje = msg }));
                 }
 
-                var runner = new HubSpotIntegracionRunner(Contexto, null, rep, instrumentarHttp);
+                var runner = new HubSpotIntegracionRunner(Contexto, rep);
                 ProcesoColaEjecucionResumen r;
                 runner.ProcesarColaHubSpot(25, out r);
                 return r;
