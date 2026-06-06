@@ -50,5 +50,13 @@ See: `.planning/PROJECT.md` (updated 2026-06-06)
 - Git inicializado 2026-06-06.
 - Skills del proyecto: `.cursor/skills/get-shit-done`, `dotnet-best-practices` (aplica a otro stack — este proyecto es .NET 4.5.2).
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260606-p2k | quiero que el sistema tenga test unitarios, de integracion y de seguridad que cubran el 90% del codigo | 2026-06-06 | 2703786 | [260606-p2k-quiero-que-el-sistema-tenga-test-unitari](./quick/260606-p2k-quiero-que-el-sistema-tenga-test-unitari/) |
+
 ---
+*Last activity: 2026-06-06 - Completed quick task 260606-p2k: quiero que el sistema tenga test unitarios, de integracion y de seguridad que cubran el 90% del codigo*
+
 *Last updated: 2026-06-06*
