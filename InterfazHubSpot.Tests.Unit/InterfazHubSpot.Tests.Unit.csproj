@@ -23,8 +23,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BatchSpertaAPI.Business\BatchSpertaAPI.Business.csproj" />
-    <ProjectReference Include="..\InterfazHubSpot\InterfazHubSpot.csproj" />
+    <ProjectReference Include="..\InterfazHubSpot.Business\InterfazHubSpot.Business.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="App.config">

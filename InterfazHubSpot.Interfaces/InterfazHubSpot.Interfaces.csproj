@@ -57,7 +57,7 @@
     <Compile Include="Providers\IMSContextProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BatchSpertaAPI.Entities\BatchSpertaAPI.Entities.csproj">
+    <ProjectReference Include="..\InterfazHubSpot.Entities\InterfazHubSpot.Entities.csproj">
       <Project>{8ad22b91-5590-4ff0-8ea4-a969fe0b7620}</Project>
       <Name>BatchSpertaAPI.Entities</Name>
     </ProjectReference>

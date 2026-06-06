@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BatchSpertaAPI.Business\BatchSpertaAPI.Business.csproj" />
-    <ProjectReference Include="..\BatchSpertaAPI.Entities\BatchSpertaAPI.Entities.csproj" />
-    <ProjectReference Include="..\InterfazHubSpot\InterfazHubSpot.csproj" />
+    <ProjectReference Include="..\InterfazHubSpot.Business\InterfazHubSpot.Business.csproj" />
+    <ProjectReference Include="..\InterfazHubSpot.Entities\InterfazHubSpot.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
