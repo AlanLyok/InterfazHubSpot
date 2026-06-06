@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+    <RootNamespace>InterfazHubSpot</RootNamespace>
+    <AssemblyName>InterfazHubSpot</AssemblyName>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mastersoft.Framework.Standard">
+      <HintPath>..\Componentes\Mastersoft.Framework.Standard.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BatchSpertaAPI.Business\BatchSpertaAPI.Business.csproj" />
+    <ProjectReference Include="..\BatchSpertaAPI.Entities\BatchSpertaAPI.Entities.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="BatchSpertaAPI.Tests.Unit" />
+  </ItemGroup>
+</Project>

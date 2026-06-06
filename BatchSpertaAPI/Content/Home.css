@@ -1,0 +1,9 @@
+﻿body {
+    background: #fafafa;
+    color: black;
+    background-image: url('Images/Fondos/Fondo.svg');
+    background-size: cover;
+    height: calc(100vh - 3px);
+    background-position: bottom;
+    background-attachment: fixed;
+}

@@ -1,0 +1,20 @@
+
+@using BatchSpertaAPI.Models
+@model MailActivationModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <img src="Logo.png" />
+    <br />
+    <p>Para renovar su contraseña, ingrese al siguente Link:</p>
+    <a href="@Model.url">Renovación de Contraseña</a>
+    <br />
+    <p>Luego ingrese la contraseña nueva, y su confirmación.</p>
+</body>
+</html>
+

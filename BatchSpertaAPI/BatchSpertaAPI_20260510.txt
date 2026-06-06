@@ -1,0 +1,113 @@
+2026-05-10 19:39:00 - ProcesarColaIntegracionesHubSpotJob: System.InvalidOperationException: Configure HubSpot:PrivateAppToken en Web.config / App.config del batch.
+   en InterfazHubSpot.HubSpotConfiguration.ValidarToken()
+   en InterfazHubSpot.HubSpotIntegracionRunner..ctor(MSContext ctx, ISpertaApiClient apiClient)
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.Execute(XmlElement oParam, XmlElement oReturn)
+2026-05-10 19:41:36 - ProcesarColaIntegracionesHubSpotJob: System.InvalidOperationException: Configure HubSpot:PrivateAppToken en Web.config / App.config del batch.
+   en InterfazHubSpot.HubSpotConfiguration.ValidarToken()
+   en InterfazHubSpot.HubSpotIntegracionRunner..ctor(MSContext ctx, ISpertaApiClient apiClient)
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.Execute(XmlElement oParam, XmlElement oReturn)
+2026-05-10 20:04:45 - ProcesarColaIntegracionesHubSpotJob: System.InvalidOperationException: Configure HubSpot:PrivateAppToken en Web.config / App.config del batch.
+   en InterfazHubSpot.HubSpotConfiguration.ValidarToken()
+   en InterfazHubSpot.HubSpotIntegracionRunner..ctor(MSContext ctx, ISpertaApiClient apiClient)
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.Execute(XmlElement oParam, XmlElement oReturn)
+2026-05-10 20:04:48 - No se pudo grabar en Errores: An error occurred while updating the entries. See the inner exception for details.
+2026-05-10 20:04:48 - No se pudo encolar email: No se encontró el procedimiento almacenado 'dbo.Emails_Agregar'.
+2026-05-10 20:05:01 - ProcesarColaIntegracionesHubSpotJob: System.InvalidOperationException: Configure HubSpot:PrivateAppToken en Web.config / App.config del batch.
+   en InterfazHubSpot.HubSpotConfiguration.ValidarToken()
+   en InterfazHubSpot.HubSpotIntegracionRunner..ctor(MSContext ctx, ISpertaApiClient apiClient)
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.Execute(XmlElement oParam, XmlElement oReturn)
+2026-05-10 20:05:02 - No se pudo grabar en Errores: An error occurred while updating the entries. See the inner exception for details.
+2026-05-10 20:05:03 - No se pudo encolar email: No se encontró el procedimiento almacenado 'dbo.Emails_Agregar'.
+2026-05-10 20:05:37 - EjemploSpertaApiJob: System.Net.Http.HttpRequestException: Error al enviar la solicitud. ---> System.Net.WebException: No es posible conectar con el servidor remoto ---> System.Net.Sockets.SocketException: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión 127.0.0.1:51154
+   en System.Net.Sockets.Socket.InternalEndConnect(IAsyncResult asyncResult)
+   en System.Net.Sockets.Socket.EndConnect(IAsyncResult asyncResult)
+   en System.Net.ServicePoint.ConnectSocketInternal(Boolean connectFailure, Socket s4, Socket s6, Socket& socket, IPAddress& address, ConnectSocketState state, IAsyncResult asyncResult, Exception& exception)
+   --- Fin del seguimiento de la pila de la excepción interna ---
+   en System.Net.HttpWebRequest.EndGetResponse(IAsyncResult asyncResult)
+   en System.Net.Http.HttpClientHandler.GetResponseCallback(IAsyncResult ar)
+   --- Fin del seguimiento de la pila de la excepción interna ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Business.Integration.HttpSpertaApiClient.<SendWithoutAuthAsync>d__24.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\HttpSpertaApiClient.cs:línea 125
+--- Fin del seguimiento de la pila de la ubicación anterior donde se produjo la excepción ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Business.Integration.HttpSpertaApiClient.<GetHealthAsync>d__16.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\HttpSpertaApiClient.cs:línea 46
+--- Fin del seguimiento de la pila de la ubicación anterior donde se produjo la excepción ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   en BatchSpertaAPI.BatchProcess.EjemploSpertaApiJob.Execute(XmlElement oParam, XmlElement oReturn)
+2026-05-10 20:05:38 - No se pudo grabar en Errores: An error occurred while updating the entries. See the inner exception for details.
+2026-05-10 20:05:39 - No se pudo encolar email: No se encontró el procedimiento almacenado 'dbo.Emails_Agregar'.
+2026-05-10 20:42:17 - [Traza MVC 3ecd7c46-29bf-43f2-8d30-f600682ca199] ProcesarColaHubSpotTraza: System.InvalidOperationException: Configure HubSpot:PrivateAppToken en Web.config / App.config del batch.
+   en InterfazHubSpot.HubSpotConfiguration.ValidarToken()
+   en InterfazHubSpot.HubSpotIntegracionRunner..ctor(MSContext ctx, ISpertaApiClient apiClient, IProcesoPasoReporter pasos, Boolean instrumentarClienteHttpSpertaApi)
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.EjecutarColaInterno()
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.EjecutarColaHubSpotDiagnostic()
+   en BatchSpertaAPI.Controllers.HomeController.ProcesarColaHubSpotTraza() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI\Controllers\HomeController.cs:línea 86
+2026-05-10 20:43:28 - [Traza MVC 69eed6ad-fc43-4a84-a332-1f30ce9f23ac] ProcesarColaHubSpotTraza: System.InvalidOperationException: Configure HubSpot:PrivateAppToken en Web.config / App.config del batch.
+   en InterfazHubSpot.HubSpotConfiguration.ValidarToken()
+   en InterfazHubSpot.HubSpotIntegracionRunner..ctor(MSContext ctx, ISpertaApiClient apiClient, IProcesoPasoReporter pasos, Boolean instrumentarClienteHttpSpertaApi)
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.EjecutarColaInterno()
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.EjecutarColaHubSpotDiagnostic()
+   en BatchSpertaAPI.Controllers.HomeController.ProcesarColaHubSpotTraza() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI\Controllers\HomeController.cs:línea 86
+2026-05-10 20:44:33 - [Traza MVC 7c9eae2f-9072-49cf-ae5b-09e986fa0565] ProcesarColaHubSpotTraza: System.InvalidOperationException: Configure HubSpot:PrivateAppToken en Web.config / App.config del batch.
+   en InterfazHubSpot.HubSpotConfiguration.ValidarToken()
+   en InterfazHubSpot.HubSpotIntegracionRunner..ctor(MSContext ctx, ISpertaApiClient apiClient, IProcesoPasoReporter pasos, Boolean instrumentarClienteHttpSpertaApi)
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.EjecutarColaInterno()
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.EjecutarColaHubSpotDiagnostic()
+   en BatchSpertaAPI.Controllers.HomeController.ProcesarColaHubSpotTraza() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI\Controllers\HomeController.cs:línea 86
+2026-05-10 21:33:57 - [Traza MVC 3b4e32ee-f7b5-4ae7-beb3-14d5d1838d2f] ProcesarColaHubSpotTraza: System.InvalidOperationException: Configure HubSpot:PrivateAppToken en Web.config / App.config del batch.
+   en InterfazHubSpot.HubSpotConfiguration.ValidarToken()
+   en InterfazHubSpot.HubSpotIntegracionRunner..ctor(MSContext ctx, ISpertaApiClient apiClient, IProcesoPasoReporter pasos, Boolean instrumentarClienteHttpSpertaApi)
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.EjecutarColaInterno()
+   en BatchSpertaAPI.BatchProcess.ProcesarColaIntegracionesHubSpotJob.EjecutarColaHubSpotDiagnostic()
+   en BatchSpertaAPI.Controllers.HomeController.ProcesarColaHubSpotTraza() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI\Controllers\HomeController.cs:línea 86
+2026-05-10 21:55:43 - [Traza MVC 366cdc83-ba6a-43c2-ab94-0927d6a051de] ProcesarColaHubSpotTrazaCliente: System.Net.Http.HttpRequestException: Error HTTP 403 (Forbidden). Cuerpo: {"HayError":true,"ListaErrores":[{"CodigoError":"ClienteEmpresaDistinta","DescripcionError":"El cliente no pertenece a la empresa del contexto."}],"TimeStamp":"2026-05-11T00:55:42.7792455Z"}
+   en BatchSpertaAPI.Business.Integration.HttpSpertaApiClient.EnsureSuccess(HttpResponseMessage response, String body) en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\HttpSpertaApiClient.cs:línea 205
+   en BatchSpertaAPI.Business.Integration.HttpSpertaApiClient.<SendWithBearerAsync>d__30.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\HttpSpertaApiClient.cs:línea 184
+--- Fin del seguimiento de la pila de la ubicación anterior donde se produjo la excepción ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Business.Integration.HttpSpertaApiClient.<GetIntegracionesClienteAsync>d__25.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\HttpSpertaApiClient.cs:línea 117
+--- Fin del seguimiento de la pila de la ubicación anterior donde se produjo la excepción ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Business.Integration.TracingSpertaApiClient.<GetIntegracionesClienteAsync>d__9.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\TracingSpertaApiClient.cs:línea 120
+--- Fin del seguimiento de la pila de la ubicación anterior donde se produjo la excepción ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Controllers.HomeController.<ProcesarColaHubSpotTrazaCliente>d__7.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI\Controllers\HomeController.cs:línea 265
+2026-05-10 22:25:13 - [Traza MVC 7b55d259-6676-44a4-ac17-706da1063a09] ProcesarColaHubSpotTrazaCliente: System.Net.Http.HttpRequestException: Error al enviar la solicitud. ---> System.Net.WebException: No es posible conectar con el servidor remoto ---> System.Net.Sockets.SocketException: No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión 127.0.0.1:51154
+   en System.Net.Sockets.Socket.InternalEndConnect(IAsyncResult asyncResult)
+   en System.Net.Sockets.Socket.EndConnect(IAsyncResult asyncResult)
+   en System.Net.ServicePoint.ConnectSocketInternal(Boolean connectFailure, Socket s4, Socket s6, Socket& socket, IPAddress& address, ConnectSocketState state, IAsyncResult asyncResult, Exception& exception)
+   --- Fin del seguimiento de la pila de la excepción interna ---
+   en System.Net.HttpWebRequest.EndGetRequestStream(IAsyncResult asyncResult, TransportContext& context)
+   en System.Net.Http.HttpClientHandler.GetRequestStreamCallback(IAsyncResult ar)
+   --- Fin del seguimiento de la pila de la excepción interna ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Business.Integration.HttpSpertaApiClient.<ObtainAccessTokenAsync>d__32.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\HttpSpertaApiClient.cs:línea 258
+--- Fin del seguimiento de la pila de la ubicación anterior donde se produjo la excepción ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Business.Integration.HttpSpertaApiClient.<GetIntegracionesClienteAsync>d__25.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\HttpSpertaApiClient.cs:línea 114
+--- Fin del seguimiento de la pila de la ubicación anterior donde se produjo la excepción ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Business.Integration.TracingSpertaApiClient.<GetIntegracionesClienteAsync>d__9.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI.Business\Integration\TracingSpertaApiClient.cs:línea 120
+--- Fin del seguimiento de la pila de la ubicación anterior donde se produjo la excepción ---
+   en System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   en System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   en System.Runtime.CompilerServices.ConfiguredTaskAwaitable`1.ConfiguredTaskAwaiter.GetResult()
+   en BatchSpertaAPI.Controllers.HomeController.<ProcesarColaHubSpotTrazaCliente>d__7.MoveNext() en C:\SVN\MASTERSOFT\MSGESTIONSPERTA\6Complementos\SpertaAPI\2 Desarrollo\services\batchprocess\BatchSpertaAPI\Controllers\HomeController.cs:línea 265

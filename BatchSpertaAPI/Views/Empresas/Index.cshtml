@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "Empresas";
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/AbmEmpresas")
+}
+
+<br />
+<h3>Empresas</h3>
+
+<div id="rootwizard">
+
+<div id="Abm">
+
+    <ul>
+        <li style="display:none"><a href="#tab1" data-toggle="tab"></a></li>
+        <li style="display:none"><a href="#tab2" data-toggle="tab"></a></li>
+    </ul>
+
+    <div class="tab-content">
+
+        <div class="tab-pane" id="tab1">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="gridIniEmpresas" data-bind="source: Resultados" style="height:320px;"></div>
+                </div>
+                <div class="col-md-6">
+                </div>
+            </div>
+
+            <div class="row top5">
+                <div class="col-md-12">
+                    <span id="statusMessage" class="ms-redlabel" data-bind="text: recordMessage"></span>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="butModificar" class="k-button" type="button" data-role="button" data-bind="disabled: isDeleteDisabled" style="margin-right:15px;margin-bottom:10px;">Modificar</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="tab-pane" id="tab2">
+
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <label>Razón Social</label>
+                    <div class="form-group-field">
+                        <input id="Descrip" type="text" class="k-textbox" data-bind="value: Empresas.Descrip, disabled: isControlDisabled" maxlength="40" autocomplete="off" spellcheck="false" style="max-width:375px"  />
+                       <img id="errDescrip" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label>Direccion</label>
+                    <div class="form-group-field">
+                        <input id="Direccion" type="text" class="k-textbox" data-bind="value: Empresas.Direccion, disabled: isControlDisabled" maxlength="50" autocomplete="off" spellcheck="false" style="max-width:375px"  />
+                       <img id="errDireccion" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label>Localidad</label>
+                    <div class="form-group-field">
+                        <input id="Localidad" type="text" class="k-textbox" data-bind="value: Empresas.Localidad, disabled: isControlDisabled" maxlength="50" autocomplete="off" spellcheck="false" style="max-width:375px"  />
+                       <img id="errLocalidad" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <label>Provincia</label>
+                    <div class="form-group-field">
+                        <select id="Provinciaid" data-bind="source: ProvinciasCombo, value: Empresas.Provinciaid, disabled: isControlDisabled" style="max-width:375px"></select>
+                        <img id="errProvinciaid" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label>Condicion Fiscal</label>
+                    <div class="form-group-field">
+                        <select id="CondFiscalID" data-bind="source: CondFiscalCombo, value: Empresas.CondFiscalID, disabled: isControlDisabled" style="max-width:375px"></select>
+                        <img id="errCondFiscalID" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label>Cuit</label>
+                    <div class="form-group-field">
+                        <input id="Cuit" data-bind="value: Empresas.Cuit, disabled: isControlDisabled" style="max-width:375px" />
+                        <img id="errCuit" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <label>Nro. Ingresos Brutos</label>
+                    <div class="form-group-field">
+                        <input id="NroIngBrutos" type="text" class="k-textbox" data-bind="value: Empresas.NroIngBrutos, disabled: isControlDisabled" maxlength="15" autocomplete="off" spellcheck="false" style="max-width:375px" />
+                        <img id="errNroIngBrutos" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label>Telefono</label>
+                    <div class="form-group-field">
+                        <input id="Telefono" type="text" class="k-textbox" data-bind="value: Empresas.Telefono, disabled: isControlDisabled" maxlength="70" autocomplete="off" spellcheck="false" style="max-width:375px"  />
+                       <img id="errTelefono" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label>EMail</label>
+                    <div class="form-group-field">
+                        <input id="Mail" type="text" class="k-textbox" data-bind="value: Empresas.Mail, disabled: isControlDisabled" maxlength="70" autocomplete="off" spellcheck="false" style="max-width:375px"  />
+                       <img id="errMail" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <label>Usa Logo</label>
+                    <div class="form-group-field">
+                        <input id="UsaLogo" type="checkbox" data-bind="checked: Empresas.UsaLogo" />
+                    </div>
+                </div>
+                <div id="divFiles" class="col-md-4">
+                    <label>Imagen del Logo (.png, .jpg) *</label>
+                    <div class="form-group-field">
+                        <input id="files" name="files" type="file" style="display:inline-block" />
+                        <img id="errFiles" src="~/Content/Images/error.png" style="display:none" />
+                    </div>
+                </div>
+                <div id="divLogoPreview" class="col-md-4">
+                    <label>Logo Actual</label>
+                    <div class="form-group-field">
+                        <img id="logoPreview" src=""  />
+                    </div>
+                </div>
+            </div>
+            
+            <hr>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="butAceptar" class="k-primary" type="button" data-role="button" data-bind="disabled: isControlDisabled" style="margin-right:15px;margin-bottom:10px;">Aceptar</button>
+                    <button id="butCancelar" class="k-button" type="button" data-role="button" style="margin-right:15px;margin-bottom:10px;">Cancelar</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+</div>

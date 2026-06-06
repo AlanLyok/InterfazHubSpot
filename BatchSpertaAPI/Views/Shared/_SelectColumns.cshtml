@@ -1,0 +1,34 @@
+﻿
+<div id="busSelectColumns" class="modal fade modal-fullscreen" tabindex="-1" role="dialog" aria-labelledby="modalFAButtonsLabel">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Selección de Columnas</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group row">
+                    <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6">
+                        <button id="butMarcarTodoSelectColumns" class="k-button" type="button" data-role="button" style="margin-right:10px;">Marcar Todo</button>
+                        <button id="butInvertirMarcasSelectColumns" class="k-button" type="button" data-role="button" style="margin-right:10px;">Invertir Marcas</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="gridBusSelectColumns" data-bind="source: Resultados" style="height:340px;margin-top:3px;"></div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button id="butSelectColumnsAceptar" type="button" class="k-button btn btn-default" data-faicon="fa-check">Aceptar</button>
+            </div>
+        </div>
+
+    </div>
+</div>

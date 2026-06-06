@@ -8,5 +8,11 @@ obj/
 *.suo
 .vs/
 
+# Config con credenciales locales (usar plantillas o variables de entorno en deploy)
+**/Web.config
+**/App.config
+**/Web.*.config
+!**/*.config.example
+
 # NuGet
 packages/

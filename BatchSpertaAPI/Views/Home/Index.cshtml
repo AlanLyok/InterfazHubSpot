@@ -1,0 +1,58 @@
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<button type="button" onclick="EjemploSpertaApi()">Ejemplo SpertaAPI (health)</button>
+<br /><br />
+<button type="button" onclick="GrabarEmailError()">Grabar email de prueba (errores)</button>
+<br /><br />
+<button type="button" onclick="ProcesarColaHubSpot()">Procesar cola HubSpot (ProcesosSpertaAPI, silencioso)</button>
+<br /><br />
+<button type="button" onclick="ProcesarColaHubSpotTrazaCola()">Traza: solo vista cola (sin reclamar, sin HubSpot)</button>
+<br /><br />
+<label for="txtTrazaClienteId">ClienteId opcional (GET integraciones; vacío = primera fila Pendiente HubSpot)</label><br />
+<input type="number" id="txtTrazaClienteId" style="width:140px;" min="1" step="1" />
+<button type="button" onclick="ProcesarColaHubSpotTrazaCliente()">Traza: consultar cliente SpertaAPI (sin HubSpot)</button>
+<br /><br />
+<button type="button" onclick="ProcesarColaHubSpotTraza()">Traza: cola HubSpot corrida total (pasos hasta HubSpot/Sperta)</button>
+<p><small>Una sola corrida a la vez entre pestañas; la corrida total marca filas EnProceso durante el batch. Para desarrollo sin token HubSpot usar <code>HubSpot:UseDevelopmentMock=true</code> en Web.config.</small></p>
+<label for="txtTrazaBatch">Traza MVC (pasos/resumen)</label><br />
+<textarea id="txtTrazaBatch" readonly rows="22" cols="120" style="width:98%;font-family:Consolas,Menlo,monospace;font-size:11px;"></textarea>
+
+<script>
+    function EjemploSpertaApi() {
+        MSExecuteURLOnServer("/Home/EjemploSpertaApi");
+    }
+    function GrabarEmailError() {
+        MSExecuteURLOnServer("/Home/GrabarEmailError");
+    }
+    function ProcesarColaHubSpot() {
+        MSExecuteURLOnServer("/Home/ProcesarColaHubSpot");
+    }
+    function MostrarTrazaEnTextarea(url) {
+        var ta = document.getElementById("txtTrazaBatch");
+        ta.value = "Ejecutando (AJAX asíncrono, esperar)...";
+        var timeoutMs = 600000;
+        MSExecuteURLOnServerAsync(url, function (data) {
+            try {
+                ta.value = JSON.stringify(data, null, 2);
+            } catch (e) {
+                ta.value = "Error serializando respuesta: " + e.message;
+            }
+        }, "", timeoutMs);
+    }
+
+    function ProcesarColaHubSpotTrazaCola() {
+        MostrarTrazaEnTextarea("/Home/ProcesarColaHubSpotTrazaCola");
+    }
+
+    function ProcesarColaHubSpotTrazaCliente() {
+        var cid = document.getElementById("txtTrazaClienteId").value.trim();
+        var q = cid !== "" ? ("?clienteId=" + encodeURIComponent(cid)) : "";
+        MostrarTrazaEnTextarea("/Home/ProcesarColaHubSpotTrazaCliente" + q);
+    }
+
+    function ProcesarColaHubSpotTraza() {
+        MostrarTrazaEnTextarea("/Home/ProcesarColaHubSpotTraza");
+    }
+</script>
