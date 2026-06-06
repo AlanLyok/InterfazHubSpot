@@ -91,7 +91,7 @@ Get-ChildItem -Path $repoRoot -Recurse -Filter '*.cs' -File |
         foreach ($line in $lines) {
             $lineNum++
             foreach ($pat in $patternesBlockedCs) {
-                if ($line -match [regex]::Escape($pat)) {
+                if ($line -cmatch [regex]::Escape($pat)) {
                     $csHits += [pscustomobject]@{
                         File    = $_.FullName
                         Line    = $lineNum
