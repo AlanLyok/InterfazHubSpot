@@ -61,4 +61,53 @@ if ($hits.Count -gt 0) {
     throw "Verify-InterfazHubSpot: $($hits.Count) referencias legacy encontradas."
 }
 
+# --- Patrones bloqueados: no deben aparecer en código fuente C# ---
+$patternesBlockedCs = @(
+    'SpertaApi',
+    'HttpSpertaApiClient',
+    'ISpertaApiClient',
+    'TracingSpertaApiClient',
+    'MSFwk',
+    'SpertaFwk',
+    'EjemploSpertaApiJob'
+)
+$thisScript = $MyInvocation.MyCommand.Path
+$csHits = @()
+
+Get-ChildItem -Path $repoRoot -Recurse -Filter '*.cs' -File |
+    Where-Object {
+        $_.FullName -notmatch '\\\.git\\' -and
+        $_.FullName -notmatch '\\obj\\' -and
+        $_.FullName -notmatch '\\bin\\' -and
+        $_.FullName -notmatch '\\packages\\' -and
+        $_.FullName -notmatch '\\sql\\' -and
+        $_.FullName -notmatch '\\docs\\' -and
+        $_.FullName -ne $thisScript
+    } |
+    ForEach-Object {
+        $lines = Get-Content -LiteralPath $_.FullName -ErrorAction SilentlyContinue
+        if (-not $lines) { return }
+        $lineNum = 0
+        foreach ($line in $lines) {
+            $lineNum++
+            foreach ($pat in $patternesBlockedCs) {
+                if ($line -match [regex]::Escape($pat)) {
+                    $csHits += [pscustomobject]@{
+                        File    = $_.FullName
+                        Line    = $lineNum
+                        Pattern = $pat
+                        Content = $line.Trim()
+                    }
+                }
+            }
+        }
+    }
+
+if ($csHits.Count -gt 0) {
+    Write-Host "ERROR: Referencias bloqueadas encontradas en codigo fuente C#:" -ForegroundColor Red
+    $csHits | Format-Table -AutoSize
+    throw "Verify-InterfazHubSpot: $($csHits.Count) referencias bloqueadas (SpertaApi/MSFwk/SpertaFwk) en archivos .cs."
+}
+
+Write-Host 'OK Sin referencias legacy Sperta/MSFwk en archivos .cs' -ForegroundColor Green
 Write-Host 'Verify-InterfazHubSpot: OK (build + tests + grep legacy=0)'

@@ -7,7 +7,7 @@ namespace InterfazHubSpot.Business.Diagnostics
 
         Cola,
 
-        SpertaApi,
+        FuenteDatos,
 
         Mapeo,
 
