@@ -3,7 +3,7 @@
 **Project:** Integración HubSpot — Flujos 2A y 2B  
 **Initialized:** 2026-06-06  
 **Current Phase:** 1 (not started)  
-**Status:** Planning complete — ready for `/gsd-discuss-phase 1`
+**Status:** Refactor nomenclatura InterfazHubSpot completado (2026-06-06) — listo para `/gsd-discuss-phase 1`
 
 ## Project Reference
 
@@ -43,7 +43,8 @@ See: `.planning/PROJECT.md` (updated 2026-06-06)
 
 ## Session Notes
 
-- Repo brownfield: InterfazHubSpot ya tiene jobs HubSpot vía SpertaAPI; objetivo es migrar a SQL directo.
+- Repo brownfield: solución unificada como `InterfazHubSpot.sln`; runners en `Business/HubSpot/`; cola `ProcesosSpertaHubSpot`.
+- Scripts canónicos: `InterfazHubSpot/Scripts/agent/{Build,Test,Verify}-InterfazHubSpot.ps1`.
 - Git inicializado 2026-06-06.
 - Skills del proyecto: `.cursor/skills/get-shit-done`, `dotnet-best-practices` (aplica a otro stack — este proyecto es .NET 4.5.2).
 
