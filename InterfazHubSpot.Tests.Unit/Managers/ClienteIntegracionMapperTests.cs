@@ -75,9 +75,9 @@ namespace InterfazHubSpot.Tests.Unit.Managers
             Assert.Equal(1, result.ClienteId);
             Assert.Equal("COD001", result.CodigoCliente);
             Assert.Equal("Test SA", result.Cliente.RazonSocial);
-            Assert.Equal(1, result.Cliente.ListaClientesContactos.Count);
+            Assert.Single(result.Cliente.ListaClientesContactos);
             Assert.Equal("juan@test.com", result.Cliente.ListaClientesContactos[0].CorreoElectronico);
-            Assert.Equal(1, result.Cliente.ListaDireccionEntregas.Count);
+            Assert.Single(result.Cliente.ListaDireccionEntregas);
             Assert.Equal("Av. Corrientes 1234", result.Cliente.ListaDireccionEntregas[0].Domicilio);
         }
 
