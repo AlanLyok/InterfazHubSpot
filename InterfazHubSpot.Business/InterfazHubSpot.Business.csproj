@@ -82,11 +82,8 @@
     <Compile Include="HubSpot\DevelopmentHubSpotStubHandler.cs" />
     <Compile Include="HubSpot\HubSpotCrmClient.cs" />
     <Compile Include="HubSpot\HubSpotIntegracionRunner.cs" />
-    <Compile Include="Integration\HttpSpertaApiClient.cs" />
     <Compile Include="Integration\IntegracionColaEstados.cs" />
     <Compile Include="Integration\IntegracionColaIdentificador.cs" />
-    <Compile Include="Integration\ISpertaApiClient.cs" />
-    <Compile Include="Integration\TracingSpertaApiClient.cs" />
     <Compile Include="Managers\EmailsManager.cs" />
     <Compile Include="Managers\ErroresManager.cs" />
     <Compile Include="Managers\IntegracionEjecucionLogManager.cs" />
