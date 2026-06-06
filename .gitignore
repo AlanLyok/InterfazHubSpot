@@ -1,0 +1,12 @@
+#Ignore cursor AI rules
+.cursor\rules\codacy.mdc
+
+# Build / IDE
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# NuGet
+packages/
