@@ -1,6 +1,8 @@
-# InterfazHubSpot (batch neutro)
+# InterfazHubSpot
 
-Aplicación **.NET Framework 4.5.2** para procesos en segundo plano que se integran con **SpertaAPI** (`api/v100`), más **consola web MVC** de desarrollo para lanzar jobs manualmente. **No** incluye dominio Mercado Libre, MKP, APPro ni otros conectores de producto retirados.
+Aplicación **.NET Framework 4.5.2** para procesos en segundo plano que sincronizan datos ERP Mastersoft → HubSpot CRM, más **consola web MVC** de desarrollo para lanzar jobs manualmente.
+
+La fuente de datos es **SQL Server vía stored procedures** sobre `MSGestion` — no hay llamada HTTP a SpertaAPI en el runtime. El acceso a HubSpot usa **Private App Token** (CRM v3).
 
 ---
 
@@ -8,10 +10,12 @@ Aplicación **.NET Framework 4.5.2** para procesos en segundo plano que se integ
 
 | Componente | Tecnología |
 |------------|------------|
+| Framework | .NET Framework 4.5.2 |
+| Web dev | ASP.NET MVC 5 (consola interna, sin login) |
 | Batch | `InterfazHubSpot.BatchProcess` (`IScheduler`) |
-| Web dev | ASP.NET MVC (login, ABMs existentes, botones de prueba en Home) |
-| Datos | EF6 + SQL Server (usuarios, errores, combos de empresa/perfil) |
-| API | `HttpSpertaApiClient` — OAuth password + rutas documentadas en el repo principal |
+| Datos ERP | EF6 + SQL Server — cola `dbo.ProcesosSpertaHubSpot` + SPs en MSGestion (`ClienteIntegracionManager`) |
+| API HubSpot | HubSpot CRM v3 — Private App Token |
+| Tests | xUnit (`InterfazHubSpot.Tests.Unit`, `InterfazHubSpot.IntegrationTests`) |
 
 ---
 
@@ -20,12 +24,12 @@ Aplicación **.NET Framework 4.5.2** para procesos en segundo plano que se integ
 ```
 InterfazHubSpot.sln
 ├── InterfazHubSpot/                 # MVC
-├── InterfazHubSpot.Business/        # Managers + HttpSpertaApiClient + cola integraciones
+├── InterfazHubSpot.Business/        # Managers + ClienteIntegracionManager + cola integraciones
+├── InterfazHubSpot.Business/HubSpot/  # Runners CRM HubSpot (2A cola + 2B cuenta corriente)
 ├── InterfazHubSpot.Entities/
 ├── InterfazHubSpot.Interfaces/
 ├── InterfazHubSpot.Mapping/
 ├── InterfazHubSpot.BatchProcess/    # IScheduler (jobs + HubSpot)
-├── InterfazHubSpot.Business/HubSpot/  # Runners CRM HubSpot (2A cola + 2B cuenta corriente)
 ├── sql/                            # Scripts SQL (cola `ProcesosSpertaHubSpot`)
 ├── InterfazHubSpot.IntegrationTests/
 └── Componentes/                    # DLL Mastersoft mínimas para compilar
@@ -35,7 +39,7 @@ InterfazHubSpot.sln
 
 ## Base de datos (cola neutra)
 
-Ejecutar en la misma base MSGestion / contexto que usa el batch para errores y EF:
+Ejecutar en `MSGestion` (la misma base que usa el batch):
 
 - [`sql/001_ProcesosSpertaHubSpot.sql`](sql/001_ProcesosSpertaHubSpot.sql) — tablas `dbo.ProcesosSpertaHubSpot` (columna **`Identificador`**) y `dbo.IntegracionEjecucionLog`.
 - [`sql/002_ProcesosSpertaHubSpot_identificador.sql`](sql/002_ProcesosSpertaHubSpot_identificador.sql) — migración desde esquemas con `ClienteId`/`PayloadJson` + SP **`USER_POS_Clientes_Agregar`**.
@@ -44,34 +48,19 @@ Desde el ERP WinForms se insertan filas pendientes en la cola; contrato de colum
 
 ---
 
-## `connectionStrings`: MSFwk y MSGestion
+## `connectionStrings`
 
-Como **SpertaAPI**, el `Web.config` del MVC batch debe declarar **`MSFwk`** (framework: validación de usuario en `POST /token` OAuth) y **`MSGestion`** (datos ERP vía EF: cola `dbo.ProcesosSpertaHubSpot`, `UsuariosWeb`, errores, etc.). El cliente HTTP debe configurar **`SpertaAPICompanyId`** (cabecera `CompanyId` en OAuth y llamadas Bearer).
+El `Web.config` / `App.config` declara una única connection string:
 
-El login por pantalla (`UsuariosWeb` en gestión) puede seguir usando tablas en MSGestion; no reemplaza al OAuth salvo que el front use el mismo flujo.
+- **`MSGestion`** — ERP DB; contexto EF6, cola `dbo.ProcesosSpertaHubSpot`, y host de todos los SPs que llama la integración (`dbo.USP_Integracion_HubSpot_Cliente_Obtener`, `dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`, `USER_POS_Clientes_Agregar`, etc.). SQL migrations en `sql/`.
 
----
-
-## Cliente SpertaAPI (`HttpSpertaApiClient`)
-
-Configuración en `Web.config` / `App.config`:
-
-| Clave | Uso |
-|--------|-----|
-| `SpertaAPIBaseUrl` | Origen (ej. `https://host/`) |
-| `SpertaAPIUserName` / `SpertaAPIPassword` | Grant `password` |
-| `SpertaAPICompanyId` | **Obligatorio**: empresa ERP enviada como cabecera `CompanyId` en `POST /token` y en requests autenticadas (mismo valor que `CodEmpre` / contexto del token). |
-| `SpertaAPIReciboRelativePath` | Opcional; ruta relativa si el despliegue expone POST de recibos (el núcleo documentado usa `clientes/grabar` y `pedidos/grabar`) |
-| `FrameworkCNPrefix` | Prefijo de cadena Mastersoft para `MSContext` (default lógico: `InterfazHubSpot`) |
-| `EmailErrDE` / `EmailErrPara` / `EmailErrCc` | Destinatarios para `EmailsManager` (cola `Emails_Agregar`) |
-
-Métodos principales: `GetHealthAsync`, `PostClientesGrabarAsync`, `PostPedidosGrabarAsync`, `PostReciboAsync` (solo si hay `SpertaAPIReciboRelativePath`), **`GetIntegracionesClienteAsync`**, **`GetIntegracionesHubSpotCuentaCorrienteAsync`** (lecturas Bearer para HubSpot).
+No se requiere `MSFwk`; el sitio MVC es una consola interna sin autenticación de usuario.
 
 ---
 
 ## HubSpot (`InterfazHubSpot`)
 
-Configuración en el mismo `Web.config` del sitio MVC batch (o `App.config` si ejecutan jobs desde otro host):
+Configuración en `Web.config` del sitio MVC batch (o `App.config` si los jobs corren en otro host):
 
 | Clave | Uso |
 |--------|-----|
@@ -80,26 +69,23 @@ Configuración en el mismo `Web.config` del sitio MVC batch (o `App.config` si e
 | `HubSpot:PropertyMastersoftId` | Propiedad company en HubSpot para id ERP (default `mastersoft_id_`). |
 | `HubSpot:PropertyManejoCuentaCorriente` | Propiedad texto para resumen CC en batch 2B (default `manejo_cuenta_corriente`). |
 | `HubSpot:DelayMillisecondsBetweenCalls` | Pausa entre llamadas REST (default `120`). |
-| `HubSpot:CuentaCorrientePageSize` | Tamaño de página al pedir datos a SpertaAPI en 2B (default `500`, acotado en código). |
-| `HubSpot:UseDevelopmentMock` | Opcional (`true`/`false`): **solo desarrollo**. Evita token real y intercepta llamadas CRM v3 con respuestas mínimas; no usar en producción sin consenso. |
-
-En **SpertaAPI** (`Web.config` del API), el endpoint de cuenta corriente masiva requiere las claves `HubSpotCc:*` (reportes activos + impagos); ver comentarios en ese archivo y [`AGENTS.md`](../../AGENTS.md).
+| `HubSpot:CuentaCorrientePageSize` | Tamaño de página al consultar cuenta corriente en 2B (default `500`, acotado en código). |
+| `HubSpot:UseDevelopmentMock` | Opcional (`true`/`false`): **solo desarrollo**. Evita token real y intercepta llamadas CRM v3 con respuestas mínimas; no usar en producción. |
 
 ---
 
 ## Jobs (`IScheduler`)
 
-- **`EjemploSpertaApiJob`** — Plantilla: llama a `GET api/v100/health` y registra en log; en error usa `ErroresManager` + `EmailsManager`.
 - **`GrabarEmailError`** — Encola un correo de prueba vía `EmailsManager`.
-- **`ProcesarColaIntegracionesHubSpotJob`** — Toma filas `Destino=HubSpot` pendientes, sincroniza compañía/contactos vía `HubSpotIntegracionRunner` (flujo **2A**).
-- **`HubSpotSincronizarCuentaCorrienteJob`** — Pagina `GET …/sperta/integraciones/hubspot/cuenta-corriente-clientes` y envía batch update de 100 compañías en HubSpot (flujo **2B**).
+- **`ProcesarColaIntegracionesHubSpotJob`** — Toma filas `Destino=HubSpot` pendientes, resuelve datos de cliente vía SP (`ClienteIntegracionManager`) y sincroniza compañía/contactos vía `HubSpotIntegracionRunner` (flujo **2A**).
+- **`HubSpotSincronizarCuentaCorrienteJob`** — Pagina datos de cuenta corriente vía SP (`dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`) y envía batch update de 100 compañías en HubSpot (flujo **2B**).
 
 Desde la Home MVC:
 
 - Acciones estándar: **`POST /Home/ProcesarColaHubSpot`** (silencioso) y **`POST /Home/HubSpotCuentaCorrienteBatch`**.
 - Traza incremental (respuesta JSON con `pasos`):  
   **`POST /Home/ProcesarColaHubSpotTrazaCola`** — vista previa tabla `ProcesosSpertaHubSpot` (conteos + muestra Pendiente sin reclamar).  
-  **`POST /Home/ProcesarColaHubSpotTrazaCliente?clienteId=n`** — GET integraciones cliente vía `TracingSpertaApiClient` (pregunta/resolución OAuth + solicitud/resumen respuesta sin secretos largos duplicados).  
+  **`POST /Home/ProcesarColaHubSpotTrazaCliente?clienteId=n`** — consulta datos cliente vía SP y muestra resolución sin secretos.  
   **`POST /Home/ProcesarColaHubSpotTraza`** — corrida completa reclamo + sincronización HubSpot (marcar pendientes como EnProceso). Los botones equivalentes están en `Views/Home/Index.cshtml`.
 
 ---
@@ -108,7 +94,7 @@ Desde la Home MVC:
 
 | Proyecto | Rol |
 |----------|-----|
-| `InterfazHubSpot.Tests.Unit` | xUnit: cliente HTTP, trazas, HubSpot internals (HTTP mockeado), diagnósticos y constantes de cola. |
+| `InterfazHubSpot.Tests.Unit` | xUnit: HubSpot internals (HTTP mockeado), diagnósticos y constantes de cola. |
 | `InterfazHubSpot.IntegrationTests` | xUnit humo/compilación frente a `Business` (+ futuras `Category=Live` con BD/API). |
 
 Ejecución automatizada desde la raíz del repo:

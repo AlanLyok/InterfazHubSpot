@@ -17,6 +17,7 @@ Guía para agentes AI (Cursor) trabajando en este repositorio.
 | Batch | `InterfazHubSpot.BatchProcess` / IScheduler |
 | HubSpot runners | `InterfazHubSpot.Business/HubSpot/` |
 | Datos cola | SQL Server — tabla `dbo.ProcesosSpertaHubSpot` |
+| Datos ERP | SPs en MSGestion — `ClienteIntegracionManager` (`dbo.USP_Integracion_HubSpot_Cliente_Obtener`, `dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`) |
 | API externa | HubSpot CRM v3 — Private App Token |
 | Tests | xUnit (`InterfazHubSpot.Tests.Unit`, `InterfazHubSpot.IntegrationTests`) |
 
@@ -65,7 +66,7 @@ InterfazHubSpot.sln
 
 ## MCP SQL (desarrollo)
 
-Servidores MCP: `user-mssql-mcp-msgestion`, `user-mssql-mcp-msfwk`, `user-mssql-mcp-msordentrabajo`.
+Servidores MCP: `user-mssql-mcp-msgestion`, `user-mssql-mcp-msordentrabajo`.
 
 ## Fase actual
 

@@ -5,6 +5,11 @@
 **Versión:** 1.0  
 **Fecha:** Junio 2026  
 
+> **Nota de implementación (jun 2026):** El runtime actual resuelve los datos de clientes y cuenta corriente
+> via stored procedures directos sobre MSGestion (`dbo.USP_Integracion_HubSpot_Cliente_Obtener` y
+> `dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`), no via HTTP a SpertaAPI. Las referencias a
+> endpoints SpertaAPI en este documento son históricas.
+
 ---
 
 ## 1. Contexto y Objetivo
