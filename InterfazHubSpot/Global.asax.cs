@@ -2,7 +2,6 @@ using Autofac;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
 using InterfazHubSpot.Interfaces;
-using Mastersoft.Framework.Cache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,8 +46,6 @@ namespace InterfazHubSpot
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
 
             GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(container);
-
-            CacheConfig.UseCacheService();
         }
     }
 }

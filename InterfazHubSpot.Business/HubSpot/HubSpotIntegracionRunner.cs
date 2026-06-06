@@ -475,9 +475,191 @@ namespace InterfazHubSpot.Business.HubSpot
             return null;
         }
 
+        // ── Métodos diagnóstico granular (sin tocar cola) ──────────────────────────
+
+        /// <summary>Diagnóstico paso 3: busca una compañía en HubSpot por mastersoft_id_.</summary>
+        public void DiagnosticarBuscarEmpresaHubSpot(int clienteId)
+        {
+            EnsureHubClient();
+            var mastersoftKey = clienteId.ToString(CultureInfo.InvariantCulture);
+            var hubId = RunSync(() => _hub.SearchCompanyIdByMastersoftIdAsync(mastersoftKey));
+            _pasos.RegistrarPaso(
+                hubId != null ? ProcesoPasoSeverity.Information : ProcesoPasoSeverity.Warning,
+                ProcesoPasoCategoria.DestinoExterno,
+                "destinoexterno.hubspot.company.search_by_mastersoft",
+                hubId != null
+                    ? "Compañía encontrada en HubSpot."
+                    : "Compañía NO encontrada en HubSpot para ese mastersoft_id_.",
+                new { clienteId, mastersoftKey, hubSpotCompanyId = hubId ?? "(no encontrada)" });
+        }
+
+        /// <summary>Diagnóstico pasos 2-4: SP datos cliente + búsqueda + upsert compañía HubSpot (sin cola ni contactos).</summary>
+        public void DiagnosticarUpsertEmpresaHubSpot(int clienteId)
+        {
+            EnsureHubClient();
+
+            _pasos.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "bd.sp.cliente_obtener",
+                "Ejecutando SP para obtener datos del cliente.",
+                new { clienteId });
+
+            var dto = _cli.ObtenerClienteParaHubSpot(clienteId);
+            if (dto == null)
+                throw new InvalidOperationException("SP no devolvió datos para clienteId " + clienteId + ".");
+
+            var clientePk = dto.ClienteId > 0 ? dto.ClienteId : clienteId;
+            var mastersoftKey = clientePk.ToString(CultureInfo.InvariantCulture);
+
+            _pasos.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Mapeo,
+                "integraciones.cliente.payload_parseado",
+                "Datos SP cliente cargados.",
+                new
+                {
+                    clientePk,
+                    codigoCliente = dto.CodigoCliente,
+                    muestraDatosTruncada = DiagnosticsTextHelper.TruncateForTrace(
+                        Newtonsoft.Json.JsonConvert.SerializeObject(dto)),
+                });
+
+            var hubCompanyExistingId = RunSync(() => _hub.SearchCompanyIdByMastersoftIdAsync(mastersoftKey));
+            _pasos.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.DestinoExterno,
+                "destinoexterno.hubspot.company.search_by_mastersoft",
+                hubCompanyExistingId == null
+                    ? "Sin compañía existente en HubSpot — se creará."
+                    : "Compañía existente en HubSpot — se actualizará.",
+                new { mastersoftKey, hubSpotCompanyId = hubCompanyExistingId ?? "(crear nueva)" });
+
+            var companyProps = BuildCompanyProperties(dto.Cliente, clientePk, dto.CodigoCliente);
+            var resp = RunSync(() => _hub.UpsertCompanyAsync(hubCompanyExistingId, companyProps));
+
+            var joCompany = JObject.Parse(resp);
+            var hubCompanyId = joCompany["id"]?.ToString() ?? hubCompanyExistingId;
+            if (string.IsNullOrEmpty(hubCompanyId))
+                throw new InvalidOperationException("HubSpot no devolvió id de compañía.");
+
+            _pasos.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.DestinoExterno,
+                "destinoexterno.hubspot.company_upsert",
+                hubCompanyExistingId == null
+                    ? "Compañía CREADA en HubSpot (POST)."
+                    : "Compañía ACTUALIZADA en HubSpot (PATCH).",
+                new { hubCompanyId, fueCreacion = hubCompanyExistingId == null });
+        }
+
+        /// <summary>Diagnóstico paso 5: busca un contacto en HubSpot por email.</summary>
+        public void DiagnosticarBuscarContactoHubSpot(string email)
+        {
+            EnsureHubClient();
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("Se requiere un email para buscar el contacto.");
+
+            var hubId = RunSync(() => _hub.SearchContactIdByEmailAsync(email.Trim()));
+            _pasos.RegistrarPaso(
+                hubId != null ? ProcesoPasoSeverity.Information : ProcesoPasoSeverity.Warning,
+                ProcesoPasoCategoria.DestinoExterno,
+                "destinoexterno.hubspot.contact.search_by_email",
+                hubId != null
+                    ? "Contacto encontrado en HubSpot."
+                    : "Contacto NO encontrado en HubSpot para ese email.",
+                new { email, hubSpotContactId = hubId ?? "(no encontrado)" });
+        }
+
+        /// <summary>Diagnóstico pasos 5-6 completo: SP contactos del cliente + upsert en HubSpot + asociación si fueron creados.</summary>
+        public void DiagnosticarSincronizarContactosCliente(int clienteId, string hubCompanyId)
+        {
+            EnsureHubClient();
+            if (string.IsNullOrWhiteSpace(hubCompanyId))
+                throw new ArgumentException("Se requiere el HubSpot Company ID para asociar contactos nuevos.");
+
+            var dto = _cli.ObtenerClienteParaHubSpot(clienteId);
+            if (dto == null)
+                throw new InvalidOperationException("SP no devolvió datos para clienteId " + clienteId + ".");
+
+            var contactos = dto.Cliente.ListaClientesContactos ?? new List<ContactoDto>();
+            _pasos.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "bd.sp.contactos_obtenidos",
+                "Contactos obtenidos del SP MSGestion.",
+                new { clienteId, total = contactos.Count });
+
+            var idxContacto = 0;
+            foreach (var c in contactos)
+            {
+                idxContacto++;
+                if (c == null)
+                    continue;
+
+                var email = c.CorreoElectronico;
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    _pasos.RegistrarPaso(
+                        ProcesoPasoSeverity.Warning,
+                        ProcesoPasoCategoria.Mapeo,
+                        "contacto.sin_email",
+                        "Contacto omitido: sin CorreoElectronico.",
+                        new { indice = idxContacto });
+                    continue;
+                }
+
+                var hubContactExisting = RunSync(() => _hub.SearchContactIdByEmailAsync(email));
+                _pasos.RegistrarPaso(
+                    ProcesoPasoSeverity.Information,
+                    ProcesoPasoCategoria.DestinoExterno,
+                    "destinoexterno.hubspot.contact.search_by_email",
+                    hubContactExisting == null ? "Contacto nuevo por email." : "Contacto existente en HubSpot.",
+                    new
+                    {
+                        indice = idxContacto,
+                        email,
+                        hubSpotContactId = hubContactExisting ?? "(crear nuevo)",
+                    });
+
+                var contactProps = BuildContactProperties(c);
+                var upsertContact = RunSync(() => _hub.UpsertContactAsync(hubContactExisting, contactProps));
+                var created = upsertContact.Item1;
+                var contactIdReturned = upsertContact.Item2;
+
+                _pasos.RegistrarPaso(
+                    ProcesoPasoSeverity.Information,
+                    ProcesoPasoCategoria.DestinoExterno,
+                    "destinoexterno.hubspot.contact_upsert",
+                    created ? "Contacto CREADO (POST)." : "Contacto ACTUALIZADO (PATCH).",
+                    new { indice = idxContacto, contactIdReturned, fueCreacion = created });
+
+                if (string.IsNullOrEmpty(contactIdReturned))
+                    throw new InvalidOperationException("HubSpot no devolvió id de contacto para " + email);
+
+                if (created)
+                {
+                    RunSync(() => _hub.AssociateContactToCompanyAsync(contactIdReturned, hubCompanyId));
+                    _pasos.RegistrarPaso(
+                        ProcesoPasoSeverity.Information,
+                        ProcesoPasoCategoria.DestinoExterno,
+                        "destinoexterno.hubspot.contact_associate_company",
+                        "Contacto nuevo asociado a compañía.",
+                        new { indice = idxContacto, contactIdReturned, hubCompanyId });
+                }
+            }
+        }
+
+        // ── helpers ─────────────────────────────────────────────────────────────────
+
         private static void RunSync(Func<Task> asyncWork)
         {
             asyncWork().GetAwaiter().GetResult();
+        }
+
+        private static T RunSync<T>(Func<Task<T>> asyncWork)
+        {
+            return asyncWork().GetAwaiter().GetResult();
         }
     }
 }

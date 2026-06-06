@@ -1,0 +1,4 @@
+# Servicio MCP MSSQL para Cursor (solo desarrollo). Ver README.md.
+# Requisitos del paquete: Python >= 3.11 — https://pypi.org/project/mssql-mcp-server/
+mssql-mcp-server==0.1.2
+python-dotenv>=1.0.0

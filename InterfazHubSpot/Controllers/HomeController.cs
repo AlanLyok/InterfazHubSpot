@@ -2,6 +2,7 @@ using System;
 using InterfazHubSpot.BatchProcess;
 using InterfazHubSpot.Business.Common;
 using InterfazHubSpot.Business.Diagnostics;
+using InterfazHubSpot.Business.HubSpot;
 using System.Configuration;
 using System.Web.Mvc;
 using InterfazHubSpot.Business.Integration;
@@ -258,6 +259,156 @@ namespace InterfazHubSpot.Controllers
                 Logger.Log(
                     "[Traza MVC " + correlacionId + "] " + nameof(HomeController.ProcesarColaHubSpotTrazaCliente) + ": " +
                     ex);
+            }
+
+            return CrearJsonTrazaSalida(correlacionId, ok, errorFatal, null, collector);
+        }
+
+        /// <summary>Diagnóstico paso 3: busca la empresa en HubSpot por mastersoft_id_ para el clienteId dado.</summary>
+        [HttpPost]
+        public JsonResult TrazaHubSpotBuscarEmpresa(int? clienteId = null)
+        {
+            var correlacionId = Guid.NewGuid();
+            var collector = new ProcesoPasoCollector();
+            var ctx = GetContext();
+
+            collector.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "batchmvc.ejecucion_inicio",
+                "Inicio traza: buscar empresa en HubSpot por mastersoft_id_.",
+                new { correlacionId, clienteId });
+
+            var ok = true;
+            string errorFatal = null;
+
+            try
+            {
+                if (!clienteId.HasValue || clienteId.Value <= 0)
+                    throw new ArgumentException("Indicar clienteId en la URL (ej. ?clienteId=12345).");
+
+                var runner = new HubSpotIntegracionRunner(ctx, collector);
+                runner.DiagnosticarBuscarEmpresaHubSpot(clienteId.Value);
+            }
+            catch (Exception ex)
+            {
+                ok = false;
+                errorFatal = ex.Message;
+                RegistrarErrorFatal(collector, ex);
+                Logger.Log("[Traza MVC " + correlacionId + "] TrazaHubSpotBuscarEmpresa: " + ex);
+            }
+
+            return CrearJsonTrazaSalida(correlacionId, ok, errorFatal, null, collector);
+        }
+
+        /// <summary>Diagnóstico pasos 2-4: SP datos cliente + búsqueda + upsert empresa en HubSpot.</summary>
+        [HttpPost]
+        public JsonResult TrazaHubSpotUpsertEmpresa(int? clienteId = null)
+        {
+            var correlacionId = Guid.NewGuid();
+            var collector = new ProcesoPasoCollector();
+            var ctx = GetContext();
+
+            collector.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "batchmvc.ejecucion_inicio",
+                "Inicio traza: SP datos cliente + crear/actualizar empresa HubSpot.",
+                new { correlacionId, clienteId });
+
+            var ok = true;
+            string errorFatal = null;
+
+            try
+            {
+                if (!clienteId.HasValue || clienteId.Value <= 0)
+                    throw new ArgumentException("Indicar clienteId en la URL (ej. ?clienteId=12345).");
+
+                var runner = new HubSpotIntegracionRunner(ctx, collector);
+                runner.DiagnosticarUpsertEmpresaHubSpot(clienteId.Value);
+            }
+            catch (Exception ex)
+            {
+                ok = false;
+                errorFatal = ex.Message;
+                RegistrarErrorFatal(collector, ex);
+                Logger.Log("[Traza MVC " + correlacionId + "] TrazaHubSpotUpsertEmpresa: " + ex);
+            }
+
+            return CrearJsonTrazaSalida(correlacionId, ok, errorFatal, null, collector);
+        }
+
+        /// <summary>Diagnóstico paso 5: busca un contacto en HubSpot por email.</summary>
+        [HttpPost]
+        public JsonResult TrazaHubSpotBuscarContacto(string email = null)
+        {
+            var correlacionId = Guid.NewGuid();
+            var collector = new ProcesoPasoCollector();
+            var ctx = GetContext();
+
+            collector.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "batchmvc.ejecucion_inicio",
+                "Inicio traza: buscar contacto en HubSpot por email.",
+                new { correlacionId, email });
+
+            var ok = true;
+            string errorFatal = null;
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(email))
+                    throw new ArgumentException("Indicar email en la URL (ej. ?email=contacto@empresa.com).");
+
+                var runner = new HubSpotIntegracionRunner(ctx, collector);
+                runner.DiagnosticarBuscarContactoHubSpot(email);
+            }
+            catch (Exception ex)
+            {
+                ok = false;
+                errorFatal = ex.Message;
+                RegistrarErrorFatal(collector, ex);
+                Logger.Log("[Traza MVC " + correlacionId + "] TrazaHubSpotBuscarContacto: " + ex);
+            }
+
+            return CrearJsonTrazaSalida(correlacionId, ok, errorFatal, null, collector);
+        }
+
+        /// <summary>Diagnóstico pasos 5-6: SP contactos del cliente + upsert en HubSpot + asociación si fueron creados.</summary>
+        [HttpPost]
+        public JsonResult TrazaHubSpotSincronizarContactos(int? clienteId = null, string hubCompanyId = null)
+        {
+            var correlacionId = Guid.NewGuid();
+            var collector = new ProcesoPasoCollector();
+            var ctx = GetContext();
+
+            collector.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "batchmvc.ejecucion_inicio",
+                "Inicio traza: SP contactos + sincronizar en HubSpot.",
+                new { correlacionId, clienteId, hubCompanyId });
+
+            var ok = true;
+            string errorFatal = null;
+
+            try
+            {
+                if (!clienteId.HasValue || clienteId.Value <= 0)
+                    throw new ArgumentException("Indicar clienteId en la URL (ej. ?clienteId=12345).");
+                if (string.IsNullOrWhiteSpace(hubCompanyId))
+                    throw new ArgumentException("Indicar hubCompanyId en la URL (ej. &hubCompanyId=12345678).");
+
+                var runner = new HubSpotIntegracionRunner(ctx, collector);
+                runner.DiagnosticarSincronizarContactosCliente(clienteId.Value, hubCompanyId);
+            }
+            catch (Exception ex)
+            {
+                ok = false;
+                errorFatal = ex.Message;
+                RegistrarErrorFatal(collector, ex);
+                Logger.Log("[Traza MVC " + correlacionId + "] TrazaHubSpotSincronizarContactos: " + ex);
             }
 
             return CrearJsonTrazaSalida(correlacionId, ok, errorFatal, null, collector);
