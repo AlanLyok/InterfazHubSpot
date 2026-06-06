@@ -272,10 +272,6 @@
     <Compile Include="Models\VariosModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\MSContextProvider.cs" />
-    <Compile Include="Providers\OAuthProvider.cs" />
-    <Compile Include="Security\MsgestionTablasCompartidasLookup.cs" />
-    <Compile Include="Security\SpertaFwkUsuarioAuthFailureKind.cs" />
-    <Compile Include="Security\SpertaFwkUsuarioAuthenticator.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

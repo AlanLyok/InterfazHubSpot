@@ -5,7 +5,6 @@
 -->
 <configuration>
   <connectionStrings>
-    <add name="MSFwk" connectionString="Data Source=SERVER;Initial Catalog=MsFramework_XXX;..." />
     <add name="MSGestion" connectionString="Data Source=SERVER;Initial Catalog=MsGestion_XXX;..." />
   </connectionStrings>
   <appSettings>
@@ -17,8 +16,6 @@
     <add key="HubSpot:UseDevelopmentMock" value="true" />
   </appSettings>
   <system.web>
-    <authentication mode="Forms">
-      <forms name="InterfazHubSpot" loginUrl="~/Account/Login" timeout="2880" />
-    </authentication>
+    <authentication mode="None" />
   </system.web>
 </configuration>
