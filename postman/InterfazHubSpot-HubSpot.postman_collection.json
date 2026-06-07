@@ -1,46 +1,9 @@
 {
   "info": {
     "name": "InterfazHubSpot — HubSpot CRM v3",
-    "description": "Pruebas de conexión contra HubSpot CRM v3 (Private App Token) y endpoints de la consola MVC local.\n\nAntes de usar:\n1. Completar la variable `privateAppToken` con el PAT (pat-na1-...).\n2. Ajustar `localUrl` al puerto donde corre el sitio MVC en desarrollo.",
+    "description": "Pruebas HubSpot CRM v3 (Private App Token) + consola MVC local.\n\n**Setup:** importar `InterfazHubSpot-Dev.postman_environment.json`, activar el environment y completar `privateAppToken` (pat-na1-...).\n\nVer `postman/README.md` para orden de prueba.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "https://api.hubapi.com",
-      "type": "string"
-    },
-    {
-      "key": "privateAppToken",
-      "value": "",
-      "type": "string",
-      "description": "HubSpot Private App Token (pat-na1-...). Nunca versionar."
-    },
-    {
-      "key": "localUrl",
-      "value": "http://localhost:50123",
-      "type": "string",
-      "description": "URL base de la consola MVC en desarrollo."
-    },
-    {
-      "key": "mastersoftId",
-      "value": "12345",
-      "type": "string",
-      "description": "ClienteId de prueba en Mastersoft."
-    },
-    {
-      "key": "hubspotCompanyId",
-      "value": "",
-      "type": "string",
-      "description": "ID de compañía HubSpot (se obtiene al crear o buscar)."
-    },
-    {
-      "key": "hubspotContactId",
-      "value": "",
-      "type": "string",
-      "description": "ID de contacto HubSpot (se obtiene al crear o buscar)."
-    }
-  ],
   "auth": {
     "type": "bearer",
     "bearer": [
@@ -53,10 +16,57 @@
   },
   "item": [
     {
-      "name": "0 — Salud / Conexión",
+      "name": "0 — Auth y conexión",
+      "description": "Verificar PAT antes de probar 2A/2B. Un 401 indica token inválido; un 403 indica scopes insuficientes.",
       "item": [
         {
-          "name": "GET Propiedades de compañía (verifica token)",
+          "name": "POST Verificar PAT (scopes)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    console.log('hubId:', j.hubId, 'scopes:', j.scopes);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tokenKey\": \"{{privateAppToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth/v2/private-apps/get/access-token-info",
+              "host": ["{{baseUrl}}"],
+              "path": ["oauth", "v2", "private-apps", "get", "access-token-info"]
+            },
+            "description": "Inspecciona hubId, appId y scopes del PAT. No requiere header Authorization."
+          }
+        },
+        {
+          "name": "GET Propiedades de compañía (smoke token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Token válido (200)', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -64,11 +74,26 @@
               "raw": "{{baseUrl}}/crm/v3/properties/companies?limit=5",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "properties", "companies"],
+              "query": [{ "key": "limit", "value": "5" }]
+            },
+            "description": "Llamada mínima autenticada. 200 = Bearer OK. 401 = token inválido/revocado."
+          }
+        },
+        {
+          "name": "GET Listar compañías (limit 1)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/v3/objects/companies?limit=1&properties=name,{{propertyMastersoftId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["crm", "v3", "objects", "companies"],
               "query": [
-                { "key": "limit", "value": "5" }
+                { "key": "limit", "value": "1" },
+                { "key": "properties", "value": "name,{{propertyMastersoftId}}" }
               ]
             },
-            "description": "Llamada mínima para verificar que el token PAT es válido. Un 200 confirma autenticación. Un 401 indica token inválido o vencido."
+            "description": "Smoke adicional de lectura CRM objects."
           }
         }
       ]
@@ -78,49 +103,77 @@
       "item": [
         {
           "name": "POST Buscar compañía por mastersoft_id_",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.results && j.results.length > 0 && j.results[0].id) {",
+                  "        pm.environment.set('hubspotCompanyId', j.results[0].id);",
+                  "        console.log('hubspotCompanyId =', j.results[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"propertyName\": \"mastersoft_id_\",\n          \"operator\": \"EQ\",\n          \"value\": \"{{mastersoftId}}\"\n        }\n      ]\n    }\n  ],\n  \"properties\": [\"name\", \"mastersoft_id_\", \"manejo_cuenta_corriente\"],\n  \"limit\": 1\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"propertyName\": \"{{propertyMastersoftId}}\",\n          \"operator\": \"EQ\",\n          \"value\": \"{{mastersoftId}}\"\n        }\n      ]\n    }\n  ],\n  \"properties\": [\"name\", \"{{propertyMastersoftId}}\", \"{{propertyManejoCc}}\"],\n  \"limit\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/companies/search",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "companies", "search"]
             },
-            "description": "Busca una compañía por la propiedad personalizada mastersoft_id_. Si results.total > 0 la compañía ya existe y se debe hacer PATCH. Si no existe, se debe hacer POST."
+            "description": "Igual que HubSpotCrmClient.SearchCompanyIdByMastersoftIdAsync. Si total > 0 → PATCH; si no → POST."
           }
         },
         {
           "name": "POST Crear compañía",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.id) {",
+                  "        pm.environment.set('hubspotCompanyId', j.id);",
+                  "        console.log('hubspotCompanyId =', j.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"properties\": {\n    \"name\": \"EMPRESA DE PRUEBA SA\",\n    \"mastersoft_id_\": \"{{mastersoftId}}\",\n    \"nro_cliente\": \"99999\",\n    \"cuitcuil\": \"30-99999999-0\",\n    \"nombre_fantasia\": \"Empresa Prueba\",\n    \"adress\": \"Av. Corrientes 1234\",\n    \"city\": \"Buenos Aires\",\n    \"zip\": \"C1043\",\n    \"state\": \"Buenos Aires\",\n    \"Country\": \"Argentina\",\n    \"zona_vta\": \"CABA\",\n    \"vendedor\": \"VENDEDOR TEST\",\n    \"responsable_de_cuenta\": \"ALAN L\",\n    \"lista_de_precios\": \"Lista A\",\n    \"condicion_de_venta\": \"30 dias\",\n    \"dias_para_deuda\": \"30\",\n    \"limite_de_credito\": \"100000\",\n    \"categoria_cliente\": \"A\"\n  }\n}"
+              "raw": "{\n  \"properties\": {\n    \"name\": \"EMPRESA DE PRUEBA SA\",\n    \"{{propertyMastersoftId}}\": \"{{mastersoftId}}\",\n    \"nro_cliente\": \"99999\",\n    \"cuitcuil\": \"30-99999999-0\",\n    \"nombre_fantasia\": \"Empresa Prueba\",\n    \"adress\": \"Av. Corrientes 1234\",\n    \"city\": \"Buenos Aires\",\n    \"zip\": \"C1043\",\n    \"state\": \"Buenos Aires\",\n    \"Country\": \"Argentina\",\n    \"zona_vta\": \"CABA\",\n    \"vendedor\": \"VENDEDOR TEST\",\n    \"responsable_de_cuenta\": \"ALAN L\",\n    \"lista_de_precios\": \"Lista A\",\n    \"condicion_de_venta\": \"30 dias\",\n    \"dias_para_deuda\": \"30\",\n    \"limite_de_credito\": \"100000\",\n    \"categoria_cliente\": \"A\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/companies",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "companies"]
             },
-            "description": "Crea una compañía nueva. Guardar el 'id' del response en la variable hubspotCompanyId para los siguientes pasos."
+            "description": "Crea compañía. El test script guarda el id en hubspotCompanyId."
           }
         },
         {
           "name": "PATCH Actualizar compañía",
           "request": {
             "method": "PATCH",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"properties\": {\n    \"name\": \"EMPRESA DE PRUEBA SA (actualizada)\",\n    \"zona_vta\": \"GBA\",\n    \"condicion_de_venta\": \"60 dias\"\n  }\n}"
@@ -130,7 +183,22 @@
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "companies", "{{hubspotCompanyId}}"]
             },
-            "description": "Actualiza propiedades de una compañía existente. Requiere hubspotCompanyId."
+            "description": "Requiere hubspotCompanyId (search o create previo)."
+          }
+        },
+        {
+          "name": "GET Compañía por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/v3/objects/companies/{{hubspotCompanyId}}?properties=name,{{propertyMastersoftId}},{{propertyManejoCc}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["crm", "v3", "objects", "companies", "{{hubspotCompanyId}}"],
+              "query": [
+                { "key": "properties", "value": "name,{{propertyMastersoftId}},{{propertyManejoCc}}" }
+              ]
+            }
           }
         }
       ]
@@ -140,49 +208,71 @@
       "item": [
         {
           "name": "POST Buscar contacto por email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.results && j.results.length > 0 && j.results[0].id) {",
+                  "        pm.environment.set('hubspotContactId', j.results[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"propertyName\": \"email\",\n          \"operator\": \"EQ\",\n          \"value\": \"contacto.prueba@empresa.com\"\n        }\n      ]\n    }\n  ],\n  \"properties\": [\"firstname\", \"email\", \"phone\", \"sector\"],\n  \"limit\": 1\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"propertyName\": \"email\",\n          \"operator\": \"EQ\",\n          \"value\": \"{{contactEmail}}\"\n        }\n      ]\n    }\n  ],\n  \"properties\": [\"firstname\", \"email\", \"phone\", \"sector\"],\n  \"limit\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/contacts/search",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "contacts", "search"]
-            },
-            "description": "Busca un contacto por email (clave de deduplicación). Si existe → PATCH. Si no → POST + PUT asociación."
+            }
           }
         },
         {
           "name": "POST Crear contacto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.id) pm.environment.set('hubspotContactId', j.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"properties\": {\n    \"firstname\": \"Juan\",\n    \"email\": \"contacto.prueba@empresa.com\",\n    \"phone\": \"011-4444-5555\",\n    \"sector\": \"Compras\"\n  }\n}"
+              "raw": "{\n  \"properties\": {\n    \"firstname\": \"Juan\",\n    \"email\": \"{{contactEmail}}\",\n    \"phone\": \"011-4444-5555\",\n    \"sector\": \"Compras\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/contacts",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "contacts"]
-            },
-            "description": "Crea un contacto nuevo. Guardar el 'id' del response en hubspotContactId para el paso de asociación."
+            }
           }
         },
         {
           "name": "PATCH Actualizar contacto",
           "request": {
             "method": "PATCH",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"properties\": {\n    \"phone\": \"011-9999-8888\",\n    \"sector\": \"Administración\"\n  }\n}"
@@ -198,25 +288,17 @@
           "name": "PUT Asociar contacto a compañía",
           "request": {
             "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{}"
-            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/contacts/{{hubspotContactId}}/associations/companies/{{hubspotCompanyId}}/contact_to_company",
               "host": ["{{baseUrl}}"],
               "path": [
-                "crm", "v3", "objects", "contacts",
-                "{{hubspotContactId}}",
-                "associations", "companies",
-                "{{hubspotCompanyId}}",
-                "contact_to_company"
+                "crm", "v3", "objects", "contacts", "{{hubspotContactId}}",
+                "associations", "companies", "{{hubspotCompanyId}}", "contact_to_company"
               ]
             },
-            "description": "Asocia el contacto a la compañía. Requiere hubspotContactId y hubspotCompanyId."
+            "description": "HubSpotCrmClient.AssociateContactToCompanyAsync — solo tras POST contacto nuevo."
           }
         }
       ]
@@ -225,34 +307,30 @@
       "name": "Flujo 2B — Cuenta Corriente Batch",
       "item": [
         {
-          "name": "POST Batch update compañías (manejo_cuenta_corriente)",
+          "name": "POST Batch update — con deuda",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"inputs\": [\n    {\n      \"id\": \"{{hubspotCompanyId}}\",\n      \"properties\": {\n        \"manejo_cuenta_corriente\": \"15/03/2026 --- $125.400,00\\n02/04/2026 --- $89.200,50\"\n      }\n    }\n  ]\n}"
+              "raw": "{\n  \"inputs\": [\n    {\n      \"id\": \"{{hubspotCompanyId}}\",\n      \"properties\": {\n        \"{{propertyManejoCc}}\": \"15/03/2026 --- $125.400,00\\n02/04/2026 --- $89.200,50\"\n      }\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/companies/batch/update",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "companies", "batch", "update"]
             },
-            "description": "Batch update de hasta 100 compañías en una sola llamada. Formato manejo_cuenta_corriente:\n- Con deuda: 'DD/MM/YYYY --- $NNN.NNN,NN' por línea (\\n separador)\n- Sin deuda: 'Cuenta actualizada al DD/MM/YYYY. Deuda: $0'"
+            "description": "Hasta 100 registros por request. Formato línea: DD/MM/YYYY --- $monto"
           }
         },
         {
-          "name": "POST Batch update — cliente sin deuda",
+          "name": "POST Batch update — sin deuda (limpiar)",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"inputs\": [\n    {\n      \"id\": \"{{hubspotCompanyId}}\",\n      \"properties\": {\n        \"manejo_cuenta_corriente\": \"Cuenta actualizada al 06/06/2026. Deuda: $0\"\n      }\n    }\n  ]\n}"
+              "raw": "{\n  \"inputs\": [\n    {\n      \"id\": \"{{hubspotCompanyId}}\",\n      \"properties\": {\n        \"{{propertyManejoCc}}\": \"\"\n      }\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/companies/batch/update",
@@ -264,88 +342,153 @@
       ]
     },
     {
+      "name": "Flujo 1 — Referencia (webhook, no implementado)",
+      "description": "Endpoints del PDF v3 HubSpot→ERP. InterfazHubSpot NO los implementa. Salientes usan el mismo PAT; entrantes usan clientSecret para validar firma.",
+      "item": [
+        {
+          "name": "GET Compañía + propiedades (webhook follow-up)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/v3/objects/companies/{{hubspotCompanyId}}?properties=name,domain,phone,address,city,state,country,zip,industry&associations=contacts",
+              "host": ["{{baseUrl}}"],
+              "path": ["crm", "v3", "objects", "companies", "{{hubspotCompanyId}}"],
+              "query": [
+                { "key": "properties", "value": "name,domain,phone,address,city,state,country,zip,industry" },
+                { "key": "associations", "value": "contacts" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Asociaciones contactos de compañía",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/v3/objects/companies/{{hubspotCompanyId}}/associations/contacts",
+              "host": ["{{baseUrl}}"],
+              "path": ["crm", "v3", "objects", "companies", "{{hubspotCompanyId}}", "associations", "contacts"]
+            }
+          }
+        },
+        {
+          "name": "POST Batch read contactos",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inputs\": [{ \"id\": \"{{hubspotContactId}}\" }],\n  \"properties\": [\"firstname\", \"lastname\", \"email\", \"phone\", \"jobtitle\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/crm/v3/objects/contacts/batch/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["crm", "v3", "objects", "contacts", "batch", "read"]
+            }
+          }
+        },
+        {
+          "name": "POST Crear nota de error en compañía",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"properties\": {\n    \"hs_note_body\": \"ERROR de prueba Postman — compañía {{hubspotCompanyId}}\",\n    \"hs_timestamp\": \"{{$timestamp}}000\"\n  },\n  \"associations\": [\n    {\n      \"to\": { \"id\": \"{{hubspotCompanyId}}\" },\n      \"types\": [\n        {\n          \"associationCategory\": \"HUBSPOT_DEFINED\",\n          \"associationTypeId\": 190\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/crm/v3/objects/notes",
+              "host": ["{{baseUrl}}"],
+              "path": ["crm", "v3", "objects", "notes"]
+            },
+            "description": "Solo referencia PDF §3.2. No ejecutar en producción sin cuidado."
+          }
+        }
+      ]
+    },
+    {
       "name": "Consola MVC (local)",
-      "description": "Endpoints de la consola web ASP.NET MVC. Ajustar localUrl según el puerto de IIS Express.",
+      "description": "Endpoints ASP.NET MVC. Variable localUrl en el environment.",
       "item": [
         {
           "name": "POST Procesar Cola HubSpot (2A silencioso)",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{localUrl}}/Home/ProcesarColaHubSpot",
               "host": ["{{localUrl}}"],
               "path": ["Home", "ProcesarColaHubSpot"]
-            },
-            "description": "Ejecuta ProcesarColaIntegracionesHubSpotJob. Devuelve true cuando termina."
+            }
           }
         },
         {
           "name": "POST Traza: ver estado de cola",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{localUrl}}/Home/ProcesarColaHubSpotTrazaCola",
               "host": ["{{localUrl}}"],
               "path": ["Home", "ProcesarColaHubSpotTrazaCola"]
-            },
-            "description": "Solo lectura: devuelve conteos de Pendiente/EnProceso y muestra de hasta 40 filas Pendiente. No reclama filas ni llama a HubSpot."
+            }
           }
         },
         {
           "name": "POST Traza: SP datos de cliente (sin HubSpot)",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{localUrl}}/Home/ProcesarColaHubSpotTrazaCliente?clienteId={{mastersoftId}}",
               "host": ["{{localUrl}}"],
               "path": ["Home", "ProcesarColaHubSpotTrazaCliente"],
-              "query": [
-                { "key": "clienteId", "value": "{{mastersoftId}}" }
-              ]
-            },
-            "description": "Ejecuta el SP USER_HS_Cliente_ObtenerDatos para el ClienteId indicado y devuelve el JSON con los datos. No llama a HubSpot. Si se omite clienteId usa la primera fila Pendiente de la cola."
+              "query": [{ "key": "clienteId", "value": "{{mastersoftId}}" }]
+            }
           }
         },
         {
           "name": "POST Traza: corrida completa 2A (SP + HubSpot)",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{localUrl}}/Home/ProcesarColaHubSpotTraza",
               "host": ["{{localUrl}}"],
               "path": ["Home", "ProcesarColaHubSpotTraza"]
-            },
-            "description": "Corrida completa del flujo 2A con traza paso a paso. Marca filas EnProceso. Requiere token HubSpot válido o UseDevelopmentMock=true."
+            }
           }
         },
         {
           "name": "POST Batch Cuenta Corriente (2B silencioso)",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{localUrl}}/Home/HubSpotCuentaCorrienteBatch",
               "host": ["{{localUrl}}"],
               "path": ["Home", "HubSpotCuentaCorrienteBatch"]
-            },
-            "description": "Ejecuta HubSpotSincronizarCuentaCorrienteJob. Devuelve true cuando termina."
+            }
           }
         },
         {
           "name": "POST Grabar email de prueba",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{localUrl}}/Home/GrabarEmailError",
               "host": ["{{localUrl}}"],
               "path": ["Home", "GrabarEmailError"]
-            },
-            "description": "Dispara el EmailsManager con datos de prueba. Sirve para verificar configuración SMTP."
+            }
           }
         }
       ]
