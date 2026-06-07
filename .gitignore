@@ -3,6 +3,10 @@
 .cursor/mcp.json
 services/mssql-mcp-server/.env
 
+# Tokens y credenciales HubSpot (nunca versionar)
+docs/Tokens_Hubspot*.txt
+**/Tokens_Hubspot*.txt
+
 # Build / IDE
 bin/
 obj/
