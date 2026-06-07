@@ -1,115 +1,103 @@
 ﻿---
 name: dotnet-best-practices
 description: >-
-  Asegura que el C# y la API Web sigan el stack real OrdenTrabajoApi (.NET 8, ASP.NET Core,
-  JWT Bearer, appsettings.json, Newtonsoft.Json, Swashbuckle, Mastersoft.FrameworkCore DLLs).
-  Usar al tocar *.cs, *.csproj, *.sln, controllers, DTOs, ApiEngine, POST api/token,
-  Mastersoft.ApiEngine.Consultas, verificación dotnet build. No aplicar patrones de
-  .NET Framework 4.5.2 / Web API 2 / OWIN salvo en código legacy pendiente de migrar.
+  Asegura que el C# y la solución sigan el stack real InterfazHubSpot (.NET Framework 4.5.2,
+  ASP.NET MVC, EF6, Web.config/App.config, MSBuild, Newtonsoft.Json, Mastersoft DLLs).
+  Usar al tocar *.cs, *.csproj, *.sln, controllers MVC, managers, runners HubSpot, jobs batch,
+  o al compilar/verificar este repositorio. No recomendar .NET 8, ASP.NET Core, appsettings.json
+  ni dotnet CLI como build principal.
 ---
 
-# Buenas prácticas .NET — ApiEngine (stack real)
+# Buenas prácticas .NET — InterfazHubSpot (.NET Framework 4.5.2)
 
-## Ámbito y versiones
+## Ámbito
 
-- **Host API:** `ApiEngineWeb/ApiEngineWeb.csproj` — **.NET 8**, **ASP.NET Core**, Kestrel.
-- **Capas:** `Mastersoft.ApiEngine.{Business,Entities,Interfaces,Mapping}` — **net8.0**.
-- **Consultas dinámicas:** `Mastersoft.ApiEngine.Consultas` — objetivo **net8.0** (migración desde net452).
-- **ERP interno:** ensamblados **`Mastersoft.FrameworkCore.*`** en `Componentes/`; no reimplementar reglas ERP.
-- **Fuente de verdad:** `AGENTS.md`, `.planning/PROJECT.md`, `.planning/research/STACK.md`.
+- **Solución:** `InterfazHubSpot.sln` — **.NET Framework 4.5.2** (`TargetFrameworkVersion` v4.5.2).
+- **Web:** ASP.NET **MVC** clásico (`InterfazHubSpot/`) — `Web.config`, no `appsettings.json`.
+- **Batch:** `InterfazHubSpot.BatchProcess` — jobs `IScheduler` (Mastersoft.Scheduler452).
+- **Negocio:** `InterfazHubSpot.Business` — managers `*Manager`, runners en `Business/HubSpot/`.
+- **Datos:** EF6 (`EntityFramework 6.1.3`) + SPs vía `ClienteIntegracionManager` contra MSGestion.
+- **Framework:** DLLs en `Componentes/` (`Mastersoft.Framework.*`) — no reimplementar reglas ERP.
+- **Fuente de verdad:** `AGENTS.md`, `CLAUDE.md`, `docs/PRD_Integracion_HubSpot_2A_2B.md`.
 
-**Política:** no upgrade a .NET 9+ ni majors nuevas de EF/JWT salvo corrección mínima para migración ApiEngine.Consultas.
+**Prohibido** importar patrones de .NET 8 / ASP.NET Core / EF Core salvo migración futura explícita.
 
 ## Estructura y namespaces
 
-- Namespace web: **`ApiEngineWeb`** (Controllers, Core, Model).
-- Capas negocio: **`Mastersoft.ApiEngine.*`**.
-- Consultas dinámicas: **`Mastersoft.ApiEngine.Consultas`** — sin referencia circular a Business.
-- Controladores heredan **`ControllerBase`** con `[ApiController]`.
-- Managers con sufijo **`*Manager`** registrados en `Program.cs` vía **`NetCore.AutoRegisterDi`**.
+```
+InterfazHubSpot              # MVC (consola interna)
+InterfazHubSpot.BatchProcess # Jobs scheduler
+InterfazHubSpot.Business     # Managers + HubSpot/
+InterfazHubSpot.Mapping      # AutoMapper
+InterfazHubSpot.Entities     # EF6 MSGestion
+InterfazHubSpot.Interfaces
+```
 
-## JSON y contratos HTTP
-
-- Web usa **System.Text.Json** con **PascalCase** (`PropertyNamingPolicy = null`).
-- Librería ApiEngine.Consultas y partes legacy usan **Newtonsoft.Json 13.0.2** — unificar versión al migrar.
-- Respuestas auth y stores: **`ApiResponse`** (`HayError`, `Datos`, `ListaErrores`, `TimeStamp`) serializado con Newtonsoft.Json en login y pipeline Stores.
-
-## Autenticación y multiempresa
-
-- **JWT Bearer:** `POST api/token` con body `ParUsuariosWeb`.
-- Claims: `CompanyId`, `UsuarioId`, ejercicios, perfil, `CNPrefix`.
-- Endpoints Stores: **empresa y usuario desde claims JWT**, no confiar solo en query/body.
-- Config JWT en **`appsettings.json`** sección `Jwt:*`.
-
-## Consultas dinámicas (ApiEngine)
-
-- Única vía segura: taxonomía en ruta + **`IdentificadorStore`** + fila **`dbo.ApiEngine`**.
-- Ejecutor: **`CompactDynamicStoreExecutor`** — SP parametrizado, metadatos `sys.parameters`, lista negra SP.
-- Resolver whitelist: **`StoreWhitelistAdoResolver`**.
-- Parámetros reservados de query no se reenvían al SP.
-- **No** inventar rutas GET estáticas para maestros sin registro en BD.
+- Runners HubSpot: namespace `InterfazHubSpot.Business.HubSpot`.
+- Dependencias **unidireccionales** top→down (MVC → Business → Entities/Interfaces).
+- Managers con sufijo `*Manager`; cola: `ProcesosSpertaHubSpotManager`.
 
 ## Configuración
 
-- **`appsettings.json`** + **`appsettings.Development.json`** + variables de entorno.
-- Connection strings: `ConnectionStrings:ApiEngineWeb` (EF/host).
-- Dynamic stores: sección **`DynamicStores:*`**; alinear nombre con `DynamicStores:DefaultConnectionStringName`.
-- Preferir **`IConfiguration`** / **`DynamicStoreExecutorSettings`** sobre `ConfigurationManager`.
+- `Web.config` / `App.config` + `ConfigurationManager.AppSettings`.
+- Connection string única: **`MSGestion`** (cola, SPs integración, EF6).
+- HubSpot: `HubSpot:PrivateAppToken`, `HubSpot:BaseUrl`, `HubSpot:UseDevelopmentMock`, etc.
+- **Nunca** versionar tokens; usar `Web.config.example`.
+- No sustituir por `IConfiguration` / `appsettings.json`.
+
+## JSON y HTTP
+
+- **Newtonsoft.Json** (`JObject`, `JToken`) en clientes HubSpot y DTOs.
+- `System.Net.Http.HttpClient` con `async`/`await` (disponible en 4.5.2).
+- HubSpot CRM **v3** — Private App Token en header `Authorization: Bearer`.
 
 ## Datos y SQL
 
-- EF Core 7 para entidades del proyecto (`CAIM_MsOrdenTrabajoContext`).
-- Stores dinámicos: **`Microsoft.Data.SqlClient`** (no `System.Data.SqlClient` en código net8).
-- No concatenar SQL con input de usuario.
+- Cola outbox: `dbo.ProcesosSpertaHubSpot` (nunca `ProcesosSpertaAPI`).
+- SPs integración: `dbo.USP_Integracion_HubSpot_Cliente_Obtener`, `dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`.
+- SPs legacy HubSpot datos: prefijo `USER_HS_*`.
+- Migraciones SQL en `sql/` y `scriptsSQL/`.
+- Explorar esquema/datos dev: MCP `project-0-INTERFAZHUBSPOT-mssql-mcp-msgestion-CALZETTA`.
 
-## Errores y pipeline
+## Flujos de negocio (2A / 2B)
 
-- Middleware global: **`ApiEngineWeb.Core.ExceptionHandler`**.
-- Stores: **`DynamicStoreException`** con códigos HTTP conocidos.
-- No manejo ad hoc por controlador si el pipeline central ya cubre el caso.
+- **2A:** cola → claim Pending → `EnProceso` → SP cliente → upsert HubSpot → `Procesado`/`Error`. **Sin reintento automático** en Error.
+- **2B:** paginación cuenta corriente → batch update companies en HubSpot.
+- Rate limit: delay 120 ms; backoff 429 (máx. 3); **detener en 401**.
 
-## Swagger
+## Nomenclatura bloqueada
 
-- **Swashbuckle.AspNetCore** en Development.
-- Documentar seguridad JWT cuando se expongan endpoints protegidos.
+- Marca: `HubSpot` (S mayúscula). Prohibido `Hubspot`.
+- Prohibido reintroducir `BatchSpertaAPI`, `ProcesosSpertaAPI`.
+- Columna identificador cola: `Identificador`.
 
-## Async y estilo C#
+## Estilo C# (4.5.2)
 
-- Host net8 soporta async/await; managers Mastersoft pueden ser síncronos — seguir patrón existente.
-- Nullable reference types habilitado en proyectos SDK — respetar warnings nuevos.
+- Sin nullable reference types ni `record`/`init` (C# moderno post-7).
+- `async`/`await` en runners y clientes HTTP; managers legacy pueden ser síncronos — seguir patrón existente.
 - Priorizar **consistencia con código existente** sobre modernización gratuita.
-
-## DLL-only entre soluciones
-
-- Satélites (OT, FlowCRM, Admin, Worker.Core): `*DllReferences.props` + `Componentes/ApiEngine/`; **prohibido** `ClienteMonorepo.props` y `ProjectReference` al motor.
-- Tests cat. **A** motor: `ProjectReference` interno OK. Cat. **B/C**: `*.TestSupport` local en la solución del producto.
-- Regla Cursor: [`.cursor/rules/dll-only-deps.mdc`](../../.cursor/rules/dll-only-deps.mdc).
+- AutoMapper en `InterfazHubSpot.Mapping` para perfiles existentes.
 
 ## Compilación y verificación
 
-```powershell
-.\scripts\build.ps1
-.\scripts\test.ps1 -Scope Unit
-```
-
-Tests de integración (HTTP siempre; SQL solo con env vars):
+Desde raíz del repo (PowerShell — ver regla `powershell-windows`):
 
 ```powershell
-.\scripts\test.ps1 -Scope All
-.\scripts\test-integration.ps1
+pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
+pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
+pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
 ```
 
-Ejecutar la API:
+- Build: **MSBuild** + `nuget restore` (no `dotnet build` como camino principal).
+- Tests: xUnit en `InterfazHubSpot.Tests.Unit` (excluir `Category=Live` por defecto).
+- Proyecto MVC requiere `Microsoft.WebApplication.targets` — build completo IDE/VS si falla MSBuild web.
 
-```powershell
-dotnet run --project SolucionApiEngine/ApiEngineWeb
-```
-
-Proyectos de test: `tests/ApiEngine.UnitTests`, `tests/OrdenTrabajoApi.IntegrationTests` (xUnit + WebApplicationFactory).
+Variables: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
 
 ## Qué NO hacer
 
-- Patrones OWIN / `Web.config` / `ApiController` Web API 2 en el host net8.
-- Sustituir Mastersoft.FrameworkCore por DI genérico sin DLLs.
-- Upgrade de stack más allá de .NET 8 sin aprobación explícita.
-- SQL dinámico fuera del modelo ApiEngine whitelist.
+- ASP.NET Core, minimal APIs, `ControllerBase` con `[ApiController]`.
+- `dotnet run`, `WebApplicationFactory`, EF Core, `Microsoft.Data.SqlClient` en código nuevo 4.5.2.
+- JWT Bearer / `appsettings.json` / Swashbuckle como stack de este repo.
+- Extender `ISpertaApiClient` / jobs SpertaAPI — son legacy; datos reales vienen de SPs MSGestion.
+- `sp_rename` cola sin gate WinForms (PRD §5.1, `sql/002`).

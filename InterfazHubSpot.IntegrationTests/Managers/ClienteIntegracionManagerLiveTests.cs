@@ -6,7 +6,7 @@ namespace InterfazHubSpot.IntegrationTests.Managers
 {
     /// <summary>
     /// Tests de integración que verifican el contrato de <see cref="ClienteIntegracionManager"/>
-    /// (SPs <c>USP_Integracion_HubSpot_Cliente_Obtener</c> y <c>USP_Integracion_HubSpot_CuentaCorriente_Pagina</c>)
+    /// (SPs <c>InterfazHubSpot_Cliente_Obtener</c> y <c>InterfazHubSpot_CuentaCorriente_Pagina</c>)
     /// contra una base de datos MSGestion real.  Todos requieren conexión activa y están
     /// tageados <c>Category=Live</c> para ser excluidos del run por defecto.
     ///

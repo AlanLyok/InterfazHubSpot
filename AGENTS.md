@@ -21,7 +21,19 @@ Guía para agentes AI (Cursor) trabajando en este repositorio.
 | API externa | HubSpot CRM v3 — Private App Token |
 | Tests | xUnit (`InterfazHubSpot.Tests.Unit`, `InterfazHubSpot.IntegrationTests`) |
 
-> El skill `.cursor/skills/dotnet-best-practices` describe **OrdenTrabajoApi (.NET 8)**. No aplicar esos patrones aquí salvo migración futura explícita.
+> Stack bloqueado: **.NET Framework 4.5.2**. No recomendar .NET 8, ASP.NET Core ni `dotnet build` como camino principal.
+
+## PowerShell en Windows
+
+Shell por defecto: **Windows PowerShell 5.1**. Regla obligatoria: [`.cursor/rules/powershell-windows.mdc`](.cursor/rules/powershell-windows.mdc).
+
+| Error típico | Causa | Solución |
+|--------------|-------|----------|
+| `El token '&&' no es un separador válido` | `&&` solo en PS 7+ | Usar `;` + `$?` / `$LASTEXITCODE`, o `pwsh` explícito |
+| Heredoc `<<EOF` falla | Sintaxis bash | Here-string PowerShell `@" "@` o `-m` múltiple en git |
+| `%VAR%` no expande | Sintaxis CMD | `$env:VAR` |
+
+Preferir scripts canónicos con `pwsh -NoProfile -File ...` en lugar de encadenar comandos a mano.
 
 ## Comandos canónicos
 
@@ -34,13 +46,17 @@ Guía para agentes AI (Cursor) trabajando en este repositorio.
 
 Variables MSBuild: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
 
-## Skills a usar
+## Skills y reglas (Cursor)
 
-| Skill | Cuándo |
-|-------|--------|
+| Recurso | Cuándo |
+|---------|--------|
+| `.cursor/skills/interfaz-hubspot-dev` | **Siempre** — hub experto del proyecto (stack, MCP, build, HubSpot) |
+| `.cursor/skills/dotnet-best-practices` | C#, csproj, MVC, managers — **.NET Framework 4.5.2** |
+| `.cursor/rules/interfaz-hubspot.mdc` | Nombres bloqueados y comandos build/test |
+| `.cursor/rules/powershell-windows.mdc` | Cualquier comando en terminal Windows |
 | `.cursor/skills/get-shit-done` | Planificación, fases, ejecución GSD |
 | `.cursor/skills/documentation-writer` | Documentación técnica |
-| `.cursor/rules/interfaz-hubspot.mdc` | Nombres y comandos obligatorios |
+| `.cursor/skills/cursor-best-practices` | Rules vs skills, MCP, flujo agente |
 | `systematic-debugging` | Bugs y fallos de jobs |
 | `verification-before-completion` | Antes de declarar fase completa |
 
@@ -66,7 +82,12 @@ InterfazHubSpot.sln
 
 ## MCP SQL (desarrollo)
 
-Servidores MCP: `user-mssql-mcp-msgestion`, `user-mssql-mcp-msordentrabajo`.
+Servidores MCP (leer schema en `mcps/` antes de invocar):
+
+- `project-0-INTERFAZHUBSPOT-mssql-mcp-msgestion-CALZETTA` — MSGestion (cola, SPs integración)
+- `project-0-INTERFAZHUBSPOT-mssql-mcp-msfwk-CALZETTA` — MSFwk
+
+Config: `.cursor/mcp.mssql-mcp-server.example.json`, bootstrap en `services/mssql-mcp-server/`.
 
 ## Fase actual
 

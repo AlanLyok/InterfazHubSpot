@@ -1,5 +1,11 @@
 /*
-  Copia versionada alineada con scriptsSQL/001_ProcesosSpertaHubSpot.sql
+  Cola outbox HubSpot — dbo.ProcesosSpertaHubSpot
+  Alineado con InterfazHubSpot.Entities.ProcesosSpertaHubSpot (EF6).
+
+  GATE WinForms (antes de sp_rename desde ProcesosSpertaAPI):
+  1. Desplegar 003_USER_POS_Clientes_Agregar.sql
+  2. Verificar post-grabación WinForms invoca USER_POS_Clientes_Agregar
+  3. Coordinar ventana de mantenimiento si aplica
 */
 
 DECLARE @legacy SYSNAME = N'ProcesosSperta' + N'API';

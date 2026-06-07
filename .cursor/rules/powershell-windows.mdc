@@ -1,0 +1,97 @@
+---
+description: PowerShell en Windows — sintaxis válida para agentes (evitar errores típicos de bash/cmd)
+alwaysApply: true
+---
+
+# PowerShell en Windows (InterfazHubSpot)
+
+Entorno real: **Windows 10**, shell por defecto **Windows PowerShell 5.1** (`powershell.exe`). Algunos scripts del repo exigen **PowerShell 7+** (`pwsh`).
+
+## Separadores de comandos
+
+| Evitar | Usar en su lugar |
+|--------|------------------|
+| `cmd1 && cmd2` | `cmd1; if ($?) { cmd2 }` o dos invocaciones Shell separadas |
+| `cmd1 \|\| cmd2` | `cmd1; if (-not $?) { cmd2 }` |
+| `cmd1 ; cmd2` con dependencia de éxito | Verificar `$LASTEXITCODE` o `$?` entre comandos nativos |
+
+`&&` y `||` solo existen en **PowerShell 7+**. No asumir que el shell del agente es `pwsh`.
+
+## Invocar scripts del repo
+
+Usar siempre los wrappers canónicos con `pwsh`:
+
+```powershell
+pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
+pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
+pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
+```
+
+No improvisar `msbuild`/`dotnet build` directo salvo depuración puntual.
+
+## Rutas y comillas
+
+- Rutas con espacios: `& "C:\Program Files\...\tool.exe" args`
+- Preferir `Join-Path` y `$PSScriptRoot` en scripts; en one-liners del agente, comillas dobles en rutas Windows.
+- Separador de ruta: `\` o `/` (ambos suelen funcionar); no mezclar estilo bash (`./foo` sin contexto).
+
+## Variables de entorno
+
+- PowerShell: `$env:SPERTA_MSBUILD`, `$env:MSBUILD_EXE`, `$env:SPERTA_NUGET_EXE`
+- No usar sintaxis CMD: `%VAR%` ni `set VAR=`
+
+## Códigos de salida
+
+Tras ejecutables externos (`git`, `msbuild`, `nuget`):
+
+```powershell
+& git status
+if ($LASTEXITCODE -ne 0) { throw "git status falló ($LASTEXITCODE)" }
+```
+
+## Texto multilínea (commits, cuerpos)
+
+No usar heredoc estilo bash (`<<'EOF'`). En PowerShell 5.1:
+
+```powershell
+$msg = @"
+feat: resumen
+
+Detalle en párrafo.
+"@
+git commit -m $msg
+```
+
+O `git commit -m "línea1" -m "línea2"`.
+
+## Herramientas Unix en Windows
+
+| Bash/Linux | PowerShell |
+|------------|------------|
+| `grep` | `Select-String` o herramienta `Grep` del agente |
+| `cat` | `Get-Content` |
+| `ls` | `Get-ChildItem` o `dir` |
+| `rm -rf` | `Remove-Item -Recurse -Force` |
+| `export VAR=val` | `$env:VAR = 'val'` |
+
+Si Git Bash está disponible, indicarlo explícitamente; por defecto escribir para **PowerShell**.
+
+## Encoding y consola
+
+- Evitar caracteres no ASCII en strings de terminal si la consola no está en UTF-8.
+- Mensajes de error típicos con `` `v`` o `` ``` suelen ser **encoding**, no lógica del comando.
+
+## Patrones prohibidos en comandos del agente
+
+- `cd repo && npm test` → `Set-Location repo; npm test` o dos Shell calls
+- `dotnet build && dotnet test` → usar `Verify-InterfazHubSpot.ps1` o encadenar con `;` + `$LASTEXITCODE`
+- `curl` sin más contexto → puede ser alias de `Invoke-WebRequest`; preferir `Invoke-WebRequest` o `curl.exe`
+- `python -c "..."` con comillas anidadas sin escapar → usar script `.py` o here-string
+- `chmod +x` → no aplica en Windows para scripts `.ps1` (política de ejecución aparte)
+
+## Preferencia de ejecución
+
+1. Script `.ps1` del repo (`pwsh -NoProfile -File ...`)
+2. Cmdlet nativo PowerShell
+3. `.exe` con ruta entre comillas
+4. Sintaxis bash solo si el usuario pide explícitamente Git Bash/WSL

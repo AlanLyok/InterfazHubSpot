@@ -23,6 +23,8 @@ PRD: `docs/PRD_Integracion_HubSpot_2A_2B.md`. GSD planning state: `.planning/ROA
 
 Run from repo root. PowerShell wrappers handle nuget restore + MSBuild discovery (env vars `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`).
 
+**Windows shell:** default is Windows PowerShell 5.1 — do **not** use `&&`/`||` (PS 7+ only). See `.cursor/rules/powershell-windows.mdc`. Primary project skill: `.cursor/skills/interfaz-hubspot-dev/SKILL.md`.
+
 | Action | Command |
 |---|---|
 | Full build | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1` |
@@ -61,7 +63,7 @@ Componentes/                       # Mastersoft framework DLLs (binary, required
 
 ## Critical rules
 
-- **.NET Framework 4.5.2 only.** The skill `.cursor/skills/dotnet-best-practices` describes a separate .NET 8 project (`OrdenTrabajoApi`) — do not import those patterns here.
+- **.NET Framework 4.5.2 only.** Follow `.cursor/skills/dotnet-best-practices` (InterfazHubSpot stack) — no .NET 8 / ASP.NET Core patterns.
 - Never commit secrets. `Web.config` and `App.config` are gitignored; use `Web.config.example`. `HubSpot:PrivateAppToken` must never be versioned.
 - Locked naming: `InterfazHubSpot`, `ProcesosSpertaHubSpot`, `HubSpot` (capital S). Wave 0–2 refactors unified these — see recent commits before introducing variants.
 - WinForms gate before any `sp_rename` on the queue table: deploy `sql/002` and verify SP `USER_POS_Clientes_Agregar` is active in production (PRD §5.1).

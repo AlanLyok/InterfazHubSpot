@@ -1,0 +1,46 @@
+{
+  "mcpServers": {
+    "mssql-mcp-msgestion": {
+      "command": "${workspaceFolder}/services/mssql-mcp-server/.venv/Scripts/python.exe",
+      "args": ["${workspaceFolder}/services/mssql-mcp-server/run_mcp_stdio.py"],
+      "cwd": "${workspaceFolder}/services/mssql-mcp-server",
+      "env": {
+        "MSSQL_HOST": "MS0025",
+        "MSSQL_USER": "CAMBIAME",
+        "MSSQL_PASSWORD": "CAMBIAME",
+        "MSSQL_DATABASE": "MsGestion_CALZETTA",
+        "MSSQL_DRIVER": "ODBC Driver 17 for SQL Server",
+        "TrustServerCertificate": "yes",
+        "Trusted_Connection": "no"
+      }
+    },
+    "mssql-mcp-msfwk": {
+      "command": "${workspaceFolder}/services/mssql-mcp-server/.venv/Scripts/python.exe",
+      "args": ["${workspaceFolder}/services/mssql-mcp-server/run_mcp_stdio.py"],
+      "cwd": "${workspaceFolder}/services/mssql-mcp-server",
+      "env": {
+        "MSSQL_HOST": "MS0025",
+        "MSSQL_USER": "CAMBIAME",
+        "MSSQL_PASSWORD": "CAMBIAME",
+        "MSSQL_DATABASE": "MsFramework_CALZETTA",
+        "MSSQL_DRIVER": "ODBC Driver 17 for SQL Server",
+        "TrustServerCertificate": "yes",
+        "Trusted_Connection": "no"
+      }
+    },
+    "mssql-mcp-msordentrabajo": {
+      "command": "${workspaceFolder}/services/mssql-mcp-server/.venv/Scripts/python.exe",
+      "args": ["${workspaceFolder}/services/mssql-mcp-server/run_mcp_stdio.py"],
+      "cwd": "${workspaceFolder}/services/mssql-mcp-server",
+      "env": {
+        "MSSQL_HOST": "MS0025",
+        "MSSQL_USER": "CAMBIAME",
+        "MSSQL_PASSWORD": "CAMBIAME",
+        "MSSQL_DATABASE": "MsOrdenTrabajo",
+        "MSSQL_DRIVER": "ODBC Driver 17 for SQL Server",
+        "TrustServerCertificate": "yes",
+        "Trusted_Connection": "no"
+      }
+    }
+  }
+}

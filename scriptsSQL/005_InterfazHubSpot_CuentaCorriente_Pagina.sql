@@ -1,9 +1,16 @@
 /*
-  Copia versionada alineada con scriptsSQL/005_USP_Integracion_HubSpot_CuentaCorriente_Pagina.sql
+  InterfazHubSpot_CuentaCorriente_Pagina
+  Paginación keyset de clientes activos con texto preformateado para HubSpot
+  (propiedad manejo_cuenta_corriente — flujo 2B).
+
+  @Cursor   ClienteID exclusive; 0 en la primera llamada.
+  @PageSize El caller C# envía pageSize+1 para detectar HayMas.
+
+  Uso: EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 0, @PageSize = 50
 */
 
-IF OBJECT_ID(N'dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina', N'P') IS NOT NULL
-    DROP PROCEDURE dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina;
+IF OBJECT_ID(N'dbo.InterfazHubSpot_CuentaCorriente_Pagina', N'P') IS NOT NULL
+    DROP PROCEDURE dbo.InterfazHubSpot_CuentaCorriente_Pagina;
 GO
 
 SET ANSI_NULLS ON;
@@ -11,7 +18,7 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
-CREATE PROCEDURE dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina
+CREATE PROCEDURE dbo.InterfazHubSpot_CuentaCorriente_Pagina
     @Cursor   INT,
     @PageSize INT
 AS

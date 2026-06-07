@@ -1,5 +1,7 @@
 #Ignore cursor AI rules
 .cursor\rules\codacy.mdc
+.cursor/mcp.json
+services/mssql-mcp-server/.env
 
 # Build / IDE
 bin/

@@ -26,6 +26,12 @@ Variables opcionales: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
 
 ## Stack
 
-- .NET Framework **4.5.2** — no aplicar patrones de .NET 8 (`dotnet-best-practices` es para otro proyecto)
+- .NET Framework **4.5.2** — skill `.cursor/skills/dotnet-best-practices` (este repo, no .NET 8)
+- Hub experto: `.cursor/skills/interfaz-hubspot-dev` (auto-invocado en tareas del proyecto)
 - SPs datos HubSpot: prefijo `USER_HS_*` (sin cambios)
 - Gate WinForms antes de `sp_rename` tabla: ver `sql/001_ProcesosSpertaHubSpot.sql` y PRD §5.1
+
+## PowerShell (Windows)
+
+- Regla: `.cursor/rules/powershell-windows.mdc` — **no usar `&&`** en shell por defecto (PS 5.1)
+- Preferir `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/*.ps1` sobre cadenas manuales

@@ -33,7 +33,7 @@ namespace InterfazHubSpot.Business.Managers
                 {
                     using (var cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "EXEC dbo.USP_Integracion_HubSpot_Cliente_Obtener @ClienteId";
+                        cmd.CommandText = "EXEC dbo.InterfazHubSpot_Cliente_Obtener @ClienteId";
                         cmd.Parameters.Add(new SqlParameter("@ClienteId", clienteId));
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -67,7 +67,7 @@ namespace InterfazHubSpot.Business.Managers
                 {
                     using (var cmd = conn.CreateCommand())
                     {
-                        cmd.CommandText = "EXEC dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina @Cursor, @PageSize";
+                        cmd.CommandText = "EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor, @PageSize";
                         cmd.Parameters.Add(new SqlParameter("@Cursor", cursor));
                         cmd.Parameters.Add(new SqlParameter("@PageSize", pageSize + 1));
                         using (var reader = cmd.ExecuteReader())

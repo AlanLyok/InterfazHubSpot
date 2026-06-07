@@ -48,7 +48,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-06)
 - Refactor nomenclatura (waves 0–3): commits `2e848dc` (wave0), `82b0e36` (wave1-2).
 - Verify grep legacy=0 en `.cs`/`.sql`/`.md` (excl. `.cursor/plans/`). Build solución bloqueado: carpeta `Componentes/` vacía (`Mastersoft.Scheduler452.Intefaces.dll` ausente).
 - Git inicializado 2026-06-06.
-- Skills del proyecto: `.cursor/skills/get-shit-done`, `dotnet-best-practices` (aplica a otro stack — este proyecto es .NET 4.5.2).
+- Skills del proyecto: `interfaz-hubspot-dev` (hub), `dotnet-best-practices` (.NET 4.5.2), `get-shit-done`, `powershell-windows` (regla).
 
 ### Quick Tasks Completed
 

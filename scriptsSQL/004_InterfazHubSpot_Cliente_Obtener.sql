@@ -1,9 +1,15 @@
 /*
-  Copia versionada alineada con scriptsSQL/004_USP_Integracion_HubSpot_Cliente_Obtener.sql
+  InterfazHubSpot_Cliente_Obtener
+  Devuelve 3 result sets para ClienteIntegracionManager / ClienteIntegracionMapper:
+    1. Cabecera cliente (dbo.Clientes + lookups)
+    2. Contactos (dbo.Clientes_Contactos)
+    3. Direcciones de entrega TOP 3 (dbo.DireccionEntregas)
+
+  Uso: EXEC dbo.InterfazHubSpot_Cliente_Obtener @ClienteId = 12345
 */
 
-IF OBJECT_ID(N'dbo.USP_Integracion_HubSpot_Cliente_Obtener', N'P') IS NOT NULL
-    DROP PROCEDURE dbo.USP_Integracion_HubSpot_Cliente_Obtener;
+IF OBJECT_ID(N'dbo.InterfazHubSpot_Cliente_Obtener', N'P') IS NOT NULL
+    DROP PROCEDURE dbo.InterfazHubSpot_Cliente_Obtener;
 GO
 
 SET ANSI_NULLS ON;
@@ -11,12 +17,13 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
-CREATE PROCEDURE dbo.USP_Integracion_HubSpot_Cliente_Obtener
+CREATE PROCEDURE dbo.InterfazHubSpot_Cliente_Obtener
     @ClienteId INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- Result set 1: cabecera
     SELECT
         ClienteId              = c.ClienteID,
         CodigoCliente          = c.CodCli,
@@ -57,6 +64,7 @@ BEGIN
         ON cat.CategClienteID = c.CategClienteID
     WHERE c.ClienteID = @ClienteId;
 
+    -- Result set 2: contactos
     SELECT
         ClienteId          = cc.ClienteID,
         ApellidoYNombre    = cc.ApeyNom,
@@ -68,6 +76,7 @@ BEGIN
         ON sec.SectorID = cc.SectorID
     WHERE cc.ClienteID = @ClienteId;
 
+    -- Result set 3: direcciones de entrega (máx. 3)
     SELECT TOP 3
         ClienteId      = de.ClienteID,
         Domicilio      = de.Domicilio,
