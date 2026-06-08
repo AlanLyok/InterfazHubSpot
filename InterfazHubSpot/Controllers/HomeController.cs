@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Web.Mvc;
 using InterfazHubSpot.Business.Integration;
 using InterfazHubSpot.Business.Managers;
+using InterfazHubSpot.Core;
 using InterfazHubSpot.Entities;
 using Mastersoft.Framework.Standard;
 
@@ -425,15 +426,15 @@ namespace InterfazHubSpot.Controllers
 
         private static MSContext GetContext()
         {
-            var context = new MSContext();
+            var context = Util.GetMSContext();
+
             var prefix = ConfigurationManager.AppSettings["FrameworkCNPrefix"];
-            context.CNPrefix = string.IsNullOrEmpty(prefix) ? "InterfazHubSpot" : prefix;
+            if (!string.IsNullOrWhiteSpace(prefix))
+                context.CNPrefix = prefix;
 
             int empresaIdValue;
             if (int.TryParse(ConfigurationManager.AppSettings["EmpresaId"], out empresaIdValue))
                 context.EmpresaId = empresaIdValue;
-
-            context.TenantId = ConfigurationManager.AppSettings["TenantId"];
 
             return context;
         }

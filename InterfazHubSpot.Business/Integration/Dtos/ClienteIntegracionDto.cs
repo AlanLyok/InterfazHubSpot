@@ -29,12 +29,11 @@ namespace InterfazHubSpot.Business.Integration.Dtos
         public string DiasParaDeuda { get; set; }
         public string LimiteCredito { get; set; }
         public string CategoriaClienteId { get; set; }
-        public List<ContactoDto> ListaClientesContactos { get; set; }
+        public string ManejoCuentaCorriente { get; set; }
         public List<DireccionEntregaDto> ListaDireccionEntregas { get; set; }
 
         public ClienteDatosDto()
         {
-            ListaClientesContactos = new List<ContactoDto>();
             ListaDireccionEntregas = new List<DireccionEntregaDto>();
         }
     }
@@ -53,6 +52,7 @@ namespace InterfazHubSpot.Business.Integration.Dtos
         public string CodigoPostal { get; set; }
         public string Localidad { get; set; }
         public string ProvinciaId { get; set; }
+        public string Pais { get; set; }
     }
 
     public sealed class PaginaCuentaCorrienteDto

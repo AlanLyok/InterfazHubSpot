@@ -15,7 +15,7 @@ Cuando un cliente se crea o modifica en el ERP, su compañía y contactos deben 
 ### Validated
 
 - ✓ Solución `InterfazHubSpot.sln` con proyectos MVC, Business, Entities, Interfaces, BatchProcess e `InterfazHubSpot` — existente
-- ✓ Tablas `dbo.ProcesosSpertaHubSpot` y `dbo.IntegracionEjecucionLog` — existentes (verificar estructura)
+- ✓ Tablas `dbo.ProcesosSpertaHubSpot` y `dbo.ProcesosSpertaHubSpotLog` — greenfield (scripts `scriptsSQL/001`, `scriptsSQL/002`)
 - ✓ `IScheduler` con jobs HubSpot (`ProcesarColaIntegracionesHubSpotJob`, `HubSpotSincronizarCuentaCorrienteJob`) — existente
 - ✓ Consola MVC con botones de prueba HubSpot en Home — existente
 - ✓ `EmailsManager` para notificaciones de error — existente

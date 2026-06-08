@@ -17,7 +17,7 @@ Guía para agentes AI (Cursor) trabajando en este repositorio.
 | Batch | `InterfazHubSpot.BatchProcess` / IScheduler |
 | HubSpot runners | `InterfazHubSpot.Business/HubSpot/` |
 | Datos cola | SQL Server — tabla `dbo.ProcesosSpertaHubSpot` |
-| Datos ERP | SPs en MSGestion — `ClienteIntegracionManager` (`dbo.USP_Integracion_HubSpot_Cliente_Obtener`, `dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`) |
+| Datos ERP | SPs en MSGestion — `ClienteIntegracionManager` (`dbo.InterfazHubSpot_Cliente_Obtener` 004, `dbo.InterfazHubSpot_Clientes_Contactos_Obtener` 005, `dbo.InterfazHubSpot_CuentaCorriente_Pagina` 006) |
 | API externa | HubSpot CRM v3 — Private App Token |
 | Tests | xUnit (`InterfazHubSpot.Tests.Unit`, `InterfazHubSpot.IntegrationTests`) |
 
@@ -62,7 +62,7 @@ Variables MSBuild: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
 
 ## Reglas críticas
 
-- **Nunca** versionar `HubSpot:PrivateAppToken` en Web.config (usar `Web.config.example`)
+- **Nunca** versionar `HubSpot:PrivateAppToken` en Web.config/App.config (usar `Web.config.example` y `InterfazHubSpot.BatchProcess/App.config.example`)
 - Errores cola 2A: marcar `Error`, **no reintentar** automáticamente
 - Rate limit HubSpot: delay 120ms; backoff 429 (máx. 3); detener en 401
 - **Gate WinForms** antes de `sp_rename` tabla en BD: desplegar `sql/002` y verificar SP activo (PRD §5.1)
@@ -75,7 +75,8 @@ InterfazHubSpot.sln
 ├── InterfazHubSpot/                  # MVC
 ├── InterfazHubSpot.Business/HubSpot/ # Runners 2A y 2B
 ├── InterfazHubSpot.BatchProcess/     # Jobs scheduler
-├── sql/                              # Migración cola + USER_POS
+├── scriptsSQL/                       # Deploy canónico MSGestion (000_Deploy_All + 001–007)
+├── sql/                              # Copias versionadas alineadas con scriptsSQL
 ├── InterfazHubSpot/Scripts/agent/    # Build, Test, Verify PS1
 └── docs/PRD_Integracion_HubSpot_2A_2B.md
 ```

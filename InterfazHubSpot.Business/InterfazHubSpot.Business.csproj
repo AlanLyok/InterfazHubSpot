@@ -86,7 +86,7 @@
     <Compile Include="Integration\IntegracionColaIdentificador.cs" />
     <Compile Include="Managers\EmailsManager.cs" />
     <Compile Include="Managers\ErroresManager.cs" />
-    <Compile Include="Managers\IntegracionEjecucionLogManager.cs" />
+    <Compile Include="Managers\ProcesosSpertaHubSpotLogManager.cs" />
     <Compile Include="Managers\ProcesosSpertaHubSpotManager.cs" />
     <Compile Include="Managers\UsuariosWebManager.cs" />
     <Compile Include="Modulos\LoginRequest.cs" />

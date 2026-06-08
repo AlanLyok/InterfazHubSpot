@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "InterfazHubSpot — HubSpot CRM v3",
-    "description": "Pruebas HubSpot CRM v3 (Private App Token) + consola MVC local.\n\n**Setup:** importar `InterfazHubSpot-Dev.postman_environment.json`, activar el environment y completar `privateAppToken` (pat-na1-...).\n\nVer `postman/README.md` para orden de prueba.",
+    "description": "Pruebas HubSpot CRM v3 (Private App Token) + consola MVC local.\n\n**Flujo 2A dividido:** SP 004 `InterfazHubSpot_Cliente_Obtener` (empresa + TOP 3 direcciones + manejo cuenta corriente) → upsert compañía HubSpot → SP 005 `InterfazHubSpot_Clientes_Contactos_Obtener` → contactos.\n\n**Setup:** importar `InterfazHubSpot-Dev.postman_environment.json`, activar el environment y completar `privateAppToken` (pat-na1-...). Desplegar `scriptsSQL/000_Deploy_All.sql` en MSGestion antes de trazas MVC.\n\nVer `postman/README.md` para orden de prueba.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -159,14 +159,14 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"properties\": {\n    \"name\": \"EMPRESA DE PRUEBA SA\",\n    \"{{propertyMastersoftId}}\": \"{{mastersoftId}}\",\n    \"nro_cliente\": \"99999\",\n    \"cuitcuil\": \"30-99999999-0\",\n    \"nombre_fantasia\": \"Empresa Prueba\",\n    \"adress\": \"Av. Corrientes 1234\",\n    \"city\": \"Buenos Aires\",\n    \"zip\": \"C1043\",\n    \"state\": \"Buenos Aires\",\n    \"Country\": \"Argentina\",\n    \"zona_vta\": \"CABA\",\n    \"vendedor\": \"VENDEDOR TEST\",\n    \"responsable_de_cuenta\": \"ALAN L\",\n    \"lista_de_precios\": \"Lista A\",\n    \"condicion_de_venta\": \"30 dias\",\n    \"dias_para_deuda\": \"30\",\n    \"limite_de_credito\": \"100000\",\n    \"categoria_cliente\": \"A\"\n  }\n}"
+              "raw": "{\n  \"properties\": {\n    \"name\": \"EMPRESA DE PRUEBA SA\",\n    \"{{propertyMastersoftId}}\": \"{{mastersoftId}}\",\n    \"nro_cliente\": \"99999\",\n    \"cuitcuil\": \"30-99999999-0\",\n    \"nombre_fantasia\": \"Empresa Prueba\",\n    \"address\": \"Av. Corrientes 1234\",\n    \"puerta\": \"1234\",\n    \"city\": \"Buenos Aires\",\n    \"zip\": \"C1043\",\n    \"state\": \"Buenos Aires\",\n    \"Country\": \"Argentina\",\n    \"{{propertyManejoCc}}\": \"15/03/2026 --- $125.400,00\\n02/04/2026 --- $89.200,50\",\n    \"direccion_1_domicilio\": \"Deposito Norte — Av. del Libertador 500\",\n    \"direccion_1_cp\": \"1426\",\n    \"direccion_1_localidad\": \"Belgrano\",\n    \"direccion_1_provincia\": \"Buenos Aires\",\n    \"direccion_1_pais\": \"Argentina\",\n    \"zona_vta\": \"CABA\",\n    \"vendedor\": \"VENDEDOR TEST\",\n    \"responsable_de_cuenta\": \"ALAN L\",\n    \"lista_de_precios\": \"Lista A\",\n    \"condicion_de_venta\": \"30 dias\",\n    \"dias_para_deuda\": \"30\",\n    \"limite_de_credito\": \"100000\",\n    \"categoria_cliente\": \"A\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/companies",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "companies"]
             },
-            "description": "Crea compañía. El test script guarda el id en hubspotCompanyId."
+            "description": "Crea compañía con campos SP 004 (puerta, direcciones entrega, manejo cuenta corriente). El test script guarda el id en hubspotCompanyId."
           }
         },
         {
@@ -410,23 +410,10 @@
     },
     {
       "name": "Consola MVC (local)",
-      "description": "Endpoints ASP.NET MVC. Variable localUrl en el environment.",
+      "description": "Endpoints ASP.NET MVC (`localUrl` en el environment). Pasos numerados alineados con `Views/Home/Index.cshtml`.\n\n**Prerrequisito:** desplegar `scriptsSQL/000_Deploy_All.sql` en MSGestion (SP 004, 005, cola). `Web.config` con `MSGestion` + `HubSpot:PrivateAppToken` (o `HubSpot:UseDevelopmentMock=true`).\n\n**Orden smoke sugerido:** Paso 1 → 2 (SP004) → 4 (upsert, guarda hubspotCompanyId) → 6 (SP005+contactos) → corrida completa 2A.\n\nEn corrida completa 2A, el JSON de traza debe mostrar `bd.sp.contactos_obtener` **después** de `destinoexterno.hubspot.company_upsert`.",
       "item": [
         {
-          "name": "POST Procesar Cola HubSpot (2A silencioso)",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{localUrl}}/Home/ProcesarColaHubSpot",
-              "host": ["{{localUrl}}"],
-              "path": ["Home", "ProcesarColaHubSpot"]
-            }
-          }
-        },
-        {
-          "name": "POST Traza: ver estado de cola",
+          "name": "Paso 1 — Traza cola",
           "request": {
             "auth": { "type": "noauth" },
             "method": "POST",
@@ -435,11 +422,12 @@
               "raw": "{{localUrl}}/Home/ProcesarColaHubSpotTrazaCola",
               "host": ["{{localUrl}}"],
               "path": ["Home", "ProcesarColaHubSpotTrazaCola"]
-            }
+            },
+            "description": "Solo lectura: conteos Pendiente/EnProceso y hasta 40 filas de `dbo.ProcesosSpertaHubSpot`. No reclama filas."
           }
         },
         {
-          "name": "POST Traza: SP datos de cliente (sin HubSpot)",
+          "name": "Paso 2 — Traza SP 004 (empresa + direcciones)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "POST",
@@ -449,11 +437,100 @@
               "host": ["{{localUrl}}"],
               "path": ["Home", "ProcesarColaHubSpotTrazaCliente"],
               "query": [{ "key": "clienteId", "value": "{{mastersoftId}}" }]
-            }
+            },
+            "description": "Ejecuta `dbo.InterfazHubSpot_Cliente_Obtener` (SP 004): cabecera empresa, TOP 3 direcciones de entrega y `ManejoCuentaCorriente`. **Sin HubSpot ni contactos** (SP 005 no se invoca)."
           }
         },
         {
-          "name": "POST Traza: corrida completa 2A (SP + HubSpot)",
+          "name": "Paso 3 — TrazaHubSpotBuscarEmpresa",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{localUrl}}/Home/TrazaHubSpotBuscarEmpresa?clienteId={{mastersoftId}}",
+              "host": ["{{localUrl}}"],
+              "path": ["Home", "TrazaHubSpotBuscarEmpresa"],
+              "query": [{ "key": "clienteId", "value": "{{mastersoftId}}" }]
+            },
+            "description": "Busca compañía en HubSpot por `mastersoft_id_` (POST /crm/v3/objects/companies/search). Usa `mastersoftId` del environment."
+          }
+        },
+        {
+          "name": "Paso 4 — TrazaHubSpotUpsertEmpresa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const j = pm.response.json();",
+                  "    if (j.ok && Array.isArray(j.pasos)) {",
+                  "        const paso = j.pasos.find(p => p.Codigo === 'destinoexterno.hubspot.company_upsert');",
+                  "        const datos = paso && paso.Datos;",
+                  "        const id = datos && (datos.hubCompanyId || datos.HubCompanyId);",
+                  "        if (id) {",
+                  "            pm.environment.set('hubspotCompanyId', String(id));",
+                  "            console.log('hubspotCompanyId =', id);",
+                  "        } else {",
+                  "            console.log('No se encontró hubCompanyId en paso company_upsert; copiar manualmente del JSON de traza.');",
+                  "        }",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{localUrl}}/Home/TrazaHubSpotUpsertEmpresa?clienteId={{mastersoftId}}",
+              "host": ["{{localUrl}}"],
+              "path": ["Home", "TrazaHubSpotUpsertEmpresa"],
+              "query": [{ "key": "clienteId", "value": "{{mastersoftId}}" }]
+            },
+            "description": "SP 004 → search HubSpot → POST (nueva) o PATCH (existente). El test script intenta guardar `hubCompanyId` en la variable `hubspotCompanyId` del environment desde el paso `destinoexterno.hubspot.company_upsert`."
+          }
+        },
+        {
+          "name": "Paso 5 — TrazaHubSpotBuscarContacto",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{localUrl}}/Home/TrazaHubSpotBuscarContacto?email={{contactEmail}}",
+              "host": ["{{localUrl}}"],
+              "path": ["Home", "TrazaHubSpotBuscarContacto"],
+              "query": [{ "key": "email", "value": "{{contactEmail}}" }]
+            },
+            "description": "Busca contacto en HubSpot por email (POST /crm/v3/objects/contacts/search). Variable `contactEmail`."
+          }
+        },
+        {
+          "name": "Paso 6 — TrazaHubSpotSincronizarContactos",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{localUrl}}/Home/TrazaHubSpotSincronizarContactos?clienteId={{mastersoftId}}&hubCompanyId={{hubspotCompanyId}}",
+              "host": ["{{localUrl}}"],
+              "path": ["Home", "TrazaHubSpotSincronizarContactos"],
+              "query": [
+                { "key": "clienteId", "value": "{{mastersoftId}}" },
+                { "key": "hubCompanyId", "value": "{{hubspotCompanyId}}" }
+              ]
+            },
+            "description": "SP 005 `InterfazHubSpot_Clientes_Contactos_Obtener` → upsert contactos → asociación si fueron creados. Requiere `hubspotCompanyId` (Paso 4 o búsqueda HubSpot directa)."
+          }
+        },
+        {
+          "name": "Corrida completa 2A — Traza (todos los pasos)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "POST",
@@ -462,11 +539,26 @@
               "raw": "{{localUrl}}/Home/ProcesarColaHubSpotTraza",
               "host": ["{{localUrl}}"],
               "path": ["Home", "ProcesarColaHubSpotTraza"]
-            }
+            },
+            "description": "Reclama filas Pendientes y ejecuta flujo 2A completo con JSON paso a paso. Verificar orden: `company_upsert` antes de `bd.sp.contactos_obtener`."
           }
         },
         {
-          "name": "POST Batch Cuenta Corriente (2B silencioso)",
+          "name": "Job silencioso — Procesar Cola HubSpot (2A)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{localUrl}}/Home/ProcesarColaHubSpot",
+              "host": ["{{localUrl}}"],
+              "path": ["Home", "ProcesarColaHubSpot"]
+            },
+            "description": "Job 2A sin traza detallada (igual al servicio Windows / batch)."
+          }
+        },
+        {
+          "name": "Job silencioso — Batch Cuenta Corriente (2B)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "POST",
@@ -475,11 +567,12 @@
               "raw": "{{localUrl}}/Home/HubSpotCuentaCorrienteBatch",
               "host": ["{{localUrl}}"],
               "path": ["Home", "HubSpotCuentaCorrienteBatch"]
-            }
+            },
+            "description": "Job 2B: paginación SP 006 + batch update `manejo_cuenta_corriente` en HubSpot."
           }
         },
         {
-          "name": "POST Grabar email de prueba",
+          "name": "Grabar email de prueba (diagnóstico)",
           "request": {
             "auth": { "type": "noauth" },
             "method": "POST",
@@ -488,7 +581,8 @@
               "raw": "{{localUrl}}/Home/GrabarEmailError",
               "host": ["{{localUrl}}"],
               "path": ["Home", "GrabarEmailError"]
-            }
+            },
+            "description": "Plantilla de diagnóstico de email de error (batch)."
           }
         }
       ]

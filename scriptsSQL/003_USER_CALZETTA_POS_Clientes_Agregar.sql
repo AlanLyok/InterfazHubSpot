@@ -2,8 +2,9 @@
   Post-grabación WinForms — encola cliente para sincronización HubSpot (flujo 2A).
 
   Uso:
-    EXEC dbo.USER_POS_Clientes_Agregar @ClienteID = 12345;
-
+    EXEC dbo.USER_POS_Clientes_Agregar @ClienteID = 77;
+	
+	
  
 */
 
@@ -29,6 +30,7 @@ BEGIN
         SELECT 1
         FROM dbo.Clientes AS c
         WHERE c.ClienteID = @ClienteID
+		AND c.VendedorID not in (107,37,91)
     )
         RETURN;
 
@@ -39,6 +41,7 @@ BEGIN
           AND p.TipoEntidad = N'Cliente'
           AND p.Identificador = @ClienteID
           AND p.Estado = 0
+		  
     )
         RETURN;
 
@@ -52,9 +55,9 @@ BEGIN
         Estado,
         Intentos,
         MensajeUltimoError,
-        FechaCreacionUtc,
-        FechaInicioProcesoUtc,
-        FechaFinProcesoUtc
+        FechaCreacion,
+        FechaInicioProceso,
+        FechaFinProceso
     )
     VALUES (
         N'MS',
@@ -66,7 +69,7 @@ BEGIN
         0,
         0,
         NULL,
-        SYSUTCDATETIME(),
+        GETDATE(),
         NULL,
         NULL
     );

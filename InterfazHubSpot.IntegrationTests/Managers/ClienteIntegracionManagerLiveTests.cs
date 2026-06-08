@@ -6,7 +6,8 @@ namespace InterfazHubSpot.IntegrationTests.Managers
 {
     /// <summary>
     /// Tests de integración que verifican el contrato de <see cref="ClienteIntegracionManager"/>
-    /// (SPs <c>InterfazHubSpot_Cliente_Obtener</c> y <c>InterfazHubSpot_CuentaCorriente_Pagina</c>)
+    /// (SPs <c>InterfazHubSpot_Cliente_Obtener</c> (004), <c>InterfazHubSpot_Clientes_Contactos_Obtener</c> (005)
+    /// y <c>InterfazHubSpot_CuentaCorriente_Pagina</c> (006))
     /// contra una base de datos MSGestion real.  Todos requieren conexión activa y están
     /// tageados <c>Category=Live</c> para ser excluidos del run por defecto.
     ///
@@ -47,6 +48,19 @@ namespace InterfazHubSpot.IntegrationTests.Managers
             // var manager = new ClienteIntegracionManager(new MSContext());
             // var dto = manager.ObtenerClienteParaHubSpot(int.MaxValue);
             // Assert.True(dto == null || dto.ClienteId == 0);
+            throw new InvalidOperationException(SkipNeedsMSContext);
+        }
+
+        [Fact(Skip = SkipNeedsMSContext), Trait("Category", "Live")]
+        public void ObtenerContactosClienteParaHubSpot_ClienteExistente_DevuelveLista()
+        {
+            // Para ejecutar:
+            // var clienteIdStr = Environment.GetEnvironmentVariable("INTEGRATION_TEST_CLIENTE_ID");
+            // if (string.IsNullOrWhiteSpace(clienteIdStr)) return;
+            // var clienteId = int.Parse(clienteIdStr);
+            // var manager = new ClienteIntegracionManager(new MSContext());
+            // var contactos = manager.ObtenerContactosClienteParaHubSpot(clienteId);
+            // Assert.NotNull(contactos);
             throw new InvalidOperationException(SkipNeedsMSContext);
         }
 

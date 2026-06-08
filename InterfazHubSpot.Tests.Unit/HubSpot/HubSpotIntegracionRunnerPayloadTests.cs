@@ -162,6 +162,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
                 DiasParaDeuda = "30",
                 LimiteCredito = "50000",
                 CategoriaClienteId = "A",
+                ManejoCuentaCorriente = "Cuenta Corriente al 01/01/2026. Deuda: $0",
             };
         }
 
@@ -224,10 +225,10 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             var dto = BuildMinimalDto();
             dto.ListaDireccionEntregas = new List<DireccionEntregaDto>
             {
-                new DireccionEntregaDto { Domicilio = "Calle 1", CodigoPostal = "1000", Localidad = "Ciudad 1", ProvinciaId = "BA" },
-                new DireccionEntregaDto { Domicilio = "Calle 2", CodigoPostal = "2000", Localidad = "Ciudad 2", ProvinciaId = "CBA" },
-                new DireccionEntregaDto { Domicilio = "Calle 3", CodigoPostal = "3000", Localidad = "Ciudad 3", ProvinciaId = "SFE" },
-                new DireccionEntregaDto { Domicilio = "Calle 4", CodigoPostal = "4000", Localidad = "Ciudad 4", ProvinciaId = "MZA" },
+                new DireccionEntregaDto { Domicilio = "Calle 1", CodigoPostal = "1000", Localidad = "Ciudad 1", ProvinciaId = "BA", Pais = "Argentina" },
+                new DireccionEntregaDto { Domicilio = "Calle 2", CodigoPostal = "2000", Localidad = "Ciudad 2", ProvinciaId = "CBA", Pais = "Argentina" },
+                new DireccionEntregaDto { Domicilio = "Calle 3", CodigoPostal = "3000", Localidad = "Ciudad 3", ProvinciaId = "SFE", Pais = "Argentina" },
+                new DireccionEntregaDto { Domicilio = "Calle 4", CodigoPostal = "4000", Localidad = "Ciudad 4", ProvinciaId = "MZA", Pais = "Argentina" },
             };
 
             var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
@@ -239,6 +240,79 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
 
             // La cuarta NO debe estar
             Assert.Null(result.Property("direccion_4_domicilio"));
+        }
+
+        [Fact]
+        public void BuildCompanyProperties_MapeaManejoCuentaCorriente()
+        {
+            var runner = CreateUninitializedRunner();
+            var dto = BuildMinimalDto();
+
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+
+            Assert.Equal("Cuenta Corriente al 01/01/2026. Deuda: $0", (string)result["manejo_cuenta_corriente"]);
+        }
+
+        [Fact]
+        public void BuildCompanyProperties_MapeaCalleAPropertyAddress()
+        {
+            var runner = CreateUninitializedRunner();
+            var dto = BuildMinimalDto();
+            dto.Calle = "Av. Corrientes 1234";
+
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+
+            Assert.Equal("Av. Corrientes 1234", (string)result["address"]);
+            Assert.False(result.ContainsKey("adress"));
+        }
+
+        [Fact]
+        public void BuildCompanyProperties_MapeaCodigoPaisAPropertyCountryLowercase()
+        {
+            var runner = CreateUninitializedRunner();
+            var dto = BuildMinimalDto();
+            dto.CodigoPais = "Argentina";
+
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+
+            Assert.Equal("Argentina", (string)result["country"]);
+            Assert.False(result.ContainsKey("Country"));
+        }
+
+        [Fact]
+        public void BuildCompanyProperties_TodosLosNombresDePropiedad_EstanEnLowercase()
+        {
+            var runner = CreateUninitializedRunner();
+            var dto = BuildMinimalDto();
+            dto.ListaDireccionEntregas = new List<DireccionEntregaDto>
+            {
+                new DireccionEntregaDto { Domicilio = "Calle 1", CodigoPostal = "1000", Localidad = "Ciudad 1", ProvinciaId = "BA", Pais = "Argentina" },
+            };
+
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+
+            foreach (var prop in result.Properties())
+            {
+                Assert.True(
+                    prop.Name == prop.Name.ToLowerInvariant(),
+                    "Propiedad HubSpot debe estar en lowercase: '" + prop.Name + "'");
+                Assert.True(prop.Name.Length < 100, "Propiedad HubSpot debe tener menos de 100 caracteres: '" + prop.Name + "'");
+            }
+        }
+
+        [Fact]
+        public void BuildCompanyProperties_MapeaDireccionPais()
+        {
+            var runner = CreateUninitializedRunner();
+            var dto = BuildMinimalDto();
+            dto.ListaDireccionEntregas = new List<DireccionEntregaDto>
+            {
+                new DireccionEntregaDto { Domicilio = "Calle 1", CodigoPostal = "1000", Localidad = "Ciudad 1", ProvinciaId = "BA", Pais = "Argentina" },
+            };
+
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+
+            Assert.Equal("Argentina", (string)result["direccion_1_pais"]);
         }
 
         [Fact]

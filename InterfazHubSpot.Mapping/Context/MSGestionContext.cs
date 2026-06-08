@@ -57,7 +57,7 @@ namespace InterfazHubSpot.Mapping.Context
             modelBuilder.Configurations.Add(new PerfilesWebMap());
             modelBuilder.Configurations.Add(new UsuariosWebMap());
             modelBuilder.Configurations.Add(new ProcesosSpertaHubSpotMap());
-            modelBuilder.Configurations.Add(new IntegracionEjecucionLogMap());
+            modelBuilder.Configurations.Add(new ProcesosSpertaHubSpotLogMap());
         }
     }
 }

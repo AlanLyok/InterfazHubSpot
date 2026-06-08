@@ -39,7 +39,7 @@ InterfazHubSpot (MVC consola manual)
 
 ## Flujo de datos 2B
 
-1. Log inicio en `IntegracionEjecucionLog`
+1. Log inicio en `ProcesosSpertaHubSpotLog`
 2. `USER_HS_CuentaCorriente_ObtenerTodos` → filas factura
 3. Agrupar por `HubSpotCompanyId`, formatear texto
 4. Chunks de 100 → `POST /crm/v3/objects/companies/batch/update`

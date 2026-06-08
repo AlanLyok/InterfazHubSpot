@@ -1,11 +1,17 @@
 /*
-  InterfazHubSpot_Cliente_Obtener
-  Devuelve 3 result sets para ClienteIntegracionManager / ClienteIntegracionMapper:
-    1. Cabecera cliente (dbo.Clientes + lookups)
-    2. Contactos (dbo.Clientes_Contactos)
-    3. Direcciones de entrega TOP 3 (dbo.DireccionEntregas)
+select * from clientes c
+	 WHERE c.VendedorID in (107,37,91)
+	 AND c.inhabilitado = 0
+*/
 
-  Uso: EXEC dbo.InterfazHubSpot_Cliente_Obtener @ClienteId = 12345
+
+/*
+  InterfazHubSpot_Cliente_Obtener
+  Devuelve 2 result sets para ClienteIntegracionManager / ClienteIntegracionMapper:
+    1. Cabecera cliente (dbo.Clientes + lookups + ManejoCuentaCorriente)
+    2. Direcciones de entrega TOP 3 (dbo.DireccionEntregas)
+
+ EXEC dbo.InterfazHubSpot_Cliente_Obtener @ClienteId = 77
 */
 
 IF OBJECT_ID(N'dbo.InterfazHubSpot_Cliente_Obtener', N'P') IS NOT NULL
@@ -30,21 +36,22 @@ BEGIN
         RazonSocial            = c.RazonSocial,
         ApellidoYNombre        = c.ApeyNom,
         Contacto               = c.Contacto,
-        NumeroDocumento        = c.NroDocumento,
+        NumeroDocumento        = REPLACE(REPLACE(REPLACE(c.NroDocumento, '-',''), '.',''), ',',''),
         Calle                  = c.Calle,
         Puerta                 = CONVERT(VARCHAR(20), c.Puerta),
         Localidad              = c.Localidad,
         CodigoPostal           = c.CodPostal,
         CodigoProvinciaCliente = ISNULL(pro.Descripcion, N''),
         CodigoPais             = ISNULL(pai.Descripcion, N''),
-        ZonaId                 = ISNULL(zon.Descripcion, N''),
-        VendedorId             = ISNULL(ven.Descripcion, N''),
-        ResponsableCuentaId    = ISNULL(resp.Descripcion, N''),
-        ListaPreciosId         = ISNULL(lp.Descripcion, N''),
-        CondicionVentaId       = ISNULL(cv.Descripcion, N''),
+        Zona                   = ISNULL(zon.Descripcion, N''),
+        Vendedor               = ISNULL(ven.Descripcion, N''),
+        ResponsableCuenta      = ISNULL(resp.Descripcion, N''),
+        ListaPrecios           = ISNULL(lp.Descripcion, N''),
+        CondicionVenta         = ISNULL(cv.Descripcion, N''),
         DiasParaDeuda          = CONVERT(VARCHAR(20), c.DiasParaDeuda),
         LimiteCredito          = CONVERT(VARCHAR(30), c.LimiteCredito),
-        CategoriaClienteId     = ISNULL(cat.Descripcion, N'')
+        CategoriaCliente       = ISNULL(cat.Descripcion, N''),
+        ManejoCuentaCorriente  = dbo.InterfazHubSpot_ManejoCuentaCorriente_Texto(@ClienteId)
     FROM dbo.Clientes AS c
     LEFT JOIN dbo.Provincias AS pro
         ON pro.ProvinciaID = c.ProvinciaID
@@ -62,31 +69,27 @@ BEGIN
         ON cv.CondVentaID = c.CondVentaID
     LEFT JOIN dbo.CategClientes AS cat
         ON cat.CategClienteID = c.CategClienteID
-    WHERE c.ClienteID = @ClienteId;
+    WHERE c.ClienteID = @ClienteId
+	 AND c.VendedorID in (107,37,91)
+	 AND c.inhabilitado = 0
 
-    -- Result set 2: contactos
-    SELECT
-        ClienteId          = cc.ClienteID,
-        ApellidoYNombre    = cc.ApeyNom,
-        CorreoElectronico  = cc.Email,
-        Telefono           = cc.Telefono,
-        SectorId           = ISNULL(sec.Descripcion, N'')
-    FROM dbo.Clientes_Contactos AS cc
-    LEFT JOIN dbo.SectoresDeContactosClientes AS sec
-        ON sec.SectorID = cc.SectorID
-    WHERE cc.ClienteID = @ClienteId;
-
-    -- Result set 3: direcciones de entrega (máx. 3)
+    -- Result set 2: direcciones de entrega (máx. 3)
     SELECT TOP 3
         ClienteId      = de.ClienteID,
         Domicilio      = de.Domicilio,
         CodigoPostal   = de.CP,
         Localidad      = de.Localidad,
-        ProvinciaId    = ISNULL(proDe.Descripcion, N'')
+        Provincia      = ISNULL(proDe.Descripcion, N''),
+        Pais           = ISNULL(paisDe.Descripcion, N'')
     FROM dbo.DireccionEntregas AS de
     LEFT JOIN dbo.Provincias AS proDe
         ON proDe.ProvinciaID = de.ProvinciaID
+    LEFT JOIN dbo.Cuitpais AS paisDe
+        ON paisDe.PaisID = de.PaisID
+	INNER JOIN Clientes CL ON CL.ClienteID = de.ClienteID AND CL.VendedorID in (107,37,91)
     WHERE de.ClienteID = @ClienteId
+	AND CL.inhabilitado = 0
+	
     ORDER BY
         de.Predeterminada DESC,
         de.DireccionID ASC;

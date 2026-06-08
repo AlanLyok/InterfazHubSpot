@@ -7,7 +7,7 @@
 
 ### Base de Datos (SQL)
 
-- [ ] **SQL-01**: Verificar estructura de `dbo.ProcesosSpertaHubSpot` y `dbo.IntegracionEjecucionLog`
+- [ ] **SQL-01**: Verificar estructura de `dbo.ProcesosSpertaHubSpot` y `dbo.ProcesosSpertaHubSpotLog`
 - [ ] **SQL-02**: Implementar `USER_POS_Clientes_Agregar` con deduplicación de filas Pendiente
 - [ ] **SQL-03**: Implementar `USER_HS_Cliente_ObtenerDatos` con todos los campos del PRD
 - [ ] **SQL-04**: Implementar `USER_HS_ClienteContactos_Buscar`
@@ -46,7 +46,7 @@
 - [ ] **2B-02**: Obtener todos los clientes activos vía SP
 - [ ] **2B-03**: Formatear `manejo_cuenta_corriente` (con/sin deuda según PRD)
 - [ ] **2B-04**: Enviar batches de 100 compañías con delay 200ms entre batches
-- [ ] **2B-05**: Registrar ejecución en `IntegracionEjecucionLog`
+- [ ] **2B-05**: Registrar ejecución en `ProcesosSpertaHubSpotLog`
 - [ ] **2B-06**: Omitir clientes sin `HubSpotCompanyId` con advertencia en log
 - [ ] **2B-07**: Email de error en fallos de batch o job crítico
 

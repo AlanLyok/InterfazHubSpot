@@ -52,7 +52,7 @@ namespace InterfazHubSpot.Business.Managers
             var repo = uow.Repository<ProcesosSpertaHubSpot>();
             var lista = repo.Queryable()
                 .Where(x => x.Destino == destino && x.Estado == IntegracionColaEstados.Pendiente)
-                .OrderBy(x => x.FechaCreacionUtc)
+                .OrderBy(x => x.FechaCreacion)
                 .Take(maxItems)
                 .ToList();
 
@@ -71,7 +71,7 @@ namespace InterfazHubSpot.Business.Managers
                 TipoOperacion = x.TipoOperacion,
                 Identificador = x.Identificador,
                 Intentos = x.Intentos,
-                FechaCreacionUtc = x.FechaCreacionUtc,
+                FechaCreacion = x.FechaCreacion,
             };
         }
 
@@ -93,15 +93,15 @@ namespace InterfazHubSpot.Business.Managers
                 var repo = uow.Repository<ProcesosSpertaHubSpot>();
                 var candidatos = repo.Queryable()
                     .Where(x => x.Destino == destino && x.Estado == IntegracionColaEstados.Pendiente)
-                    .OrderBy(x => x.FechaCreacionUtc)
+                    .OrderBy(x => x.FechaCreacion)
                     .Take(maxItems)
                     .ToList();
 
-                var ahora = DateTime.UtcNow;
+                var ahora = DateTime.Now;
                 foreach (var p in candidatos)
                 {
                     p.Estado = IntegracionColaEstados.EnProceso;
-                    p.FechaInicioProcesoUtc = ahora;
+                    p.FechaInicioProceso = ahora;
                     p.Intentos = p.Intentos + 1;
                     repo.SaveEntity(p);
                 }
@@ -120,7 +120,7 @@ namespace InterfazHubSpot.Business.Managers
             if (p == null)
                 return;
             p.Estado = IntegracionColaEstados.Ok;
-            p.FechaFinProcesoUtc = DateTime.UtcNow;
+            p.FechaFinProceso = DateTime.Now;
             p.MensajeUltimoError = null;
             repo.SaveEntity(p);
             uow.SaveChanges();
@@ -134,7 +134,7 @@ namespace InterfazHubSpot.Business.Managers
             if (p == null)
                 return;
             p.Estado = IntegracionColaEstados.Error;
-            p.FechaFinProcesoUtc = DateTime.UtcNow;
+            p.FechaFinProceso = DateTime.Now;
             p.MensajeUltimoError = mensaje != null && mensaje.Length > 8000 ? mensaje.Substring(0, 8000) : mensaje;
             repo.SaveEntity(p);
             uow.SaveChanges();
@@ -149,8 +149,8 @@ namespace InterfazHubSpot.Business.Managers
             if (p == null)
                 return;
             p.Estado = IntegracionColaEstados.Pendiente;
-            p.FechaInicioProcesoUtc = null;
-            p.FechaFinProcesoUtc = null;
+            p.FechaInicioProceso = null;
+            p.FechaFinProceso = null;
             repo.SaveEntity(p);
             uow.SaveChanges();
         }
@@ -175,6 +175,6 @@ namespace InterfazHubSpot.Business.Managers
 
         public int Intentos { get; set; }
 
-        public DateTime FechaCreacionUtc { get; set; }
+        public DateTime FechaCreacion { get; set; }
     }
 }

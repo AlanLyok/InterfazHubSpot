@@ -9,7 +9,6 @@ namespace InterfazHubSpot.Business.Integration
     {
         public static ClienteIntegracionDto MapearCliente(
             DataTable cabecera,
-            DataTable contactos,
             DataTable direcciones)
         {
             if (cabecera == null || cabecera.Rows.Count == 0)
@@ -32,30 +31,17 @@ namespace InterfazHubSpot.Business.Integration
                     CodigoPostal = GetStr(row, "CodigoPostal"),
                     CodigoProvinciaCliente = GetStr(row, "CodigoProvinciaCliente"),
                     CodigoPais = GetStr(row, "CodigoPais"),
-                    ZonaId = GetStr(row, "ZonaId"),
-                    VendedorId = GetStr(row, "VendedorId"),
-                    ResponsableCuentaId = GetStr(row, "ResponsableCuentaId"),
-                    ListaPreciosId = GetStr(row, "ListaPreciosId"),
-                    CondicionVentaId = GetStr(row, "CondicionVentaId"),
+                    ZonaId = GetStr(row, "Zona"),
+                    VendedorId = GetStr(row, "Vendedor"),
+                    ResponsableCuentaId = GetStr(row, "ResponsableCuenta"),
+                    ListaPreciosId = GetStr(row, "ListaPrecios"),
+                    CondicionVentaId = GetStr(row, "CondicionVenta"),
                     DiasParaDeuda = GetStr(row, "DiasParaDeuda"),
                     LimiteCredito = GetStr(row, "LimiteCredito"),
-                    CategoriaClienteId = GetStr(row, "CategoriaClienteId"),
+                    CategoriaClienteId = GetStr(row, "CategoriaCliente"),
+                    ManejoCuentaCorriente = GetStr(row, "ManejoCuentaCorriente"),
                 }
             };
-
-            if (contactos != null)
-            {
-                foreach (DataRow c in contactos.Rows)
-                {
-                    dto.Cliente.ListaClientesContactos.Add(new ContactoDto
-                    {
-                        ApellidoYNombre = GetStr(c, "ApellidoYNombre"),
-                        CorreoElectronico = GetStr(c, "CorreoElectronico"),
-                        Telefono = GetStr(c, "Telefono"),
-                        SectorId = GetStr(c, "SectorId"),
-                    });
-                }
-            }
 
             if (direcciones != null)
             {
@@ -66,12 +52,33 @@ namespace InterfazHubSpot.Business.Integration
                         Domicilio = GetStr(d, "Domicilio"),
                         CodigoPostal = GetStr(d, "CodigoPostal"),
                         Localidad = GetStr(d, "Localidad"),
-                        ProvinciaId = GetStr(d, "ProvinciaId"),
+                        ProvinciaId = GetStr(d, "Provincia"),
+                        Pais = GetStr(d, "Pais"),
                     });
                 }
             }
 
             return dto;
+        }
+
+        public static List<ContactoDto> MapearContactos(DataTable contactos)
+        {
+            var lista = new List<ContactoDto>();
+            if (contactos == null)
+                return lista;
+
+            foreach (DataRow c in contactos.Rows)
+            {
+                lista.Add(new ContactoDto
+                {
+                    ApellidoYNombre = GetStr(c, "ApellidoYNombre"),
+                    CorreoElectronico = GetStr(c, "CorreoElectronico"),
+                    Telefono = GetStr(c, "Telefono"),
+                    SectorId = GetStr(c, "Sector"),
+                });
+            }
+
+            return lista;
         }
 
         public static PaginaCuentaCorrienteDto MapearPaginaCuentaCorriente(

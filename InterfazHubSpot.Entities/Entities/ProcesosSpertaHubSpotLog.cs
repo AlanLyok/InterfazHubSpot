@@ -6,7 +6,7 @@ using Mastersoft.Framework.Interfaces;
 namespace InterfazHubSpot.Entities
 {
     /// <summary>Auditoría por corrida de integración (OK / error detallado).</summary>
-    public partial class IntegracionEjecucionLog : Entity
+    public partial class ProcesosSpertaHubSpotLog : Entity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long LogId { get; set; }
@@ -15,7 +15,7 @@ namespace InterfazHubSpot.Entities
 
         public string Destino { get; set; }
 
-        public int? ClienteId { get; set; }
+        public int? Identificador { get; set; }
 
         public string Fase { get; set; }
 
@@ -23,6 +23,6 @@ namespace InterfazHubSpot.Entities
 
         public string Detalle { get; set; }
 
-        public DateTime FechaUtc { get; set; }
+        public DateTime FechaGrabacion { get; set; }
     }
 }

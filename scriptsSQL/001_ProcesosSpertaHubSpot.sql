@@ -6,7 +6,7 @@
   1. Desplegar 003_USER_POS_Clientes_Agregar.sql
   2. Verificar post-grabación WinForms invoca USER_POS_Clientes_Agregar
   3. Coordinar ventana de mantenimiento si aplica
-*/
+*/ 
 
 DECLARE @legacy SYSNAME = N'ProcesosSperta' + N'API';
 DECLARE @target SYSNAME = N'ProcesosSpertaHubSpot';
@@ -32,9 +32,9 @@ BEGIN
         Estado                 TINYINT NOT NULL,
         Intentos               INT NOT NULL,
         MensajeUltimoError     NVARCHAR(MAX) NULL,
-        FechaCreacionUtc       DATETIME2 NOT NULL,
-        FechaInicioProcesoUtc  DATETIME2 NULL,
-        FechaFinProcesoUtc     DATETIME2 NULL,
+        FechaCreacion          DATETIME2 NOT NULL CONSTRAINT DF_ProcesosSpertaHubSpot_FechaCreacion DEFAULT GETDATE(),
+        FechaInicioProceso     DATETIME2 NULL,
+        FechaFinProceso        DATETIME2 NULL,
         CONSTRAINT PK_ProcesosSpertaHubSpot PRIMARY KEY CLUSTERED (ProcesoId)
     );
     PRINT 'Tabla creada: dbo.ProcesosSpertaHubSpot';
@@ -53,7 +53,7 @@ IF NOT EXISTS (
 )
 BEGIN
     CREATE NONCLUSTERED INDEX IX_ProcesosSpertaHubSpot_DestinoEstadoFecha
-        ON dbo.ProcesosSpertaHubSpot (Destino, Estado, FechaCreacionUtc)
+        ON dbo.ProcesosSpertaHubSpot (Destino, Estado, FechaCreacion)
         INCLUDE (Identificador, TipoEntidad, Intentos);
     PRINT 'Indice IX_ProcesosSpertaHubSpot_DestinoEstadoFecha creado.';
 END

@@ -31,10 +31,10 @@ namespace InterfazHubSpot.Entities
 
         public string MensajeUltimoError { get; set; }
 
-        public DateTime FechaCreacionUtc { get; set; }
+        public DateTime FechaCreacion { get; set; }
 
-        public DateTime? FechaInicioProcesoUtc { get; set; }
+        public DateTime? FechaInicioProceso { get; set; }
 
-        public DateTime? FechaFinProcesoUtc { get; set; }
+        public DateTime? FechaFinProceso { get; set; }
     }
 }

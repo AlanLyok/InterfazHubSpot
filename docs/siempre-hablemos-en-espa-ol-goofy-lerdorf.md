@@ -154,7 +154,7 @@ Cada commit debe compilar y pasar tests (excepto el paso 1 que es solo SQL).
 ## Reúso
 
 - `ProcesosSpertaHubSpotManager` (`InterfazHubSpot.Business/Managers/`) — sigue siendo el dueño de la cola; no se toca.
-- `IntegracionEjecucionLogManager`, `ErroresManager`, `EmailsManager` — intactos.
+- `ProcesosSpertaHubSpotLogManager`, `ErroresManager`, `EmailsManager` — intactos.
 - `HubSpotCrmClient` y `HubSpotConfiguration` — intactos; siguen siendo la capa de auth + HTTP contra HubSpot.
 - `_pasos` (`IProcesoPasoReporter`) — intacto; solo cambian categorías/códigos al reportar pasos de SP en vez de HTTP.
 - `RunSync`, `IntegracionColaIdentificador.TryGetClienteId`, `IntegracionDestinos.HubSpot` — intactos.

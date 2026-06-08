@@ -98,4 +98,4 @@ Config ejemplo: `.cursor/mcp.mssql-mcp-server.example.json`, bootstrap `services
 - Patrones OrdenTrabajoApi / .NET 8 del skill antiguo mal aplicados
 - `dotnet build` como sustituto de MSBuild en verificación formal
 - Bash-ismos en terminal Windows (`&&`, heredoc `<<EOF`, `export`)
-- Reintroducir `ProcesosSpertaAPI`, `BatchSpertaAPI`, `Hubspot`
+- Reintroducir nombres legacy de solución/tabla/cola (ver `.cursor/rules/interfaz-hubspot.mdc`)

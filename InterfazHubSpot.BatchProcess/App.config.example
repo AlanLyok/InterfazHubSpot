@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Plantilla para el host del servicio Windows (IScheduler) que carga InterfazHubSpot.BatchProcess.
+  Copiar a App.config del ejecutable del scheduler (no versionado).
+  Debe coincidir con InterfazHubSpot/Web.config en MSGestion + claves HubSpot.
+
+  Calzetta: conexion directa a MsGestion_CALZETTA (sin multitenancy, sin TenantId).
+-->
+<configuration>
+  <connectionStrings>
+    <add name="MSGestion"
+         connectionString="Data Source=MS0025;Initial Catalog=MsGestion_CALZETTA;Integrated Security=True;MultipleActiveResultSets=True"
+         providerName="System.Data.SqlClient" />
+  </connectionStrings>
+  <appSettings>
+    <add key="FrameworkCNPrefix" value="InterfazHubSpot" />
+    <add key="EmpresaId" value="1" />
+    <add key="HubSpot:PrivateAppToken" value="" />
+    <add key="HubSpot:UseDevelopmentMock" value="false" />
+  </appSettings>
+</configuration>

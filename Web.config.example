@@ -1,21 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
-  Plantilla post-refactor InterfazHubSpot.
+
+  Plantilla InterfazHubSpot (MVC + referencia para servicio Windows).
+
   Copiar a InterfazHubSpot/Web.config (no versionado) y completar secretos localmente.
+
+
+
+  Calzetta: conexion directa a MSGestion (sin multitenancy). No requiere TenantId ni MSFwk.
+
+
+
+  Primer test REAL contra HubSpot:
+
+    1. Desplegar scriptsSQL/000_Deploy_All.sql en MsGestion_CALZETTA (007, 004, 005, 006).
+
+    2. HubSpot:UseDevelopmentMock = false
+
+    3. HubSpot:PrivateAppToken = pat-... (scopes CRM companies + contacts read/write)
+
+    4. Verificar propiedades custom en el portal (mastersoft_id_, manejo_cuenta_corriente, address, etc.)
+
+    5. Smoke MVC Home: Paso 1 (cola) -> Paso 2 (SP 004) -> Paso 4 (upsert empresa) -> Paso 6 (SP 005 + contactos)
+
 -->
+
 <configuration>
+
   <connectionStrings>
-    <add name="MSGestion" connectionString="Data Source=SERVER;Initial Catalog=MsGestion_XXX;..." />
+
+    <add name="MSGestion"
+
+         connectionString="Data Source=MS0025;Initial Catalog=MsGestion_CALZETTA;Integrated Security=True;MultipleActiveResultSets=True"
+
+         providerName="System.Data.SqlClient" />
+
   </connectionStrings>
+
   <appSettings>
+
     <add key="ErrorLogConnectionName" value="InterfazHubSpot" />
+
     <add key="Title" value="InterfazHubSpot" />
+
     <add key="FrameworkCNPrefix" value="InterfazHubSpot" />
+
+    <add key="EmpresaId" value="1" />
+
     <add key="PathLog" value="C:\logs\InterfazHubSpot\InterfazHubSpot.txt" />
+
+    <!-- Vacio en dev con mock; obligatorio con UseDevelopmentMock=false -->
+
     <add key="HubSpot:PrivateAppToken" value="" />
+
+    <!-- true = sin llamadas CRM (DevelopmentHubSpotStubHandler). false = HubSpot real -->
+
     <add key="HubSpot:UseDevelopmentMock" value="true" />
+
+    <!-- Opcionales (defaults en codigo si se omiten):
+
+    <add key="HubSpot:BaseUrl" value="https://api.hubapi.com" />
+
+    <add key="HubSpot:PropertyMastersoftId" value="mastersoft_id_" />
+
+    <add key="HubSpot:PropertyManejoCuentaCorriente" value="manejo_cuenta_corriente" />
+
+    <add key="HubSpot:DelayMillisecondsBetweenCalls" value="120" />
+
+    <add key="HubSpot:CuentaCorrientePageSize" value="500" />
+
+    -->
+
   </appSettings>
+
   <system.web>
+
     <authentication mode="None" />
+
   </system.web>
+
 </configuration>
+

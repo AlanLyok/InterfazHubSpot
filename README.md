@@ -15,16 +15,18 @@ Los datos salen de **SQL Server** (`MSGestion`) vía stored procedures. HubSpot 
 
 | Flujo | Job | Qué hace |
 |-------|-----|----------|
-| **2A** | `ProcesarColaIntegracionesHubSpotJob` | Lee cola `dbo.ProcesosSpertaHubSpot`, obtiene cliente por SP y crea/actualiza company + contact en HubSpot |
+| **2A** | `ProcesarColaIntegracionesHubSpotJob` | Cola → SP 004 (empresa + direcciones) → upsert company HubSpot → SP 005 (contactos) → upsert/asociar contactos |
 | **2B** | `HubSpotSincronizarCuentaCorrienteJob` | Pagina cuenta corriente por SP y actualiza propiedad `manejo_cuenta_corriente` en batch (100 companies/página) |
 
 ```mermaid
 flowchart LR
   ERP[ERP WinForms] -->|INSERT cola| Q[(ProcesosSpertaHubSpot)]
   Q --> J2A[Job 2A]
-  J2A --> SP1[SP Cliente_Obtener]
-  SP1 --> HS[HubSpot CRM v3]
-  SP2[SP CuentaCorriente_Pagina] --> J2B[Job 2B]
+  J2A --> SP4[SP 004 Cliente_Obtener]
+  SP4 --> HS[HubSpot CRM v3]
+  J2A --> SP5[SP 005 Contactos_Obtener]
+  SP5 --> HS
+  SP6[SP 006 CuentaCorriente_Pagina] --> J2B[Job 2B]
   J2B --> HS
 ```
 
@@ -36,7 +38,7 @@ flowchart LR
 
 - Windows con **Visual Studio** o **MSBuild** + **NuGet**
 - **PowerShell 7+** (`pwsh`) para scripts del repo
-- **SQL Server** con base `MSGestion` y scripts en `sql/` aplicados
+- **SQL Server** con base `MSGestion` y scripts en `scriptsSQL/` (o copias en `sql/`) aplicados
 - Token HubSpot (Private App) — **no versionar**; usar `Web.config` local
 
 ### Clonar y compilar
@@ -107,15 +109,23 @@ InterfazHubSpot.sln
 
 ## Base de datos
 
-Ejecutar en `MSGestion` (orden sugerido):
+Ejecutar en `MSGestion` (orden canónico vía orquestador):
+
+```powershell
+# SSMS: abrir scriptsSQL/000_Deploy_All.sql y ejecutar contra MSGestion
+# o sqlcmd -S <server> -d MsGestion_CALZETTA -i scriptsSQL/000_Deploy_All.sql
+```
 
 | Script | Contenido |
 |--------|-----------|
-| [`sql/001_ProcesosSpertaHubSpot.sql`](sql/001_ProcesosSpertaHubSpot.sql) | Tabla cola `dbo.ProcesosSpertaHubSpot` |
-| [`sql/002_USER_POS_Clientes_Agregar.sql`](sql/002_USER_POS_Clientes_Agregar.sql) | SP outbox desde ERP WinForms |
-| [`sql/003_USP_Integracion_HubSpot_Cliente_Obtener.sql`](sql/003_USP_Integracion_HubSpot_Cliente_Obtener.sql) | Datos cliente para flujo 2A |
-| [`sql/004_USP_Integracion_HubSpot_CuentaCorriente_Pagina.sql`](sql/004_USP_Integracion_HubSpot_CuentaCorriente_Pagina.sql) | Paginación cuenta corriente 2B |
-| [`sql/005_IntegracionEjecucionLog.sql`](sql/005_IntegracionEjecucionLog.sql) | Log de ejecuciones |
+| [`scriptsSQL/000_Deploy_All.sql`](scriptsSQL/000_Deploy_All.sql) | Orquestador (cleanup legacy + 001–007) |
+| [`scriptsSQL/001_ProcesosSpertaHubSpot.sql`](scriptsSQL/001_ProcesosSpertaHubSpot.sql) | Tabla cola `dbo.ProcesosSpertaHubSpot` |
+| [`scriptsSQL/002_ProcesosSpertaHubSpotLog.sql`](scriptsSQL/002_ProcesosSpertaHubSpotLog.sql) | Log `dbo.ProcesosSpertaHubSpotLog` |
+| [`scriptsSQL/003_USER_CALZETTA_POS_Clientes_Agregar.sql`](scriptsSQL/003_USER_CALZETTA_POS_Clientes_Agregar.sql) | SP outbox `USER_POS_Clientes_Agregar` |
+| [`scriptsSQL/004_InterfazHubSpot_Cliente_Obtener.sql`](scriptsSQL/004_InterfazHubSpot_Cliente_Obtener.sql) | Empresa + direcciones flujo 2A |
+| [`scriptsSQL/005_InterfazHubSpot_Clientes_Contactos_Obtener.sql`](scriptsSQL/005_InterfazHubSpot_Clientes_Contactos_Obtener.sql) | Contactos cliente flujo 2A |
+| [`scriptsSQL/006_InterfazHubSpot_CuentaCorriente_Pagina.sql`](scriptsSQL/006_InterfazHubSpot_CuentaCorriente_Pagina.sql) | Paginación cuenta corriente 2B |
+| [`scriptsSQL/007_InterfazHubSpot_ManejoCuentaCorriente_Texto.sql`](scriptsSQL/007_InterfazHubSpot_ManejoCuentaCorriente_Texto.sql) | Función texto CC compartida 2A/2B |
 
 Desde el ERP WinForms se insertan filas pendientes en la cola (`Destino=HubSpot`, columna `Identificador`). Detalle en el PRD § outbox.
 
@@ -143,14 +153,14 @@ No se requiere `MSFwk`; el sitio MVC es consola interna sin autenticación.
 | `HubSpot:CuentaCorrientePageSize` | Página SP cuenta corriente (default `500`). |
 | `HubSpot:UseDevelopmentMock` | Mock CRM v3 en desarrollo; no usar en producción. |
 
-Plantilla: [`Web.config.example`](Web.config.example).
+Plantillas: [`Web.config.example`](Web.config.example) (MVC), [`InterfazHubSpot.BatchProcess/App.config.example`](InterfazHubSpot.BatchProcess/App.config.example) (servicio Windows).
 
 ---
 
 ## Jobs (`IScheduler`)
 
 - **`GrabarEmailError`** — Encola correo de prueba vía `EmailsManager`.
-- **`ProcesarColaIntegracionesHubSpotJob`** — Flujo **2A**: cola → SP cliente → upsert HubSpot.
+- **`ProcesarColaIntegracionesHubSpotJob`** — Flujo **2A**: cola → SP 004 → upsert company → SP 005 → contactos HubSpot.
 - **`HubSpotSincronizarCuentaCorrienteJob`** — Flujo **2B**: SP cuenta corriente → batch update companies.
 
 Endpoints MVC útiles:
@@ -160,8 +170,12 @@ Endpoints MVC útiles:
 | POST | `/Home/ProcesarColaHubSpot` | Ejecutar job 2A |
 | POST | `/Home/HubSpotCuentaCorrienteBatch` | Ejecutar job 2B |
 | POST | `/Home/ProcesarColaHubSpotTrazaCola` | Vista previa cola (JSON) |
-| POST | `/Home/ProcesarColaHubSpotTrazaCliente?clienteId=n` | Traza SP sin secretos |
-| POST | `/Home/ProcesarColaHubSpotTraza` | Corrida completa 2A con pasos |
+| POST | `/Home/ProcesarColaHubSpotTrazaCliente?clienteId=n` | Traza SP 004 (empresa + direcciones, sin HubSpot) |
+| POST | `/Home/TrazaHubSpotBuscarEmpresa?clienteId=n` | Buscar company por `mastersoft_id_` |
+| POST | `/Home/TrazaHubSpotUpsertEmpresa?clienteId=n` | SP 004 + crear/actualizar company |
+| POST | `/Home/TrazaHubSpotBuscarContacto?email=...` | Buscar contact por email |
+| POST | `/Home/TrazaHubSpotSincronizarContactos?clienteId=n&hubCompanyId=...` | SP 005 + upsert/asociar contactos |
+| POST | `/Home/ProcesarColaHubSpotTraza` | Corrida completa 2A con pasos JSON |
 
 ---
 

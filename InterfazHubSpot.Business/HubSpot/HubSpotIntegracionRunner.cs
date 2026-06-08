@@ -27,7 +27,7 @@ namespace InterfazHubSpot.Business.HubSpot
 
         private readonly ProcesosSpertaHubSpotManager _cola;
 
-        private readonly IntegracionEjecucionLogManager _log;
+        private readonly ProcesosSpertaHubSpotLogManager _log;
 
         private readonly IProcesoPasoReporter _pasos;
 
@@ -61,7 +61,7 @@ namespace InterfazHubSpot.Business.HubSpot
                 });
 
             _cola = new ProcesosSpertaHubSpotManager(ctx);
-            _log = new IntegracionEjecucionLogManager(ctx);
+            _log = new ProcesosSpertaHubSpotLogManager(ctx);
         }
 
         private void EnsureHubClient()
@@ -338,7 +338,14 @@ namespace InterfazHubSpot.Business.HubSpot
             if (string.IsNullOrEmpty(hubCompanyId))
                 throw new InvalidOperationException("HubSpot no devolvió id de compañía.");
 
-            var contactos = dto.Cliente.ListaClientesContactos ?? new List<ContactoDto>();
+            _pasos.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "bd.sp.contactos_obtener",
+                "Ejecutando SP para obtener contactos del cliente.",
+                new { procesoId, clienteId = clientePk });
+
+            var contactos = _cli.ObtenerContactosClienteParaHubSpot(clientePk) ?? new List<ContactoDto>();
             var idxContacto = 0;
             foreach (var c in contactos)
             {
@@ -415,12 +422,12 @@ namespace InterfazHubSpot.Business.HubSpot
                 ["cuitcuil"] = nroDoc ?? string.Empty,
                 ["nro_cliente"] = codigoCliente ?? string.Empty,
                 [_hubCfg.PropertyMastersoftId] = clientePk.ToString(CultureInfo.InvariantCulture),
-                ["adress"] = ms.Calle ?? string.Empty,
+                ["address"] = ms.Calle ?? string.Empty,
                 ["puerta"] = ms.Puerta ?? string.Empty,
                 ["city"] = ms.Localidad ?? string.Empty,
                 ["zip"] = ms.CodigoPostal ?? string.Empty,
                 ["state"] = ms.CodigoProvinciaCliente ?? string.Empty,
-                ["Country"] = ms.CodigoPais ?? string.Empty,
+                ["country"] = ms.CodigoPais ?? string.Empty,
                 ["zona_vta"] = ms.ZonaId ?? string.Empty,
                 ["vendedor"] = ms.VendedorId ?? string.Empty,
                 ["responsable_de_cuenta"] = ms.ResponsableCuentaId ?? string.Empty,
@@ -429,6 +436,7 @@ namespace InterfazHubSpot.Business.HubSpot
                 ["dias_para_deuda"] = ms.DiasParaDeuda ?? string.Empty,
                 ["limite_de_credito"] = ms.LimiteCredito ?? string.Empty,
                 ["categoria_cliente"] = ms.CategoriaClienteId ?? string.Empty,
+                [_hubCfg.PropertyManejoCuentaCorriente] = ms.ManejoCuentaCorriente ?? string.Empty,
             };
 
             var dirs = ms.ListaDireccionEntregas;
@@ -445,6 +453,7 @@ namespace InterfazHubSpot.Business.HubSpot
                     props["direccion_" + n + "_cp"] = d.CodigoPostal ?? string.Empty;
                     props["direccion_" + n + "_localidad"] = d.Localidad ?? string.Empty;
                     props["direccion_" + n + "_provincia"] = d.ProvinciaId ?? string.Empty;
+                    props["direccion_" + n + "_pais"] = d.Pais ?? string.Empty;
                 }
             }
 
@@ -578,11 +587,14 @@ namespace InterfazHubSpot.Business.HubSpot
             if (string.IsNullOrWhiteSpace(hubCompanyId))
                 throw new ArgumentException("Se requiere el HubSpot Company ID para asociar contactos nuevos.");
 
-            var dto = _cli.ObtenerClienteParaHubSpot(clienteId);
-            if (dto == null)
-                throw new InvalidOperationException("SP no devolvió datos para clienteId " + clienteId + ".");
+            _pasos.RegistrarPaso(
+                ProcesoPasoSeverity.Information,
+                ProcesoPasoCategoria.Infraestructura,
+                "bd.sp.contactos_obtener",
+                "Ejecutando SP para obtener contactos del cliente.",
+                new { clienteId });
 
-            var contactos = dto.Cliente.ListaClientesContactos ?? new List<ContactoDto>();
+            var contactos = _cli.ObtenerContactosClienteParaHubSpot(clienteId) ?? new List<ContactoDto>();
             _pasos.RegistrarPaso(
                 ProcesoPasoSeverity.Information,
                 ProcesoPasoCategoria.Infraestructura,

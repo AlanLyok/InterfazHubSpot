@@ -62,7 +62,7 @@
     <Compile Include="Context\MSGestionContext.cs" />
     <Compile Include="Mapping\EmpresasMap.cs" />
     <Compile Include="Mapping\ErroresMap.cs" />
-    <Compile Include="Mapping\IntegracionEjecucionLogMap.cs" />
+    <Compile Include="Mapping\ProcesosSpertaHubSpotLogMap.cs" />
     <Compile Include="Mapping\ProcesosSpertaHubSpotMap.cs" />
     <Compile Include="Mapping\PerfilesWebMap.cs" />
     <Compile Include="Mapping\UsuariosWebMap.cs" />

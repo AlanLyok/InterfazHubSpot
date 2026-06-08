@@ -48,9 +48,9 @@ BEGIN
         Estado,
         Intentos,
         MensajeUltimoError,
-        FechaCreacionUtc,
-        FechaInicioProcesoUtc,
-        FechaFinProcesoUtc
+        FechaCreacion,
+        FechaInicioProceso,
+        FechaFinProceso
     )
     VALUES (
         N'MS',
@@ -62,7 +62,7 @@ BEGIN
         0,
         0,
         NULL,
-        SYSUTCDATETIME(),
+        GETDATE(),
         NULL,
         NULL
     );

@@ -21,9 +21,9 @@ namespace InterfazHubSpot.IntegrationTests.Managers
     ///   - ContarEnProceso(destino): COUNT(*) WHERE Estado=EnProceso AND Destino=@d >= 0
     ///   - ListarMuestraPendientes(destino, 0): devuelve lista vacía sin tocar la DB
     ///   - ReclamarPendientes: marca filas Pendiente -> EnProceso, incrementa Intentos
-    ///   - MarcarOk: Estado=Ok, FechaFinProcesoUtc=UtcNow, MensajeUltimoError=null
+    ///   - MarcarOk: Estado=Ok, FechaFinProceso=Now, MensajeUltimoError=null
     ///   - MarcarError: Estado=Error, MensajeUltimoError truncado a 8000 chars
-    ///   - ReponerEnCola: Estado=Pendiente, FechaInicioProcesoUtc=null, FechaFinProcesoUtc=null
+    ///   - ReponerEnCola: Estado=Pendiente, FechaInicioProceso=null, FechaFinProceso=null
     /// </summary>
     public sealed class ProcesosSpertaHubSpotManagerLiveTests
     {
@@ -81,7 +81,7 @@ namespace InterfazHubSpot.IntegrationTests.Managers
         {
             // Necesita ProcesoId en estado Error/Ok para reponer.
             // manager.ReponerEnCola(testProcesoId);
-            // Verificar en DB: Estado=Pendiente, FechaInicioProcesoUtc=null, FechaFinProcesoUtc=null.
+            // Verificar en DB: Estado=Pendiente, FechaInicioProceso=null, FechaFinProceso=null.
         }
     }
 }

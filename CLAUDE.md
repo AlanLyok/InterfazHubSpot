@@ -51,15 +51,15 @@ Componentes/                       # Mastersoft framework DLLs (binary, required
 ```
 
 **One connection string** in `Web.config`/`App.config`:
-- `MSGestion` — ERP DB; EF6 context **and** the host for all data SPs the integration calls (queue `dbo.ProcesosSpertaHubSpot`, `dbo.USP_Integracion_HubSpot_Cliente_Obtener`, `dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`, `USER_POS_Clientes_Agregar`, etc.). SQL migrations in `sql/` (`001_ProcesosSpertaHubSpot.sql`, `002_ProcesosSpertaHubSpot_identificador.sql`).
+- `MSGestion` — ERP DB; EF6 context **and** the host for all data SPs the integration calls (queue `dbo.ProcesosSpertaHubSpot`, log `dbo.ProcesosSpertaHubSpotLog`, `InterfazHubSpot_Cliente_Obtener` 004, `InterfazHubSpot_Clientes_Contactos_Obtener` 005, `InterfazHubSpot_CuentaCorriente_Pagina` 006, función `InterfazHubSpot_ManejoCuentaCorriente_Texto` 007, `USER_POS_Clientes_Agregar`, etc.). SQL deploy canónico en `scriptsSQL/` (`000_Deploy_All.sql` + 001–007); copias versionadas en `sql/`.
 
 `MSFwk` is no longer required — the MVC site is an internal tool with no user authentication.
 
 **HubSpot runners** (`InterfazHubSpot.Business/HubSpot/`) talk to HubSpot CRM v3 with a Private App Token. Config: `HubSpot:PrivateAppToken` (required unless `HubSpot:UseDevelopmentMock=true`), `HubSpot:BaseUrl`, `HubSpot:PropertyMastersoftId` (default `mastersoft_id_`), `HubSpot:PropertyManejoCuentaCorriente` (default `manejo_cuenta_corriente`), `HubSpot:DelayMillisecondsBetweenCalls` (default 120), `HubSpot:CuentaCorrientePageSize` (default 500). Rate-limit rules baked into runners: 120ms delay between calls, 429 backoff (max 3 retries), **stop on 401**.
 
-**Jobs** (`IScheduler` in `InterfazHubSpot.BatchProcess`): `ProcesarColaIntegracionesHubSpotJob` (2A) and `HubSpotSincronizarCuentaCorrienteJob` (2B) are the live jobs. `GrabarEmailError` is a diagnostic template. Manually triggerable from MVC Home — `POST /Home/ProcesarColaHubSpot`, `POST /Home/HubSpotCuentaCorrienteBatch`, plus incremental traza endpoints (`…TrazaCola`, `…TrazaCliente?clienteId=n`, `…Traza`) that return step-by-step JSON for debugging.
+**Jobs** (`IScheduler` in `InterfazHubSpot.BatchProcess`): `ProcesarColaIntegracionesHubSpotJob` (2A) and `HubSpotSincronizarCuentaCorrienteJob` (2B) are the live jobs. `GrabarEmailError` is a diagnostic template. Manually triggerable from MVC Home — `POST /Home/ProcesarColaHubSpot`, `POST /Home/HubSpotCuentaCorrienteBatch`, plus incremental traza endpoints (`…TrazaCola`, `…TrazaCliente?clienteId=n`, `TrazaHubSpotUpsertEmpresa`, `TrazaHubSpotSincronizarContactos`, `…Traza`) that return step-by-step JSON for debugging.
 
-**Queue contract** (outbox written by ERP WinForms): see `docs/how-to/cola-integraciones-outbox-winforms.md`. Identifier column is `Identificador`. 2A flow: claim Pending → mark `EnProceso` → SP fetch + HubSpot upsert → mark `Procesado` or `Error`. **Errors are NOT auto-retried.**
+**Queue contract** (outbox written by ERP WinForms): see PRD § outbox (`docs/PRD_Integracion_HubSpot_2A_2B.md`). Identifier column is `Identificador`. 2A flow: claim Pending → mark `EnProceso` → SP 004 + HubSpot company upsert → SP 005 + contact upsert → mark `Ok` or `Error`. **Errors are NOT auto-retried.**
 
 ## Critical rules
 

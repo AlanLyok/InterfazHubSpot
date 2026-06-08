@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using InterfazHubSpot.Business.Integration;
@@ -21,7 +22,6 @@ namespace InterfazHubSpot.Business.Managers
         public ClienteIntegracionDto ObtenerClienteParaHubSpot(int clienteId)
         {
             var cabecera = new DataTable();
-            var contactos = new DataTable();
             var direcciones = new DataTable();
 
             using (var db = new MSGestionContext(_ctx))
@@ -39,8 +39,6 @@ namespace InterfazHubSpot.Business.Managers
                         {
                             cabecera.Load(reader);
                             if (reader.NextResult())
-                                contactos.Load(reader);
-                            if (reader.NextResult())
                                 direcciones.Load(reader);
                         }
                     }
@@ -51,7 +49,37 @@ namespace InterfazHubSpot.Business.Managers
                 }
             }
 
-            return ClienteIntegracionMapper.MapearCliente(cabecera, contactos, direcciones);
+            return ClienteIntegracionMapper.MapearCliente(cabecera, direcciones);
+        }
+
+        public List<ContactoDto> ObtenerContactosClienteParaHubSpot(int clienteId)
+        {
+            var contactos = new DataTable();
+
+            using (var db = new MSGestionContext(_ctx))
+            {
+                var conn = db.Database.Connection;
+                var wasOpen = conn.State == ConnectionState.Open;
+                if (!wasOpen) conn.Open();
+                try
+                {
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "EXEC dbo.InterfazHubSpot_Clientes_Contactos_Obtener @ClienteId";
+                        cmd.Parameters.Add(new SqlParameter("@ClienteId", clienteId));
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            contactos.Load(reader);
+                        }
+                    }
+                }
+                finally
+                {
+                    if (!wasOpen) conn.Close();
+                }
+            }
+
+            return ClienteIntegracionMapper.MapearContactos(contactos);
         }
 
         public PaginaCuentaCorrienteDto ObtenerPaginaCuentaCorriente(int cursor, int pageSize)

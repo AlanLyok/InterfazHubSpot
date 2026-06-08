@@ -28,9 +28,9 @@ namespace InterfazHubSpot.Entities
             Property(t => t.Estado).HasColumnName("Estado");
             Property(t => t.Intentos).HasColumnName("Intentos");
             Property(t => t.MensajeUltimoError).HasColumnName("MensajeUltimoError");
-            Property(t => t.FechaCreacionUtc).HasColumnName("FechaCreacionUtc");
-            Property(t => t.FechaInicioProcesoUtc).HasColumnName("FechaInicioProcesoUtc");
-            Property(t => t.FechaFinProcesoUtc).HasColumnName("FechaFinProcesoUtc");
+            Property(t => t.FechaCreacion).HasColumnName("FechaCreacion");
+            Property(t => t.FechaInicioProceso).HasColumnName("FechaInicioProceso");
+            Property(t => t.FechaFinProceso).HasColumnName("FechaFinProceso");
         }
     }
 }

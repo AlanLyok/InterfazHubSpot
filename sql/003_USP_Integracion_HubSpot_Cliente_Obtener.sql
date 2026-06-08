@@ -1,5 +1,6 @@
 /*
-  Copia versionada alineada con scriptsSQL/004_USP_Integracion_HubSpot_Cliente_Obtener.sql
+  Copia versionada alineada con scriptsSQL/004_InterfazHubSpot_Cliente_Obtener.sql
+  Devuelve 2 result sets: cabecera + direcciones TOP 3 (sin contactos).
 */
 
 IF OBJECT_ID(N'dbo.USP_Integracion_HubSpot_Cliente_Obtener', N'P') IS NOT NULL
@@ -30,14 +31,15 @@ BEGIN
         CodigoPostal           = c.CodPostal,
         CodigoProvinciaCliente = ISNULL(pro.Descripcion, N''),
         CodigoPais             = ISNULL(pai.Descripcion, N''),
-        ZonaId                 = ISNULL(zon.Descripcion, N''),
-        VendedorId             = ISNULL(ven.Descripcion, N''),
-        ResponsableCuentaId    = ISNULL(resp.Descripcion, N''),
-        ListaPreciosId         = ISNULL(lp.Descripcion, N''),
-        CondicionVentaId       = ISNULL(cv.Descripcion, N''),
+        Zona                   = ISNULL(zon.Descripcion, N''),
+        Vendedor               = ISNULL(ven.Descripcion, N''),
+        ResponsableCuenta      = ISNULL(resp.Descripcion, N''),
+        ListaPrecios           = ISNULL(lp.Descripcion, N''),
+        CondicionVenta         = ISNULL(cv.Descripcion, N''),
         DiasParaDeuda          = CONVERT(VARCHAR(20), c.DiasParaDeuda),
         LimiteCredito          = CONVERT(VARCHAR(30), c.LimiteCredito),
-        CategoriaClienteId     = ISNULL(cat.Descripcion, N'')
+        CategoriaCliente       = ISNULL(cat.Descripcion, N''),
+        ManejoCuentaCorriente  = dbo.InterfazHubSpot_ManejoCuentaCorriente_Texto(@ClienteId)
     FROM dbo.Clientes AS c
     LEFT JOIN dbo.Provincias AS pro
         ON pro.ProvinciaID = c.ProvinciaID
@@ -57,26 +59,18 @@ BEGIN
         ON cat.CategClienteID = c.CategClienteID
     WHERE c.ClienteID = @ClienteId;
 
-    SELECT
-        ClienteId          = cc.ClienteID,
-        ApellidoYNombre    = cc.ApeyNom,
-        CorreoElectronico  = cc.Email,
-        Telefono           = cc.Telefono,
-        SectorId           = ISNULL(sec.Descripcion, N'')
-    FROM dbo.Clientes_Contactos AS cc
-    LEFT JOIN dbo.SectoresDeContactosClientes AS sec
-        ON sec.SectorID = cc.SectorID
-    WHERE cc.ClienteID = @ClienteId;
-
     SELECT TOP 3
         ClienteId      = de.ClienteID,
         Domicilio      = de.Domicilio,
         CodigoPostal   = de.CP,
         Localidad      = de.Localidad,
-        ProvinciaId    = ISNULL(proDe.Descripcion, N'')
+        Provincia      = ISNULL(proDe.Descripcion, N''),
+        Pais           = ISNULL(paisDe.Descripcion, N'')
     FROM dbo.DireccionEntregas AS de
     LEFT JOIN dbo.Provincias AS proDe
         ON proDe.ProvinciaID = de.ProvinciaID
+    LEFT JOIN dbo.Cuitpais AS paisDe
+        ON paisDe.PaisID = de.PaisID
     WHERE de.ClienteID = @ClienteId
     ORDER BY
         de.Predeterminada DESC,

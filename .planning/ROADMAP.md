@@ -88,7 +88,7 @@
 1. Job programado 3:00 AM (configurable) ejecuta proceso completo
 2. Formato texto correcto para clientes con y sin deuda (PRD §7.3)
 3. Batches de 100 con delay 200ms; errores de batch no detienen siguientes lotes
-4. `IntegracionEjecucionLog` registra inicio, fin, totales y errores
+4. `ProcesosSpertaHubSpotLog` registra inicio, fin, totales y errores
 5. Clientes sin `HubSpotCompanyId` omitidos con advertencia en log
 
 **Deliverables:**

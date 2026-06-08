@@ -53,7 +53,7 @@ InterfazHubSpot.Interfaces
 
 ## Datos y SQL
 
-- Cola outbox: `dbo.ProcesosSpertaHubSpot` (nunca `ProcesosSpertaAPI`).
+- Cola outbox: `dbo.ProcesosSpertaHubSpot` (nunca nombres legacy de cola; ver regla Cursor).
 - SPs integración: `dbo.USP_Integracion_HubSpot_Cliente_Obtener`, `dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`.
 - SPs legacy HubSpot datos: prefijo `USER_HS_*`.
 - Migraciones SQL en `sql/` y `scriptsSQL/`.
@@ -67,8 +67,8 @@ InterfazHubSpot.Interfaces
 
 ## Nomenclatura bloqueada
 
-- Marca: `HubSpot` (S mayúscula). Prohibido `Hubspot`.
-- Prohibido reintroducir `BatchSpertaAPI`, `ProcesosSpertaAPI`.
+- Marca: `HubSpot` (S mayúscula). Prohibido casing incorrecto de la marca.
+- Prohibido reintroducir nombres legacy de solución/tabla (ver `.cursor/rules/interfaz-hubspot.mdc`).
 - Columna identificador cola: `Identificador`.
 
 ## Estilo C# (4.5.2)

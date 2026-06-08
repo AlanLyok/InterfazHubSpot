@@ -70,37 +70,45 @@ Se conserva: `EmailsManager` (notificaciones de error en ambos flujos).
 
 ## 5. Base de Datos
 
-### 5.1 Tabla `dbo.ProcesosSpertaHubSpot` (ya existente)
+### 5.1 Tabla `dbo.ProcesosSpertaHubSpot`
 
-Cola de trabajo. El ERP inserta filas; el batch las consume.
+Cola outbox. El ERP inserta filas vía `USER_POS_Clientes_Agregar`; el batch las consume (flujo 2A).
 
 ```sql
--- Estructura relevante (ya existe, no recrear)
 CREATE TABLE dbo.ProcesosSpertaHubSpot (
-    Id            INT IDENTITY PRIMARY KEY,
-    Destino       VARCHAR(50)   NOT NULL,  -- 'HubSpot'
-    Identificador VARCHAR(100)  NOT NULL,  -- ClienteId (como string)
-    Estado        VARCHAR(20)   NOT NULL,  -- 'Pendiente' | 'EnProceso' | 'Ok' | 'Error'
-    FechaAlta     DATETIME      NOT NULL DEFAULT GETDATE(),
-    FechaProceso  DATETIME      NULL,
-    Detalle       VARCHAR(MAX)  NULL       -- mensaje de error si aplica
-)
+    ProcesoId              BIGINT IDENTITY(1,1) NOT NULL,
+    TenantId               NVARCHAR(64) NULL,
+    EmpresaId              INT NULL,
+    Destino                NVARCHAR(50) NOT NULL,   -- 'HubSpot'
+    TipoEntidad            NVARCHAR(50) NOT NULL,   -- 'Cliente'
+    TipoOperacion          NVARCHAR(20) NOT NULL,   -- 'Alta/Modificacion'
+    Identificador          INT NOT NULL,            -- PK maestro (ClienteID)
+    Estado                 TINYINT NOT NULL,          -- 0=Pendiente, 1=EnProceso, 2=Ok, 3=Error
+    Intentos               INT NOT NULL,
+    MensajeUltimoError     NVARCHAR(MAX) NULL,
+    FechaCreacion          DATETIME2 NOT NULL DEFAULT GETDATE(),
+    FechaInicioProceso     DATETIME2 NULL,
+    FechaFinProceso        DATETIME2 NULL,
+    CONSTRAINT PK_ProcesosSpertaHubSpot PRIMARY KEY CLUSTERED (ProcesoId)
+);
 ```
 
-### 5.2 Tabla `dbo.IntegracionEjecucionLog` (ya existente)
+### 5.2 Tabla `dbo.ProcesosSpertaHubSpotLog`
 
-Log de ejecuciones del Flujo 2B.
+Auditoría por corrida de integración (flujos 2A y 2B). Una fila por fase/resultado.
 
 ```sql
-CREATE TABLE dbo.IntegracionEjecucionLog (
-    Id            INT IDENTITY PRIMARY KEY,
-    Proceso       VARCHAR(100)  NOT NULL,
-    FechaInicio   DATETIME      NOT NULL,
-    FechaFin      DATETIME      NULL,
-    TotalProcesados INT         NULL,
-    TotalErrores  INT           NULL,
-    Detalle       VARCHAR(MAX)  NULL
-)
+CREATE TABLE dbo.ProcesosSpertaHubSpotLog (
+    LogId          BIGINT IDENTITY(1,1) NOT NULL,
+    ProcesoId      BIGINT NULL,
+    Destino        NVARCHAR(50) NOT NULL,
+    Identificador  INT NULL,              -- PK maestro según contexto (p. ej. ClienteID)
+    Fase           NVARCHAR(80) NOT NULL,
+    Exito          BIT NOT NULL,
+    Detalle        NVARCHAR(MAX) NULL,
+    FechaGrabacion DATETIME2 NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT PK_ProcesosSpertaHubSpotLog PRIMARY KEY CLUSTERED (LogId)
+);
 ```
 
 ### 5.3 Stored Procedures a Crear
@@ -110,19 +118,22 @@ CREATE TABLE dbo.IntegracionEjecucionLog (
 Se ejecuta desde el ERP WinForms cada vez que se crea o modifica un cliente. Inserta una fila en la cola solo si no hay ya una fila `Pendiente` para el mismo cliente (evita duplicados en cola).
 
 **Parámetros de entrada:**
-- `@ClienteId INT`
+- `@ClienteID INT`
 
 **Lógica:**
 ```sql
 IF NOT EXISTS (
     SELECT 1 FROM dbo.ProcesosSpertaHubSpot
-    WHERE Destino = 'HubSpot'
-      AND Identificador = CAST(@ClienteId AS VARCHAR)
-      AND Estado = 'Pendiente'
+    WHERE Destino = N'HubSpot'
+      AND TipoEntidad = N'Cliente'
+      AND Identificador = @ClienteID
+      AND Estado = 0
 )
 BEGIN
-    INSERT INTO dbo.ProcesosSpertaHubSpot (Destino, Identificador, Estado, FechaAlta)
-    VALUES ('HubSpot', CAST(@ClienteId AS VARCHAR), 'Pendiente', GETDATE())
+    INSERT INTO dbo.ProcesosSpertaHubSpot (
+        Destino, TipoEntidad, TipoOperacion, Identificador, Estado, Intentos, FechaCreacion
+    )
+    VALUES (N'HubSpot', N'Cliente', N'Alta/Modificacion', @ClienteID, 0, 0, GETDATE())
 END
 ```
 
@@ -143,7 +154,7 @@ Devuelve los datos de la compañía para sincronizar en HubSpot dado un `Cliente
 | NroCliente | `nro_cliente` | |
 | ClienteId | `mastersoft_id_` | Como string |
 | HubSpotCompanyId | — | ID HubSpot almacenado en Mastersoft; NULL si no existe aún |
-| Calle | `adress` | |
+| Calle | `address` | |
 | Puerta | `puerta` | |
 | Localidad | `city` | |
 | CodigoPostal | `zip` | |
@@ -232,10 +243,10 @@ El ERP WinForms llama a `USER_POS_Clientes_Agregar @ClienteId` tras crear o modi
 
 **Paso a paso:**
 
-1. Consultar `dbo.ProcesosSpertaHubSpot` WHERE `Destino='HubSpot'` AND `Estado='Pendiente'` ORDER BY `FechaAlta ASC`. Tomar hasta N registros por ciclo (configurable, default 50).
+1. Consultar `dbo.ProcesosSpertaHubSpot` WHERE `Destino='HubSpot'` AND `Estado=0` (Pendiente) ORDER BY `FechaCreacion ASC`. Tomar hasta N registros por ciclo (configurable, default 50).
 
 2. Para cada fila:
-   a. Marcar `Estado='EnProceso'` via `USER_HS_Cola_ActualizarEstado`.
+   a. Marcar `Estado=1` (EnProceso) vía `ProcesosSpertaHubSpotManager`.
    b. Ejecutar `USER_HS_Cliente_ObtenerDatos @ClienteId` → obtener datos de compañía incluyendo `HubSpotCompanyId` (puede ser NULL).
    c. **Buscar/crear compañía en HubSpot:**
       - Si `HubSpotCompanyId` es NULL → buscar por `mastersoft_id_` via `POST /crm/v3/objects/companies/search`.
@@ -281,7 +292,7 @@ Job programado diario. **Hora propuesta: 3:00 AM** (antes del inicio de jornada 
 
 **Paso a paso:**
 
-1. Registrar inicio en `dbo.IntegracionEjecucionLog`.
+1. Registrar inicio en `dbo.ProcesosSpertaHubSpotLog` (fase de corrida 2B).
 2. Ejecutar `USER_HS_CuentaCorriente_ObtenerTodos` → lista completa de clientes activos con facturas.
 3. En memoria: agrupar por `HubSpotCompanyId`, construir el valor del campo `manejo_cuenta_corriente` por cliente:
    - **Con deuda:** una línea por factura, formato `DD/MM/YYYY --- $NNN.NNN,NN`, separadas por `\n`.
@@ -289,7 +300,7 @@ Job programado diario. **Hora propuesta: 3:00 AM** (antes del inicio de jornada 
 4. Dividir en grupos de 100 compañías (límite HubSpot batch).
 5. Por cada grupo: `POST /crm/v3/objects/companies/batch/update`.
 6. Delay de 200ms entre batches.
-7. Registrar fin, totales y errores en `dbo.IntegracionEjecucionLog`.
+7. Registrar fin, totales y errores en `dbo.ProcesosSpertaHubSpotLog`.
 
 ### 7.3 Formato del campo `manejo_cuenta_corriente`
 
@@ -420,7 +431,7 @@ Las claves `EmailErrDE`, `EmailErrPara` y `EmailErrCc` ya existen en `Web.config
 |---|---|
 | Error en Flujo 2A (cualquier paso) | Marcar registro cola como `Error` con detalle. No reintentar automáticamente. |
 | Cliente sin `HubSpotCompanyId` en Flujo 2B | Omitir, registrar en log como advertencia. |
-| Error en batch de Flujo 2B | Registrar batch fallido en `IntegracionEjecucionLog`. Continuar con el siguiente batch. |
+| Error en batch de Flujo 2B | Registrar batch fallido en `ProcesosSpertaHubSpotLog`. Continuar con el siguiente batch. |
 | Error de autenticación HubSpot (401) | Loguear y detener el job. No continuar procesando. |
 | Error de rate limit HubSpot (429) | Esperar y reintentar con backoff. Máximo 3 intentos antes de marcar error. |
 
@@ -487,14 +498,17 @@ public class CuentaCorrienteItemDto {
 
 | Archivo | Descripción |
 |---|---|
-| `sql/001_ProcesosSpertaHubSpot.sql` | Creación tabla cola (ya existe, verificar estructura) |
-| `sql/002_IntegracionEjecucionLog.sql` | Creación tabla log (ya existe, verificar) |
-| `sql/003_USER_POS_Clientes_Agregar.sql` | SP post-grabación WinForms |
-| `sql/004_USER_HS_Cliente_ObtenerDatos.sql` | SP datos compañía |
-| `sql/005_USER_HS_ClienteContactos_Buscar.sql` | SP contactos del cliente |
-| `sql/006_USER_HS_CuentaCorriente_ObtenerTodos.sql` | SP cuenta corriente todos los clientes |
-| `sql/007_USER_HS_Cola_ActualizarEstado.sql` | SP actualizar estado cola |
-| `sql/008_USER_HS_Cliente_GuardarHubSpotId.sql` | SP persistir HubSpotCompanyId en Mastersoft |
+| `scriptsSQL/000_Deploy_All.sql` | Orquestador de despliegue (orden canónico) |
+| `scriptsSQL/001_ProcesosSpertaHubSpot.sql` | Tabla cola outbox |
+| `scriptsSQL/002_ProcesosSpertaHubSpotLog.sql` | Tabla log de ejecuciones |
+| `scriptsSQL/003_USER_CALZETTA_POS_Clientes_Agregar.sql` | SP post-grabación WinForms (`USER_POS_Clientes_Agregar`) |
+| `scriptsSQL/004_InterfazHubSpot_Cliente_Obtener.sql` | SP datos cliente (3 result sets) |
+| `scriptsSQL/005_InterfazHubSpot_CuentaCorriente_Pagina.sql` | SP cuenta corriente paginada (2B) |
+| `sql/001_ProcesosSpertaHubSpot.sql` | Copia versionada alineada con `scriptsSQL/001` |
+| `sql/002_USER_POS_Clientes_Agregar.sql` | Copia versionada del SP outbox |
+| `sql/003_USP_Integracion_HubSpot_Cliente_Obtener.sql` | Alias histórico → `InterfazHubSpot_Cliente_Obtener` |
+| `sql/004_USP_Integracion_HubSpot_CuentaCorriente_Pagina.sql` | Alias histórico → paginación CC |
+| `sql/005_ProcesosSpertaHubSpotLog.sql` | Copia versionada alineada con `scriptsSQL/002` |
 
 ---
 

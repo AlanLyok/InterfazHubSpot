@@ -57,7 +57,7 @@
     <Compile Include="Entities\CombosEntities.cs" />
     <Compile Include="Entities\Empresas.cs" />
     <Compile Include="Entities\Errores.cs" />
-    <Compile Include="Entities\IntegracionEjecucionLog.cs" />
+    <Compile Include="Entities\ProcesosSpertaHubSpotLog.cs" />
     <Compile Include="Entities\ProcesosSpertaHubSpot.cs" />
     <Compile Include="Entities\PerfilesWeb.cs" />
     <Compile Include="Entities\UsuariosWeb.cs" />

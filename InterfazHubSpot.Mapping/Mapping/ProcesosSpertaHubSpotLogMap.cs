@@ -3,9 +3,9 @@ using System.Data.Entity.ModelConfiguration;
 
 namespace InterfazHubSpot.Entities
 {
-    public class IntegracionEjecucionLogMap : EntityTypeConfiguration<IntegracionEjecucionLog>
+    public class ProcesosSpertaHubSpotLogMap : EntityTypeConfiguration<ProcesosSpertaHubSpotLog>
     {
-        public IntegracionEjecucionLogMap()
+        public ProcesosSpertaHubSpotLogMap()
         {
             HasKey(t => t.LogId);
 
@@ -15,15 +15,15 @@ namespace InterfazHubSpot.Entities
             Property(t => t.Fase).IsRequired().HasMaxLength(80);
             Property(t => t.Detalle).IsMaxLength();
 
-            ToTable("IntegracionEjecucionLog");
+            ToTable("ProcesosSpertaHubSpotLog");
             Property(t => t.LogId).HasColumnName("LogId");
             Property(t => t.ProcesoId).HasColumnName("ProcesoId");
             Property(t => t.Destino).HasColumnName("Destino");
-            Property(t => t.ClienteId).HasColumnName("ClienteId");
+            Property(t => t.Identificador).HasColumnName("Identificador");
             Property(t => t.Fase).HasColumnName("Fase");
             Property(t => t.Exito).HasColumnName("Exito");
             Property(t => t.Detalle).HasColumnName("Detalle");
-            Property(t => t.FechaUtc).HasColumnName("FechaUtc");
+            Property(t => t.FechaGrabacion).HasColumnName("FechaGrabacion");
         }
     }
 }
