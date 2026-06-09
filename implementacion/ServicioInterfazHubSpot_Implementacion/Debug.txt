@@ -350,3 +350,91 @@ Finished : False
 Param    : <parametros multitenant="N" enablelog="S" />
 Result   : <resultado />
 ================================================================================
+DateTime : 09/06/2026 06:59:42
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+================================================================================
+DateTime : 09/06/2026 06:59:54
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+Finished : False
+Param    : <parametros multitenant="N" enablelog="S" />
+Result   : <resultado />
+================================================================================
+DateTime : 09/06/2026 07:00:24
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+================================================================================
+DateTime : 09/06/2026 07:00:24
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+Finished : False
+Param    : <parametros multitenant="N" enablelog="S" />
+Result   : <resultado />
+================================================================================
+DateTime : 09/06/2026 07:00:54
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+================================================================================
+DateTime : 09/06/2026 07:00:54
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+Finished : False
+Param    : <parametros multitenant="N" enablelog="S" />
+Result   : <resultado />
+================================================================================
+DateTime : 09/06/2026 07:01:24
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+================================================================================
+DateTime : 09/06/2026 07:01:24
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+Finished : False
+Param    : <parametros multitenant="N" enablelog="S" />
+Result   : <resultado />
+================================================================================
+DateTime : 09/06/2026 07:01:54
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+================================================================================
+DateTime : 09/06/2026 07:01:55
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+Finished : False
+Param    : <parametros multitenant="N" enablelog="S" />
+Result   : <resultado />
+================================================================================
+DateTime : 09/06/2026 07:02:25
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+================================================================================
+DateTime : 09/06/2026 07:02:30
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+Finished : False
+Param    : <parametros multitenant="N" enablelog="S" />
+Result   : <resultado />
+================================================================================
+DateTime : 09/06/2026 07:03:00
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+================================================================================
+DateTime : 09/06/2026 07:03:01
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+Finished : False
+Param    : <parametros multitenant="N" enablelog="S" />
+Result   : <resultado />
+================================================================================
+DateTime : 09/06/2026 07:03:31
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+================================================================================
+DateTime : 09/06/2026 07:03:31
+Assembly : InterfazHubSpot.BatchProcess
+Class    : ProcesarColaIntegracionesHubSpotJob
+Finished : False
+Param    : <parametros multitenant="N" enablelog="S" />
+Result   : <resultado />
+================================================================================

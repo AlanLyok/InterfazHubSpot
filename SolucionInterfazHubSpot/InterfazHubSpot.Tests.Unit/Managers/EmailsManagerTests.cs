@@ -15,7 +15,7 @@ namespace InterfazHubSpot.Tests.Unit.Managers
             Assert.Equal("dbo.MSEMails_Agregar", EmailsManager.StoredProcedureAgregar);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void TruncarAsunto_RespetaLimite100()
         {
             var largo = new string('x', 120);
@@ -24,14 +24,14 @@ namespace InterfazHubSpot.Tests.Unit.Managers
             Assert.Equal(new string('x', 100), truncado);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void TruncarAsunto_Corto_NoModifica()
         {
             const string asunto = "[HubSpot 2A] Error ProcesoId=9";
             Assert.Equal(asunto, EmailsManager.TruncarAsunto(asunto));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void ResolverRemitente_EmailErrDeTienePrioridad()
         {
             var originalDe = ConfigurationManager.AppSettings["EmailDe"];

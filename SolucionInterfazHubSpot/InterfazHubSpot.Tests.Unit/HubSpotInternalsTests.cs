@@ -10,7 +10,7 @@ namespace InterfazHubSpot.Tests.Unit
 {
     public sealed class HubSpotInternalsTests
     {
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void HubSpotConfiguration_ValidarToken_con_token_en_App_config_no_lanza()
         {
             var cfg = new HubSpotConfiguration();
@@ -18,7 +18,7 @@ namespace InterfazHubSpot.Tests.Unit
             Assert.True(cfg.TienePrivateAppToken);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public async Task HubSpotCrmClient_SearchCompany_post_y_Bearer_correctos()
         {
             var cfg = new HubSpotConfiguration();

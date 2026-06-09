@@ -17,10 +17,11 @@ alwaysApply: true
 
 | Acción | Comando |
 |--------|---------|
-| Build completo | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1` |
-| Solo librerías | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly` |
-| Tests | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1` |
-| Verificar todo | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1` |
+| Build completo | `pwsh -NoProfile -File scriptsPS1/Build-InterfazHubSpot.ps1` |
+| Solo librerías | `pwsh -NoProfile -File scriptsPS1/Build-InterfazHubSpot.ps1 -LibrariesOnly` |
+| Tests | `pwsh -NoProfile -File scriptsPS1/Test-InterfazHubSpot.ps1` |
+| Cobertura | `pwsh -NoProfile -File scriptsPS1/Measure-TestCoverage.ps1` |
+| Verificar todo | `pwsh -NoProfile -File scriptsPS1/Verify-InterfazHubSpot.ps1` |
 | Deploy servicio | `pwsh -NoProfile -File implementacion/Deploy-ServicioHubSpot.ps1` |
 
 Variables opcionales: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
@@ -35,4 +36,4 @@ Variables opcionales: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
 ## PowerShell (Windows)
 
 - Regla: `.cursor/rules/powershell-windows.mdc` — **no usar `&&`** en shell por defecto (PS 5.1)
-- Preferir `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/*.ps1` sobre cadenas manuales
+- Preferir `pwsh -NoProfile -File scriptsPS1/*.ps1` sobre cadenas manuales

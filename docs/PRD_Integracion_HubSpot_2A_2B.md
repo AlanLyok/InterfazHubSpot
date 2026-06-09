@@ -5,10 +5,11 @@
 **Versión:** 1.0  
 **Fecha:** Junio 2026  
 
-> **Nota de implementación (jun 2026):** El runtime actual resuelve los datos de clientes y cuenta corriente
-> via stored procedures directos sobre MSGestion (`dbo.USP_Integracion_HubSpot_Cliente_Obtener` y
-> `dbo.USP_Integracion_HubSpot_CuentaCorriente_Pagina`), no via HTTP a SpertaAPI. Las referencias a
-> endpoints SpertaAPI en este documento son históricas.
+> **Nota de implementación (jun 2026):** El runtime resuelve datos via SPs canónicos en MSGestion:
+> `InterfazHubSpot_Cliente_Obtener` (004), `InterfazHubSpot_Clientes_Contactos_Obtener` (005),
+> `InterfazHubSpot_CuentaCorriente_Pagina` (006), `InterfazHubSpot_Cliente_GuardarIdHubSpot` (010).
+> No hay HTTP a SpertaAPI. Los nombres `USER_HS_*` y `USP_Integracion_*` en este documento son **históricos**;
+> ver §5.3 mapeo y [`reference/base-datos.md`](reference/base-datos.md).
 
 ---
 
@@ -110,7 +111,20 @@ CREATE TABLE dbo.ProcesosSpertaHubSpotLog (
 );
 ```
 
-### 5.3 Stored Procedures a Crear
+### 5.3 Stored Procedures — nombres canónicos (implementados)
+
+**Deploy:** `scriptsSQL/000_Deploy_All.sql`. Referencia: [`reference/base-datos.md`](reference/base-datos.md).
+
+#### Mapeo histórico → implementación
+
+| Nombre en borrador PRD | SP / mecanismo actual | Script |
+|------------------------|----------------------|--------|
+| `USER_HS_Cliente_ObtenerDatos` | `InterfazHubSpot_Cliente_Obtener` | 004 |
+| `USER_HS_ClienteContactos_Buscar` | `InterfazHubSpot_Clientes_Contactos_Obtener` | 005 |
+| `USER_HS_CuentaCorriente_ObtenerTodos` | `InterfazHubSpot_CuentaCorriente_Pagina` (paginado keyset) | 006 |
+| `USER_HS_Cola_ActualizarEstado` | `ProcesosSpertaHubSpotManager` (EF6 sobre cola) | — |
+| `USER_HS_Cliente_GuardarHubSpotId` | `InterfazHubSpot_Cliente_GuardarIdHubSpot` | 010 |
+| `USP_Integracion_HubSpot_*` | Alias históricos en `sql/` | ver §13 |
 
 #### SP 1 — `USER_POS_Clientes_Agregar` (post-grabación WinForms)
 
@@ -136,7 +150,7 @@ BEGIN
 END
 ```
 
-#### SP 2 — `USER_HS_Cliente_ObtenerDatos`
+#### SP 2 — `InterfazHubSpot_Cliente_Obtener` *(borrador: USER_HS_Cliente_ObtenerDatos)*
 
 Devuelve los datos de la compañía para sincronizar en HubSpot dado un `ClienteId`.
 
@@ -178,7 +192,7 @@ Devuelve los datos de la compañía para sincronizar en HubSpot dado un `Cliente
 | Dir3CP | `direccion_3_cp` | nullable |
 | Dir3Localidad | `direccion_3_localidad` | nullable |
 
-#### SP 3 — `USER_HS_ClienteContactos_Buscar`
+#### SP 3 — `InterfazHubSpot_Clientes_Contactos_Obtener` *(borrador: USER_HS_ClienteContactos_Buscar)*
 
 Devuelve todos los contactos asociados a un cliente.
 
@@ -194,39 +208,37 @@ Devuelve todos los contactos asociados a un cliente.
 | Telefono | `phone` | |
 | Email | `email` | Clave de deduplicación en HubSpot |
 
-#### SP 4 — `USER_HS_CuentaCorriente_ObtenerTodos`
+#### SP 4 — `InterfazHubSpot_CuentaCorriente_Pagina` *(borrador: USER_HS_CuentaCorriente_ObtenerTodos)*
 
-Devuelve todos los clientes activos con su estado de cuenta corriente. El batch pagina en memoria en grupos de 100 antes de llamar a HubSpot.
+Paginación keyset (`@Cursor`, `@PageSize`). El batch C# itera páginas hasta agotar clientes; no carga todo en memoria.
 
-**Sin parámetros.**
+**Parámetros de entrada:**
+- `@Cursor INT` — último `ClienteID` procesado (0 = primera página)
+- `@PageSize INT` — tamaño página (caller pasa N+1 para detectar más datos)
 
-**Result set (una fila por factura impaga; clientes sin deuda incluidos con monto NULL):**
+**Result set (una fila por cliente en la página):**
 
 | Campo SQL | Descripción |
 |---|---|
 | ClienteId | ID Mastersoft |
-| HubSpotCompanyId | ID HubSpot almacenado en Mastersoft |
-| FechaVencimiento | Fecha de vencimiento de la factura (`DD/MM/YYYY`) |
-| Monto | Monto de la factura (decimal); NULL si sin deuda |
+| IdHubSpot / HubSpotCompanyId | ID company en HubSpot (atributo `id_hubspot` en ERP) |
+| ManejoCuentaCorriente | Texto preformateado para propiedad HubSpot |
 
-El batch agrupa por `HubSpotCompanyId` y construye el string `manejo_cuenta_corriente` en memoria.
+El job 2B envía el texto en batch de 100 companies vía `POST /crm/v3/objects/companies/batch/update`.
 
-#### SP 5 — `USER_HS_Cola_ActualizarEstado`
+#### SP 5 — Actualización estado cola *(borrador: USER_HS_Cola_ActualizarEstado)*
 
-Actualiza el estado de un registro de la cola.
+**Implementación:** `ProcesosSpertaHubSpotManager` (EF6) — métodos `MarcarOk`, `MarcarError`, claim `EnProceso`. No hay SP dedicado.
 
-**Parámetros de entrada:**
-- `@Id INT`
-- `@Estado VARCHAR(20)` — `'EnProceso'` | `'Ok'` | `'Error'`
-- `@Detalle VARCHAR(MAX)` — nullable; mensaje de error
-
-#### SP 6 — `USER_HS_Cliente_GuardarHubSpotId`
+#### SP 6 — `InterfazHubSpot_Cliente_GuardarIdHubSpot` *(borrador: USER_HS_Cliente_GuardarHubSpotId)*
 
 Persiste el `HubSpotCompanyId` devuelto por HubSpot en la tabla de clientes de Mastersoft, para no tener que buscarlo en cada ejecución futura.
 
 **Parámetros de entrada:**
 - `@ClienteId INT`
-- `@HubSpotCompanyId VARCHAR(50)`
+- `@IdHubSpot VARCHAR(50)` — ID company devuelto por HubSpot
+
+Persiste en atributo variable `CLIENTES.id_hubspot` (script 010). Si no existe company en HubSpot aún, 2A busca por `mastersoft_id_` antes de create/patch.
 
 ---
 
@@ -236,9 +248,9 @@ Persiste el `HubSpotCompanyId` devuelto por HubSpot en la tabla de clientes de M
 
 El ERP WinForms llama a `USER_POS_Clientes_Agregar @ClienteId` tras crear o modificar un cliente. Esto inserta una fila `Pendiente` en `dbo.ProcesosSpertaHubSpot`.
 
-### 6.2 Job: `ProcesarColaHubSpotJob`
+### 6.2 Job: `ProcesarColaIntegracionesHubSpotJob`
 
-**Frecuencia:** cada 5 minutos (configurable en `IScheduler`).
+**Frecuencia:** cada 5 minutos (configurable en `Config.xml` / `IScheduler`).
 
 **Paso a paso:**
 
@@ -246,20 +258,20 @@ El ERP WinForms llama a `USER_POS_Clientes_Agregar @ClienteId` tras crear o modi
 
 2. Para cada fila:
    a. Marcar `Estado=1` (EnProceso) vía `ProcesosSpertaHubSpotManager`.
-   b. Ejecutar `USER_HS_Cliente_ObtenerDatos @ClienteId` → obtener datos de compañía incluyendo `HubSpotCompanyId` (puede ser NULL).
+   b. Ejecutar `InterfazHubSpot_Cliente_Obtener @ClienteId` → cabecera + direcciones; incluye `HubSpotCompanyId` / `id_hubspot` si existe.
    c. **Buscar/crear compañía en HubSpot:**
-      - Si `HubSpotCompanyId` es NULL → buscar por `mastersoft_id_` via `POST /crm/v3/objects/companies/search`.
-        - Si existe → usar ese ID → `PATCH /crm/v3/objects/companies/{id}`.
+      - Si no hay ID conocido → buscar por `mastersoft_id_` via `POST /crm/v3/objects/companies/search`.
+        - Si existe → `PATCH /crm/v3/objects/companies/{id}`.
         - Si no existe → `POST /crm/v3/objects/companies`.
-      - Si `HubSpotCompanyId` tiene valor → `PATCH /crm/v3/objects/companies/{id}` directamente.
-      - En ambos casos, guardar el `HubSpotCompanyId` en Mastersoft via `USER_HS_Cliente_GuardarHubSpotId`.
-   d. Ejecutar `USER_HS_ClienteContactos_Buscar @ClienteId` → lista de contactos.
+      - Si hay ID HubSpot → `PATCH` directo.
+      - Tras create: `InterfazHubSpot_Cliente_GuardarIdHubSpot @ClienteId, @IdHubSpot`.
+   d. Ejecutar `InterfazHubSpot_Clientes_Contactos_Obtener @ClienteId` → lista de contactos.
    e. Para cada contacto:
       - Buscar por email via `POST /crm/v3/objects/contacts/search`.
       - Si existe → `PATCH /crm/v3/objects/contacts/{id}`.
       - Si no existe → `POST /crm/v3/objects/contacts` → luego `PUT` asociación contacto-compañía.
-   f. Si todo OK → marcar `Estado='Ok'` via `USER_HS_Cola_ActualizarEstado`.
-   g. Si cualquier paso falla → marcar `Estado='Error'` con detalle del error. **No reintentar.**
+   f. Si todo OK → `ProcesosSpertaHubSpotManager.MarcarOk`.
+   g. Si cualquier paso falla → `MarcarError` con detalle. **No reintentar** la fila automáticamente.
 
 ### 6.3 Endpoints HubSpot utilizados (Flujo 2A)
 
@@ -292,13 +304,11 @@ Job programado diario. **Hora propuesta: 3:00 AM** (antes del inicio de jornada 
 **Paso a paso:**
 
 1. Registrar inicio en `dbo.ProcesosSpertaHubSpotLog` (fase de corrida 2B).
-2. Ejecutar `USER_HS_CuentaCorriente_ObtenerTodos` → lista completa de clientes activos con facturas.
-3. En memoria: agrupar por `HubSpotCompanyId`, construir el valor del campo `manejo_cuenta_corriente` por cliente:
-   - **Con deuda:** una línea por factura, formato `DD/MM/YYYY --- $NNN.NNN,NN`, separadas por `\n`.
-   - **Sin deuda:** texto `Cuenta Corriente al DD/MM/YYYY. Deuda: $0`.
+2. Iterar páginas con `InterfazHubSpot_CuentaCorriente_Pagina @Cursor, @PageSize` hasta agotar clientes activos.
+3. Por cada fila de página: el SP devuelve texto `ManejoCuentaCorriente` listo para HubSpot (formato §7.3).
 4. Dividir en grupos de 100 compañías (límite HubSpot batch).
 5. Por cada grupo: `POST /crm/v3/objects/companies/batch/update`.
-6. Delay de 200ms entre batches.
+6. Delay configurable entre calls/batches (`HubSpot:DelayMillisecondsBetweenCalls`, default 120 ms).
 7. Registrar fin, totales y errores en `dbo.ProcesosSpertaHubSpotLog`.
 
 ### 7.3 Formato del campo `manejo_cuenta_corriente`
@@ -386,10 +396,12 @@ Botones manuales para testing y operaciones de soporte:
 
 | Botón | Acción | Endpoint MVC |
 |---|---|---|
-| Procesar Cola HubSpot | Ejecuta `ProcesarColaHubSpotJob` manualmente | `POST /Home/ProcesarColaHubSpot` |
-| Ver Cola (traza) | Muestra conteos y muestra de registros Pendientes | `POST /Home/TrazaCola` |
-| Procesar Cliente (traza) | Ejecuta flujo 2A para un ClienteId específico con log paso a paso | `POST /Home/TrazaCliente?clienteId=N` |
-| Cuenta Corriente Batch | Ejecuta `HubSpotSincronizarCuentaCorrienteJob` manualmente | `POST /Home/CuentaCorrienteBatch` |
+| Procesar Cola HubSpot | Ejecuta `ProcesarColaIntegracionesHubSpotJob` | `POST /Home/ProcesarColaHubSpot` |
+| Ver Cola (traza) | Muestra conteos y muestra Pendientes | `POST /Home/ProcesarColaHubSpotTrazaCola` |
+| Procesar Cliente (traza) | SP 004 para un ClienteId | `POST /Home/ProcesarColaHubSpotTrazaCliente?clienteId=N` |
+| Cuenta Corriente Batch | Ejecuta `HubSpotSincronizarCuentaCorrienteJob` | `POST /Home/HubSpotCuentaCorrienteBatch` |
+
+Lista completa trazas: [`reference/consola-mvc.md`](reference/consola-mvc.md).
 
 ---
 
@@ -516,13 +528,15 @@ public class CuentaCorrienteItemDto {
 | `scriptsSQL/001_ProcesosSpertaHubSpot.sql` | Tabla cola outbox |
 | `scriptsSQL/002_ProcesosSpertaHubSpotLog.sql` | Tabla log de ejecuciones |
 | `scriptsSQL/003_USER_CALZETTA_POS_Clientes_Agregar.sql` | SP post-grabación WinForms (`USER_POS_Clientes_Agregar`) |
-| `scriptsSQL/004_InterfazHubSpot_Cliente_Obtener.sql` | SP datos cliente (3 result sets) |
-| `scriptsSQL/005_InterfazHubSpot_CuentaCorriente_Pagina.sql` | SP cuenta corriente paginada (2B) |
-| `sql/001_ProcesosSpertaHubSpot.sql` | Copia versionada alineada con `scriptsSQL/001` |
-| `sql/002_USER_POS_Clientes_Agregar.sql` | Copia versionada del SP outbox |
-| `sql/003_USP_Integracion_HubSpot_Cliente_Obtener.sql` | Alias histórico → `InterfazHubSpot_Cliente_Obtener` |
-| `sql/004_USP_Integracion_HubSpot_CuentaCorriente_Pagina.sql` | Alias histórico → paginación CC |
-| `sql/005_ProcesosSpertaHubSpotLog.sql` | Copia versionada alineada con `scriptsSQL/002` |
+| `scriptsSQL/004_InterfazHubSpot_Cliente_Obtener.sql` | SP datos cliente — cabecera + direcciones (2A) |
+| `scriptsSQL/005_InterfazHubSpot_Clientes_Contactos_Obtener.sql` | SP contactos cliente (2A) |
+| `scriptsSQL/006_InterfazHubSpot_CuentaCorriente_Pagina.sql` | SP cuenta corriente paginada (2B) |
+| `scriptsSQL/008_InterfazHubSpot_VendedoresHabilitados.sql` | Filtro vendedores en SP 004/006 |
+| `scriptsSQL/009_Indices.sql` | Índices performance SPs |
+| `scriptsSQL/010_InterfazHubSpot_Atributo_IdHubSpot.sql` | Atributo `id_hubspot` + SP `InterfazHubSpot_Cliente_GuardarIdHubSpot` |
+| `scriptsSQL/012_ListadoHubSpotProcesosCola_Buscar.sql` | Listado cola (consola / soporte) |
+| `scriptsSQL/013_Indices_ProcesosHubSpot_Listado.sql` | Índices listado cola |
+| `sql/*` | Copias versionadas / alias históricos `USP_*` — preferir `scriptsSQL/` |
 
 ---
 
@@ -535,13 +549,14 @@ public class CuentaCorrienteItemDto {
 | Tabla cola | `dbo.ProcesosSpertaHubSpot` (EF `ToTable`, SP `USER_POS_Clientes_Agregar`) |
 | Prohibido | nombres legacy de solución/tabla/cola y variante HubSpot con s minúscula (ver regla Cursor) |
 
-### Scripts canónicos (`InterfazHubSpot/Scripts/agent/`)
+### Scripts canónicos (`scriptsPS1/`)
 
 | Script | Uso |
 |--------|-----|
 | `Build-InterfazHubSpot.ps1` | `nuget restore` + MSBuild; `-LibrariesOnly` omite sitio MVC |
-| `Test-InterfazHubSpot.ps1` | `dotnet test` en Tests.Unit + IntegrationTests; excluye `Category=Live` |
-| `Verify-InterfazHubSpot.ps1` | Build + Test + grep legacy → 0 hits en `.cs`, `.sql`, `.md` |
+| `Test-InterfazHubSpot.ps1` | `dotnet test` por categoría Unit/Security/Integration; excluye `Category=Live` por defecto |
+| `Measure-TestCoverage.ps1` | coverlet + gate line-rate ≥90% por categoría (`coverage-scopes.json`) |
+| `Verify-InterfazHubSpot.ps1` | Build + Test + cobertura + grep legacy → 0 hits en `.cs`, `.sql`, `.md` |
 
 ### Gate WinForms (deploy BD)
 
@@ -553,9 +568,9 @@ Reglas Cursor: `.cursor/rules/interfaz-hubspot.mdc` (always-on). Comandos resumi
 
 ## 14. Puntos Abiertos / Pendientes de Confirmación
 
-| # | Punto | Responsable |
+| # | Punto | Estado |
 |---|---|---|
-| 1 | Confirmar en qué tabla de la BD de Mastersoft se almacena el `HubSpotCompanyId` del cliente (para el SP `USER_HS_Cliente_GuardarHubSpotId` y los SELECTs) | Equipo técnico Calzetta |
-| 2 | Confirmar campos disponibles en las tablas origen para cada campo del SP `USER_HS_Cliente_ObtenerDatos` | Equipo técnico Calzetta |
-| 3 | Confirmar estructura de la tabla de cuenta corriente / facturas en la BD para armar el SP `USER_HS_CuentaCorriente_ObtenerTodos` | Equipo técnico Calzetta |
-| 4 | Verificar que las credenciales `pat-na1-...` corresponden al ambiente correcto (productivo vs. sandbox) | Alan Lipshitz / Dayana Melo |
+| 1 | Persistencia `HubSpotCompanyId` en ERP | **Implementado** — atributo `id_hubspot` + SP 010 `InterfazHubSpot_Cliente_GuardarIdHubSpot` |
+| 2 | Campos SP datos cliente | **Implementado** — ver script 004 y mapper C# |
+| 3 | Estructura cuenta corriente / paginación 2B | **Implementado** — script 006 con keyset pagination |
+| 4 | Token PAT ambiente productivo vs sandbox | Confirmar con operaciones Calzetta / HubSpot portal |

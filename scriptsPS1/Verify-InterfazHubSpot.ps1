@@ -2,12 +2,14 @@
 param(
     [switch]$LibrariesOnly,
     [switch]$SkipBuild,
-    [switch]$SkipTests
+    [switch]$SkipTests,
+    [switch]$SkipCoverage,
+    [switch]$IncludeLive
 )
 
 $ErrorActionPreference = 'Stop'
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
-$agentDir = $PSScriptRoot
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\SolucionInterfazHubSpot')).Path
+$scriptsDir = $PSScriptRoot
 $schedulerDll = Join-Path $repoRoot 'Componentes\Mastersoft.Scheduler452.Intefaces.dll'
 
 if (-not $SkipBuild) {
@@ -16,14 +18,23 @@ if (-not $SkipBuild) {
         Write-Warning 'Componentes sin Scheduler DLL; verify usa -LibrariesOnly.'
     }
     if ($useLibrariesOnly) {
-        & (Join-Path $agentDir 'Build-InterfazHubSpot.ps1') -LibrariesOnly
+        & (Join-Path $scriptsDir 'Build-InterfazHubSpot.ps1') -LibrariesOnly
     } else {
-        & (Join-Path $agentDir 'Build-InterfazHubSpot.ps1')
+        & (Join-Path $scriptsDir 'Build-InterfazHubSpot.ps1')
     }
 }
 
 if (-not $SkipTests) {
-    & (Join-Path $agentDir 'Test-InterfazHubSpot.ps1')
+    $testArgs = @{ Category = 'All' }
+    if ($IncludeLive) { $testArgs['IncludeLive'] = $true }
+    $testArgs['SkipBuild'] = $true
+    & (Join-Path $scriptsDir 'Test-InterfazHubSpot.ps1') @testArgs
+}
+
+if (-not $SkipCoverage) {
+    $covArgs = @{ SkipBuild = $true }
+    if ($IncludeLive) { $covArgs['IncludeLive'] = $true }
+    & (Join-Path $scriptsDir 'Measure-TestCoverage.ps1') @covArgs
 }
 
 $patterns = @('BatchSpertaAPI', 'ProcesosSpertaAPI', 'Hubspot')
@@ -31,7 +42,7 @@ $extensions = @('*.cs', '*.sql', '*.md')
 $hits = @()
 
 foreach ($ext in $extensions) {
-    Get-ChildItem -Path $repoRoot -Recurse -Filter $ext -File |
+    Get-ChildItem -Path (Join-Path $PSScriptRoot '..') -Recurse -Filter $ext -File |
         Where-Object {
             $_.FullName -notmatch '\\\.git\\' -and
             $_.FullName -notmatch '\\obj\\' -and
@@ -61,7 +72,6 @@ if ($hits.Count -gt 0) {
     throw "Verify-InterfazHubSpot: $($hits.Count) referencias legacy encontradas."
 }
 
-# --- Patrones bloqueados: no deben aparecer en código fuente C# ---
 $patternesBlockedCs = @(
     'SpertaApi',
     'HttpSpertaApiClient',
@@ -104,10 +114,10 @@ Get-ChildItem -Path $repoRoot -Recurse -Filter '*.cs' -File |
     }
 
 if ($csHits.Count -gt 0) {
-    Write-Host "ERROR: Referencias bloqueadas encontradas en codigo fuente C#:" -ForegroundColor Red
+    Write-Host 'ERROR: Referencias bloqueadas encontradas en codigo fuente C#:' -ForegroundColor Red
     $csHits | Format-Table -AutoSize
     throw "Verify-InterfazHubSpot: $($csHits.Count) referencias bloqueadas (SpertaApi/MSFwk/SpertaFwk) en archivos .cs."
 }
 
 Write-Host 'OK Sin referencias legacy Sperta/MSFwk en archivos .cs' -ForegroundColor Green
-Write-Host 'Verify-InterfazHubSpot: OK (build + tests + grep legacy=0)'
+Write-Host 'Verify-InterfazHubSpot: OK (build + tests + coverage + grep legacy=0)'

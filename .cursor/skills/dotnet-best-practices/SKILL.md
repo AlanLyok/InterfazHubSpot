@@ -83,9 +83,9 @@ InterfazHubSpot.Interfaces
 Desde raíz del repo (PowerShell — ver regla `powershell-windows`):
 
 ```powershell
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
+pwsh -NoProfile -File scriptsPS1/Build-InterfazHubSpot.ps1
+pwsh -NoProfile -File scriptsPS1/Test-InterfazHubSpot.ps1
+pwsh -NoProfile -File scriptsPS1/Verify-InterfazHubSpot.ps1
 ```
 
 - Build: **MSBuild** + `nuget restore` (no `dotnet build` como camino principal).

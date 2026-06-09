@@ -7,7 +7,7 @@ namespace InterfazHubSpot.Tests.Unit.Integration
 {
     public sealed class IntegracionErrorNotifierTests
     {
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void NotificarErrorFila2A_UsaAsuntoContextualizado()
         {
             var fake = new FakeEmailsManager();
@@ -22,7 +22,7 @@ namespace InterfazHubSpot.Tests.Unit.Integration
             Assert.Contains("Fase=SyncClienteCola", fake.Calls[0].Asunto);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void NotificarErrorAuth_UsaAsuntoAutenticacion()
         {
             var fake = new FakeEmailsManager();
@@ -34,7 +34,7 @@ namespace InterfazHubSpot.Tests.Unit.Integration
             Assert.Equal("[HubSpot] Error autenticación", fake.Calls[0].Asunto);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void NotificarErrorBatch2B_UsaAsuntoConLote()
         {
             var fake = new FakeEmailsManager();
@@ -47,7 +47,7 @@ namespace InterfazHubSpot.Tests.Unit.Integration
             Assert.Equal("HubSpot integración 2B", fake.Calls[0].Proceso);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void NotificarErrorFatalJob_UsaAsuntoConNombreJob()
         {
             var fake = new FakeEmailsManager();

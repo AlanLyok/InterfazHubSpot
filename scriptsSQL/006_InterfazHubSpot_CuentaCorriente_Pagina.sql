@@ -7,7 +7,7 @@
   RESULTADO POR CLIENTE
   ─────────────────────
   Con deuda:                               
-    Cuenta actualizada al 07/06/2026         
+    Cuenta Corriente al 07/06/2026         
                                            
     FAC 0001-00067143 / VTO:15/03/2026 --- $1.234,56
     FAC 0001-00001234 / VTO:02/04/2026 --- $89.200,50
@@ -28,8 +28,25 @@
 
   EJEMPLO DE USO
   ──────────────
-  EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 0, @PageSize = 101
-  EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 5977, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 0, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 5977, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 10714, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 22876, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 31505, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 37960, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 42029, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 48643, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 59977, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 71419, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 78224, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 83885, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 87794, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 104006, @PageSize = 101
+EXEC dbo.InterfazHubSpot_CuentaCorriente_Pagina @Cursor = 126659, @PageSize = 101
+
+
+
+  
 */
 
 IF OBJECT_ID(N'dbo.InterfazHubSpot_CuentaCorriente_Pagina', N'P') IS NOT NULL

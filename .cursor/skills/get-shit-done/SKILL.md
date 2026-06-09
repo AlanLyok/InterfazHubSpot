@@ -8,7 +8,7 @@ description: Structured spec-driven workflow for planning and executing software
 ## Contexto InterfazHubSpot (este repo)
 
 - Solución: `InterfazHubSpot.sln`
-- Build/test/verify: `InterfazHubSpot/Scripts/agent/*.ps1` (ver `AGENTS.md`)
+- Build/test/verify: `scriptsPS1/*.ps1` (ver `AGENTS.md`)
 - Tabla cola: `ProcesosSpertaHubSpot`
 
 ## Contexto repos SpertaAPI (bases de datos)

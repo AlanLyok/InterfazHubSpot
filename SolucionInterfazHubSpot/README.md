@@ -2,7 +2,9 @@
 
 Solución Visual Studio **InterfazHubSpot.sln** (.NET Framework 4.5.2): consola MVC, librerías de negocio, jobs batch (`IScheduler`) y tests.
 
-El resto del repositorio (SQL, documentación, despliegue del servicio Windows) vive en la **raíz** del repo.
+El resto del repositorio (SQL, documentación, scripts, despliegue del servicio Windows) vive en la **raíz** del repo.
+
+**Documentación:** [`../docs/README.md`](../docs/README.md)
 
 ## Proyectos
 
@@ -14,31 +16,21 @@ El resto del repositorio (SQL, documentación, despliegue del servicio Windows) 
 | `InterfazHubSpot.Entities/` | EF6 MSGestion |
 | `InterfazHubSpot.Interfaces/` | Contratos |
 | `InterfazHubSpot.Mapping/` | AutoMapper |
-| `InterfazHubSpot.Tests.Unit/` | xUnit |
-| `InterfazHubSpot.IntegrationTests/` | Humo / Live |
+| `InterfazHubSpot.Tests.Unit/` | xUnit — unitarios y seguridad |
+| `InterfazHubSpot.IntegrationTests/` | xUnit — integración y Live |
 | `Componentes/` | DLLs Mastersoft (`Mastersoft.Scheduler452.Intefaces.dll`, Framework, etc.) |
 
 ## Build y tests
 
-Desde la **raíz del repo** (o desde esta carpeta con rutas relativas):
+Desde la **raíz del repo**:
 
 ```powershell
-# PowerShell 7+ (recomendado)
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
-
-# Solo librerías + BatchProcess (iteración jobs)
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly
+powershell.exe -NoProfile -File scriptsPS1/Build-InterfazHubSpot.ps1
+powershell.exe -NoProfile -File scriptsPS1/Test-InterfazHubSpot.ps1
+powershell.exe -NoProfile -File scriptsPS1/Verify-InterfazHubSpot.ps1
 ```
 
-Sin `pwsh`, MSBuild directo:
-
-```powershell
-$msb = "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
-& $msb "SolucionInterfazHubSpot\InterfazHubSpot.BatchProcess\InterfazHubSpot.BatchProcess.csproj" /p:Configuration=Release
-```
-
-Output batch: `InterfazHubSpot.BatchProcess/bin/Release/net452/`.
+Detalle de categorías, cobertura y parámetros: [`docs/TESTING.md`](../docs/TESTING.md) y [`scriptsPS1/README.md`](../scriptsPS1/README.md).
 
 ## Configuración local
 
@@ -49,10 +41,8 @@ Output batch: `InterfazHubSpot.BatchProcess/bin/Release/net452/`.
 
 ## Despliegue servicio Windows
 
-Los binarios compilados se copian a [`implementacion/`](../implementacion/) (paquete en repo) y al servidor (`ServicioFinalImple` en Calzetta).
-
 ```powershell
-pwsh -NoProfile -File ..\implementacion\Deploy-ServicioHubSpot.ps1
+powershell.exe -NoProfile -File ../implementacion/Deploy-ServicioHubSpot.ps1
 ```
 
 Guía completa: [docs/BatchProcess_Desarrollo_e_Implementacion.md](../docs/BatchProcess_Desarrollo_e_Implementacion.md).

@@ -10,7 +10,7 @@ namespace InterfazHubSpot.Tests.Unit
 {
     public sealed class DevelopmentHubSpotStubTests
     {
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public async Task Stub_POST_companies_search_devuelve_vacio_parseable()
         {
             using (var invoker = new HttpMessageInvoker(new DevelopmentHubSpotStubHandler()))

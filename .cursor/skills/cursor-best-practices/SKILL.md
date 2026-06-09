@@ -42,7 +42,7 @@ Agents run in **Windows PowerShell 5.1** by default. Full guide: [`.cursor/rules
 
 ## Key Workflows
 
-- **Build/test** — `InterfazHubSpot/Scripts/agent/*.ps1` via `pwsh -NoProfile -File`
+- **Build/test** — `scriptsPS1/*.ps1` via `pwsh -NoProfile -File`
 - **HubSpot debug** — MVC traza endpoints + `HubSpot:UseDevelopmentMock`
 - **SQL exploration** — MCP msgestion + migrations in `sql/`
 - **GSD phases** — `.cursor/skills/get-shit-done`, `.planning/`

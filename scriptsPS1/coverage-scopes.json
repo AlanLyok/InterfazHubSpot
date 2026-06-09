@@ -1,0 +1,40 @@
+{
+  "unit": {
+    "assemblies": ["InterfazHubSpot.Business"],
+    "includeClasses": [
+      "HubSpotCrmClient",
+      "HubSpotConfiguration",
+      "IntegracionColaIdentificador",
+      "IntegracionColaEstados",
+      "IntegracionDestinos",
+      "IntegracionTipoOperacion",
+      "IntegracionTipoEntidad",
+      "ClienteIntegracionMapper",
+      "NullProcesoPasoReporter",
+      "DiagnosticsTextHelper",
+      "ProcesoPasoCollector",
+      "HubSpotColaIntentosReporter",
+      "HubSpotAuthException",
+      "HubSpotHttpRetriesExhaustedException"
+    ],
+    "threshold": 90
+  },
+  "security": {
+    "assemblies": ["InterfazHubSpot.Business"],
+    "includeClasses": [
+      "HubSpotConfiguration",
+      "IntegracionErrorNotifier",
+      "MSSecurity",
+      "HubSpotAuthException"
+    ],
+    "threshold": 90
+  },
+  "integration": {
+    "assemblies": ["InterfazHubSpot.Business"],
+    "includeClasses": [
+      "ClienteIntegracionMapper",
+      "ColaIntegracionPendienteMuestra"
+    ],
+    "threshold": 90
+  }
+}

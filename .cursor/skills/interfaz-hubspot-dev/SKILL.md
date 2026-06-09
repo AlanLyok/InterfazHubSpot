@@ -18,8 +18,11 @@ Datos vía **stored procedures** en MSGestion; runtime **no** usa SpertaAPI.
 
 | Recurso | Ubicación |
 |---------|-----------|
-| Guía agentes | `AGENTS.md`, `CLAUDE.md` |
+| **Índice docs (Diátaxis)** | `docs/README.md` |
+| Enrutamiento agentes | `docs/agents/INDEX.md`, `AGENTS.md` |
 | PRD | `docs/PRD_Integracion_HubSpot_2A_2B.md` |
+| Arquitectura / flujos | `docs/explanation/` |
+| Referencia técnica | `docs/reference/` |
 | BatchProcess dev/deploy | `docs/BatchProcess_Desarrollo_e_Implementacion.md` |
 | Planificación | `.planning/ROADMAP.md`, `.planning/STATE.md` |
 | Reglas nombres/build | `.cursor/rules/interfaz-hubspot.mdc` |
@@ -38,10 +41,11 @@ Datos vía **stored procedures** en MSGestion; runtime **no** usa SpertaAPI.
 ## Comandos canónicos
 
 ```powershell
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
+pwsh -NoProfile -File scriptsPS1/Build-InterfazHubSpot.ps1
+pwsh -NoProfile -File scriptsPS1/Build-InterfazHubSpot.ps1 -LibrariesOnly
+pwsh -NoProfile -File scriptsPS1/Test-InterfazHubSpot.ps1
+pwsh -NoProfile -File scriptsPS1/Measure-TestCoverage.ps1
+pwsh -NoProfile -File scriptsPS1/Verify-InterfazHubSpot.ps1
 pwsh -NoProfile -File implementacion/Deploy-ServicioHubSpot.ps1
 ```
 

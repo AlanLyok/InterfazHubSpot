@@ -23,3 +23,6 @@ obj/
 
 # NuGet
 packages/
+
+# Cobertura coverlet (scriptsPS1)
+scriptsPS1/coverage/

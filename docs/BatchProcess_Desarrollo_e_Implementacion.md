@@ -2,6 +2,8 @@
 
 Guía para entender, desarrollar y desplegar jobs batch HubSpot en InterfazHubSpot. Complementa el [PRD](PRD_Integracion_HubSpot_2A_2B.md) (qué hace cada flujo) con el **cómo** técnico del stack Mastersoft Scheduler452.
 
+> **Índice documentación:** [`README.md`](README.md). How-to deploy resumido: [`how-to/desplegar-servicio-windows.md`](how-to/desplegar-servicio-windows.md).
+
 **Layout del repo:** código en [`SolucionInterfazHubSpot/`](../SolucionInterfazHubSpot/); paquete del servicio en [`implementacion/`](../implementacion/); deploy automatizado: `implementacion/Deploy-ServicioHubSpot.ps1`.
 
 **Audiencia:** desarrolladores .NET Framework 4.5.2 y quien despliega el servicio Windows en Calzetta.
@@ -152,10 +154,10 @@ Requisito: `Componentes/Mastersoft.Scheduler452.Intefaces.dll` (DLL real de Mast
 
 ```powershell
 # Librerías + BatchProcess (recomendado en iteración de jobs)
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly
+pwsh -NoProfile -File scriptsPS1/Build-InterfazHubSpot.ps1 -LibrariesOnly
 
 # Solución completa (MVC + batch)
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
+pwsh -NoProfile -File scriptsPS1/Build-InterfazHubSpot.ps1
 ```
 
 Output del batch: `SolucionInterfazHubSpot/InterfazHubSpot.BatchProcess/bin/Release/net452/` (o `Debug`).
@@ -163,7 +165,7 @@ Output del batch: `SolucionInterfazHubSpot/InterfazHubSpot.BatchProcess/bin/Rele
 Tests:
 
 ```powershell
-pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
+pwsh -NoProfile -File scriptsPS1/Test-InterfazHubSpot.ps1
 ```
 
 ### 2.4 Probar sin servicio Windows (MVC)

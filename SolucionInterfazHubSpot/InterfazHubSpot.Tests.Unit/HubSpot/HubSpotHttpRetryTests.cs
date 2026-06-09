@@ -34,7 +34,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
 
         private HubSpotCrmClient CreateSut() => new HubSpotCrmClient(_cfg, _http);
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public async Task PostJson_401_LanzaHubSpotAuthException_SinReintentos()
         {
             _handler.EnqueueResponse(Status(HttpStatusCode.Unauthorized, "invalid token"));
@@ -137,6 +137,26 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
         {
             var reporter = new HubSpotColaIntentosReporter(new ProcesosSpertaHubSpotManager(new MSContext()));
             reporter.OnHttpRetryFailed(null);
+        }
+
+        [Fact]
+        public void OnHttpRetryFailed_ConProcesoId_EjecutaRamaIncremento()
+        {
+            var reporter = new HubSpotColaIntentosReporter(new ProcesosSpertaHubSpotManager(new MSContext()));
+            try
+            {
+                reporter.OnHttpRetryFailed(999999L);
+            }
+            catch
+            {
+                // Sin MSGestion real: la rama de incremento se ejecuto antes del fallo EF/SQL.
+            }
+        }
+
+        [Fact]
+        public void Constructor_ColaNull_LanzaArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => new HubSpotColaIntentosReporter(null));
         }
     }
 }

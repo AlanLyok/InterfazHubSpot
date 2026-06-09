@@ -4,7 +4,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\SolucionInterfazHubSpot')).Path
 $sln = Join-Path $repoRoot 'InterfazHubSpot.sln'
 
 function Get-MsBuildExe {
@@ -25,7 +25,7 @@ function Invoke-NuGetRestore {
     }
     if ($nuget) {
         & $nuget restore $sln
-        if ($LASTEXITCODE -ne 0) { throw "nuget restore falló ($LASTEXITCODE)" }
+        if ($LASTEXITCODE -ne 0) { throw "nuget restore fallo ($LASTEXITCODE)" }
     } else {
         Write-Warning 'nuget no encontrado; omitiendo restore.'
     }
@@ -57,12 +57,12 @@ if ($LibrariesOnly) {
     foreach ($p in $projects) {
         $path = Join-Path $repoRoot $p
         & $msbuild $path /p:Configuration=Debug /v:m
-        if ($LASTEXITCODE -ne 0) { throw "MSBuild falló: $p" }
+        if ($LASTEXITCODE -ne 0) { throw "MSBuild fallo: $p" }
     }
 } else {
     if ($batchProcessAvailable) {
         & $msbuild $sln /p:Configuration=Debug /v:m
-        if ($LASTEXITCODE -ne 0) { throw "MSBuild falló en solución" }
+        if ($LASTEXITCODE -ne 0) { throw 'MSBuild fallo en solucion' }
     } else {
         Write-Warning 'Build sin BatchProcess: copie DLLs Mastersoft en Componentes/ para compilar jobs IScheduler.'
         $projects = @(
@@ -77,7 +77,7 @@ if ($LibrariesOnly) {
         foreach ($p in $projects) {
             $path = Join-Path $repoRoot $p
             & $msbuild $path /p:Configuration=Debug /v:m
-            if ($LASTEXITCODE -ne 0) { throw "MSBuild falló: $p" }
+            if ($LASTEXITCODE -ne 0) { throw "MSBuild fallo: $p" }
         }
     }
 }

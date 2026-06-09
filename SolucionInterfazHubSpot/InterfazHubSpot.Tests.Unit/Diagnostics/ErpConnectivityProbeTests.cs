@@ -48,7 +48,7 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
         // TryParseConnectionPieces
         // ---------------------------------------------------------------
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void TryParseConnectionPieces_StringVacio_DevuelveCadenasVacias()
         {
             string ds, ic, uid;
@@ -59,7 +59,7 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
             Assert.Equal(string.Empty, uid);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void TryParseConnectionPieces_StringNull_DevuelveCadenasVacias()
         {
             string ds, ic, uid;
@@ -70,7 +70,7 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
             Assert.Equal(string.Empty, uid);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void TryParseConnectionPieces_FormatoEstandar_ExtraeDataSourceCatalogoUsuario()
         {
             const string cs = "Data Source=servidor01;Initial Catalog=MSGestion;User ID=appuser;Password=secret";
@@ -82,7 +82,7 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
             Assert.Equal("appuser", uid);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void TryParseConnectionPieces_IntegratedSecurity_DevuelveUsuarioIntegratedSecurity()
         {
             const string cs = "Data Source=srv;Initial Catalog=db;Integrated Security=SSPI";
@@ -94,7 +94,7 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
             Assert.Equal("(IntegratedSecurity)", uid);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void TryParseConnectionPieces_AliasServerDatabase_ExtraeCorrectamente()
         {
             const string cs = "Server=s;Database=d;Uid=u;Pwd=p";
@@ -108,7 +108,7 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
             Assert.NotNull(uid);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void TryParseConnectionPieces_StringInvalido_NoLanza()
         {
             // Texto completamente inválido — debería caer en el fallback ExtractKeyFallback
@@ -122,21 +122,21 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
         // SanitizeSqlError
         // ---------------------------------------------------------------
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void SanitizeSqlError_Null_DevuelveStringEmpty()
         {
             var result = InvokeSanitize(null);
             Assert.Equal(string.Empty, result);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void SanitizeSqlError_StringVacio_DevuelveStringEmpty()
         {
             var result = InvokeSanitize(string.Empty);
             Assert.Equal(string.Empty, result);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void SanitizeSqlError_MensajeCorto_DevuelveTalCual()
         {
             const string msg = "Error de conexión.";
@@ -144,7 +144,7 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
             Assert.Equal(msg, result);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void SanitizeSqlError_ExactamenteDosMillCaracteres_DevuelveTalCual()
         {
             var msg = new string('x', 2000);
@@ -152,7 +152,7 @@ namespace InterfazHubSpot.Tests.Unit.Diagnostics
             Assert.Equal(msg, result);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Security")]
         public void SanitizeSqlError_MasDeDosMil_TruncaYSufijaElipsis()
         {
             var msg = new string('a', 2500);

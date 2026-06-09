@@ -6,6 +6,7 @@
         <RootNamespace>InterfazHubSpot.IntegrationTests</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="System.Configuration" />
         <Reference Include="System.Net.Http" />
     </ItemGroup>
     <ItemGroup>
@@ -15,8 +16,19 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="6.0.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.msbuild" Version="6.0.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
     <ItemGroup>
+        <Reference Include="Mastersoft.Framework.Standard">
+            <HintPath>..\Componentes\Mastersoft.Framework.Standard.dll</HintPath>
+        </Reference>
         <ProjectReference Include="..\InterfazHubSpot.Business\InterfazHubSpot.Business.csproj" />
     </ItemGroup>
     <ItemGroup>
