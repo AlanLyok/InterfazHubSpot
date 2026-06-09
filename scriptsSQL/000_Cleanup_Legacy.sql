@@ -48,5 +48,13 @@ BEGIN
 END
 GO
 
+-- Función CC obsoleta (lógica inline en SP 004 y 006)
+IF OBJECT_ID(N'dbo.InterfazHubSpot_ManejoCuentaCorriente_Texto', N'FN') IS NOT NULL
+BEGIN
+    DROP FUNCTION dbo.InterfazHubSpot_ManejoCuentaCorriente_Texto;
+    PRINT 'Eliminada función obsoleta dbo.InterfazHubSpot_ManejoCuentaCorriente_Texto';
+END
+GO
+
 PRINT 'Cleanup legacy HubSpot completado.';
 GO

@@ -77,7 +77,6 @@ Cola outbox. El ERP inserta filas vía `USER_POS_Clientes_Agregar`; el batch las
 ```sql
 CREATE TABLE dbo.ProcesosSpertaHubSpot (
     ProcesoId              BIGINT IDENTITY(1,1) NOT NULL,
-    TenantId               NVARCHAR(64) NULL,
     EmpresaId              INT NULL,
     Destino                NVARCHAR(50) NOT NULL,   -- 'HubSpot'
     TipoEntidad            NVARCHAR(50) NOT NULL,   -- 'Cliente'
@@ -296,7 +295,7 @@ Job programado diario. **Hora propuesta: 3:00 AM** (antes del inicio de jornada 
 2. Ejecutar `USER_HS_CuentaCorriente_ObtenerTodos` → lista completa de clientes activos con facturas.
 3. En memoria: agrupar por `HubSpotCompanyId`, construir el valor del campo `manejo_cuenta_corriente` por cliente:
    - **Con deuda:** una línea por factura, formato `DD/MM/YYYY --- $NNN.NNN,NN`, separadas por `\n`.
-   - **Sin deuda:** texto `Cuenta actualizada al DD/MM/YYYY. Deuda: $0`.
+   - **Sin deuda:** texto `Cuenta Corriente al DD/MM/YYYY. Deuda: $0`.
 4. Dividir en grupos de 100 compañías (límite HubSpot batch).
 5. Por cada grupo: `POST /crm/v3/objects/companies/batch/update`.
 6. Delay de 200ms entre batches.
@@ -311,7 +310,7 @@ Job programado diario. **Hora propuesta: 3:00 AM** (antes del inicio de jornada 
 18/04/2026 --- $210.000,00
 
 // Cliente SIN deuda:
-Cuenta actualizada al 06/06/2026. Deuda: $0
+Cuenta Corriente al 06/06/2026. Deuda: $0
 ```
 
 ### 7.4 Endpoint HubSpot utilizado (Flujo 2B)
@@ -336,7 +335,6 @@ Las claves ya existentes en el proyecto se conservan tal cual. A continuación e
 <appSettings>
   <!-- App -->
   <add key="Title"                          value="InterfazHubSpot" />
-  <add key="TenantId"                       value="MS" />
   <add key="EmpresaId"                      value="1" />
   <add key="EnableErrorLogInDataBase"       value="true" />
   <add key="ErrorLogConnectionName"         value="InterfazHubSpot" />
@@ -405,7 +403,7 @@ Se conserva el `EmailsManager` existente. Se dispara en **ambos flujos ante cual
 |---|---|---|
 | Fallo al procesar un cliente de la cola (cualquier paso) | 2A | `[HubSpot 2A] Error al sincronizar cliente {ClienteId}` |
 | Error de autenticación HubSpot (401) | 2A y 2B | `[HubSpot] Error de autenticación — job detenido` |
-| Error de rate limit agotado (429, tras reintentos) | 2A y 2B | `[HubSpot] Rate limit — registros afectados: N` |
+| Error de rate limit agotado (429/5xx, tras reintentos HTTP) | 2A y 2B | `[HubSpot 2A] Error ...` / `[HubSpot 2B] Error batch lote N` |
 | Fallo de un batch en Flujo 2B | 2B | `[HubSpot 2B] Error en batch cuenta corriente — lote N` |
 | Fallo total del job (excepción no controlada) | 2A y 2B | `[HubSpot] Fallo crítico en job {NombreJob}` |
 
@@ -432,8 +430,24 @@ Las claves `EmailErrDE`, `EmailErrPara` y `EmailErrCc` ya existen en `Web.config
 | Error en Flujo 2A (cualquier paso) | Marcar registro cola como `Error` con detalle. No reintentar automáticamente. |
 | Cliente sin `HubSpotCompanyId` en Flujo 2B | Omitir, registrar en log como advertencia. |
 | Error en batch de Flujo 2B | Registrar batch fallido en `ProcesosSpertaHubSpotLog`. Continuar con el siguiente batch. |
-| Error de autenticación HubSpot (401) | Loguear y detener el job. No continuar procesando. |
-| Error de rate limit HubSpot (429) | Esperar y reintentar con backoff. Máximo 3 intentos antes de marcar error. |
+| Error de autenticación HubSpot (401) | Loguear, email `[HubSpot] Error autenticación`, detener job 2B. En 2A marcar fila Error y continuar siguiente ítem. |
+| Error HTTP reintentable (429/500/502/503/504) | Reintentar hasta `HubSpot:MaxHttpRetries` (default 3). Cada fallo reintentable en 2A incrementa `Intentos`. Agotados → Error + email. |
+
+### Configuración HTTP HubSpot (Web.config / App.config)
+
+| Clave | Default | Descripción |
+|---|---|---|
+| `HubSpot:MaxHttpRetries` | 3 | Reintentos ante 429/5xx (401 nunca reintenta) |
+| `HubSpot:HttpRetryBackoffMilliseconds` | 1000 | Espera entre reintentos HTTP |
+| `HubSpot:DelayMillisecondsBetweenCalls` | 120 | Throttle entre llamadas CRM |
+
+### Semántica `Intentos` (cola 2A)
+
+| Evento | Incremento |
+|---|---|
+| Reclamar (Pendiente→EnProceso) | Intentos++ |
+| HTTP reintentable fallido (429/5xx) | Intentos++ vía `IncrementarIntentos` |
+| 401 | Solo incremento del reclamo |
 
 ---
 

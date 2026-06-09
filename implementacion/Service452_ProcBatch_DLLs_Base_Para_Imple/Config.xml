@@ -1,0 +1,19 @@
+<msscheduler debug="true" debugstatus="false">
+  <procesos>
+
+
+	  <proceso id="01" assembly="Mastersoft.Procesos.BatchProcess" clase="Procesos" horafija="" minutosespera="1" habilitado="true">
+		  <mscfg cnprefix="MSGestion" cn="" empresaid="1" />
+		  <parametros multitenant="N" enablelog="S" />
+	  </proceso>
+	  
+	  <proceso id="02" assembly="Mastersoft.Procesos.BatchProcess" clase="Procesos" horafija="3:00" minutosespera="" habilitado="false">
+		  <mscfg cnprefix="MSGestion" cn="" empresaid="1" />
+		  <parametros multitenant="N" enablelog="S" />
+	  </proceso>
+
+
+
+
+  </procesos>
+</msscheduler>

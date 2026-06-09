@@ -1,22 +1,31 @@
-IF OBJECT_ID(N'dbo.InterfazHubSpot_VendedoresHabilitados', N'U') IS NOT NULL
-    DROP TABLE dbo.InterfazHubSpot_VendedoresHabilitados;
+/*
+  Vendedores habilitados para sincronización HubSpot (2A encolado, 2A lectura, 2B batch).
+  Idempotente: no recrea la tabla ni borra filas existentes en re-deploy.
+*/
+
+IF OBJECT_ID(N'dbo.InterfazHubSpot_VendedoresHabilitados', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.InterfazHubSpot_VendedoresHabilitados
+    (
+        VendedorID INT      NOT NULL,
+        FechaAlta  DATETIME NOT NULL CONSTRAINT DF_IHS_VH_FechaAlta DEFAULT GETDATE(),
+        CONSTRAINT PK_InterfazHubSpot_VendedoresHabilitados
+            PRIMARY KEY CLUSTERED (VendedorID)
+    );
+    PRINT 'Tabla creada: dbo.InterfazHubSpot_VendedoresHabilitados';
+END
+ELSE
+BEGIN
+    PRINT 'Tabla dbo.InterfazHubSpot_VendedoresHabilitados ya existe — sin cambios.';
+END
 GO
 
-CREATE TABLE dbo.InterfazHubSpot_VendedoresHabilitados
-(
-    VendedorID      INT           NOT NULL,
-    Descripcion     NVARCHAR(100) NULL,        -- opcional, para documentar
-    FechaAlta       DATETIME      NOT NULL CONSTRAINT DF_IHS_VH_FechaAlta DEFAULT GETDATE(),
-    UsuarioAlta     NVARCHAR(50)  NULL,
-
-    CONSTRAINT PK_InterfazHubSpot_VendedoresHabilitados 
-        PRIMARY KEY CLUSTERED (VendedorID)
+INSERT INTO dbo.InterfazHubSpot_VendedoresHabilitados (VendedorID)
+SELECT v.VendedorID
+FROM (VALUES (107), (37), (91)) AS v(VendedorID)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM dbo.InterfazHubSpot_VendedoresHabilitados AS h
+    WHERE h.VendedorID = v.VendedorID
 );
-GO
-
-INSERT INTO dbo.InterfazHubSpot_VendedoresHabilitados (VendedorID, Descripcion, UsuarioAlta)
-VALUES
-    (107, NULL, SYSTEM_USER),
-    ( 37, NULL, SYSTEM_USER),
-    ( 91, NULL, SYSTEM_USER);
 GO

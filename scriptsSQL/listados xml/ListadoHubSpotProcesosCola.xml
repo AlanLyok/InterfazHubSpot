@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" filename="" name="" reporttitle="HubSpot - Cola de integracion" reportdescription="Listado ProcesosSpertaHubSpot" type="grid" enabled="true" multiempresa="true">
+  <parameters>
+    <parameter name="EmpresaID" datatypeuser="entero" masktype="None" visible="false" label="EmpresaID" maxlength="0" alineacion="Derecha" tipodebusqueda="" codecolumn="" typecodigo="Integer" multiempresa="false" anchocodigo="0" estilobusqueda="Default" columnaEmpresaid="true" width="0" isnullable="false" />
+    <parameter name="FechaDesde" value="now" datatypeuser="fecha" associatedcontrol="datepicker" masktype="DateTimeAdvancingCaret" maskedit="dd/MM/yyyy" visible="true" label="Fecha creacion desde" maxlength="0" alineacion="Derecha" tipodebusqueda="" codecolumn="" typecodigo="Integer" multiempresa="false" anchocodigo="0" estilobusqueda="Default" columnaEmpresaid="false" width="0" isnullable="false" />
+    <parameter name="FechaHasta" value="now" datatypeuser="fecha" associatedcontrol="datepicker" masktype="DateTimeAdvancingCaret" maskedit="dd/MM/yyyy" visible="true" label="Fecha creacion hasta" maxlength="0" alineacion="Derecha" tipodebusqueda="" codecolumn="" typecodigo="Integer" multiempresa="false" anchocodigo="0" estilobusqueda="Default" columnaEmpresaid="false" width="0" isnullable="false" />
+  </parameters>
+  <columns>
+    <column fieldname="ProcesoId" headertext="Proceso ID" width="80" visible="true" allowedit="false" showtotal="false" posicion="1" datatypeuser="entero" masktype="Numeric" maskedit="D" groupOrder="-1" />
+    <column fieldname="EstadoTexto" headertext="Estado" width="90" visible="true" allowedit="false" showtotal="false" posicion="2" datatypeuser="caracteres" masktype="None" maskedit="" groupOrder="-1" />
+    <column fieldname="FechaCreacion" headertext="Fecha creacion" width="110" visible="true" allowedit="false" showtotal="false" posicion="3" datatypeuser="fecha" masktype="DateTimeAdvancingCaret" maskedit="dd/MM/yyyy" groupOrder="-1" />
+    <column fieldname="Identificador" headertext="Cliente ID" width="80" visible="true" allowedit="false" showtotal="false" posicion="4" datatypeuser="entero" masktype="Numeric" maskedit="D" groupOrder="-1" />
+    <column fieldname="ClienteCodigo" headertext="Codigo cliente" width="100" visible="true" allowedit="false" showtotal="false" posicion="5" datatypeuser="caracteres" masktype="None" maskedit="" groupOrder="-1" />
+    <column fieldname="ClienteRazonSocial" headertext="Razon social" width="200" visible="true" allowedit="false" showtotal="false" posicion="6" datatypeuser="caracteres" masktype="None" maskedit="" groupOrder="-1" />
+    <column fieldname="ClienteNombreFantasia" headertext="Nombre fantasia" width="150" visible="true" allowedit="false" showtotal="false" posicion="7" datatypeuser="caracteres" masktype="None" maskedit="" groupOrder="-1" />
+    <column fieldname="TipoOperacion" headertext="Tipo operacion" width="100" visible="true" allowedit="false" showtotal="false" posicion="8" datatypeuser="caracteres" masktype="None" maskedit="" groupOrder="-1" />
+    <column fieldname="Intentos" headertext="Intentos" width="70" visible="true" allowedit="false" showtotal="false" posicion="9" datatypeuser="entero" masktype="Numeric" maskedit="D" groupOrder="-1" />
+    <column fieldname="MensajeUltimoError" headertext="Ultimo error" width="250" visible="true" allowedit="false" showtotal="false" posicion="10" datatypeuser="caracteres" masktype="None" maskedit="" groupOrder="-1" />
+    <column fieldname="FechaInicioProceso" headertext="Inicio proceso" width="110" visible="true" allowedit="false" showtotal="false" posicion="11" datatypeuser="fecha" masktype="DateTimeAdvancingCaret" maskedit="dd/MM/yyyy" groupOrder="-1" />
+    <column fieldname="FechaFinProceso" headertext="Fin proceso" width="110" visible="true" allowedit="false" showtotal="false" posicion="12" datatypeuser="fecha" masktype="DateTimeAdvancingCaret" maskedit="dd/MM/yyyy" groupOrder="-1" />
+    <column fieldname="DuracionSegundos" headertext="Duracion (seg)" width="90" visible="true" allowedit="false" showtotal="false" posicion="13" datatypeuser="entero" masktype="Numeric" maskedit="D" groupOrder="-1" />
+    <column fieldname="CantidadLogs" headertext="Cant. logs" width="70" visible="true" allowedit="false" showtotal="false" posicion="14" datatypeuser="entero" masktype="Numeric" maskedit="D" groupOrder="-1" />
+    <column fieldname="CantidadLogsError" headertext="Logs error" width="70" visible="true" allowedit="false" showtotal="false" posicion="15" datatypeuser="entero" masktype="Numeric" maskedit="D" groupOrder="-1" />
+    <column fieldname="UltimaFaseLog" headertext="Ultima fase log" width="130" visible="true" allowedit="false" showtotal="false" posicion="16" datatypeuser="caracteres" masktype="None" maskedit="" groupOrder="-1" />
+    <column fieldname="UltimaLogFecha" headertext="Fecha ultimo log" width="110" visible="true" allowedit="false" showtotal="false" posicion="17" datatypeuser="fecha" masktype="DateTimeAdvancingCaret" maskedit="dd/MM/yyyy" groupOrder="-1" />
+    <column fieldname="UltimoLogDetalle" headertext="Detalle ultimo log" width="300" visible="true" allowedit="false" showtotal="false" posicion="18" datatypeuser="caracteres" masktype="None" maskedit="" groupOrder="-1" />
+  </columns>
+  <configuration cn="MSGestion" entity="ListadoHubSpotProcesosCola" searchname="" commandtimeout="120" commandexample="ListadoHubSpotProcesosCola_Buscar 1, '20260101', '20261231'" filaFiltroVisible="false" agrupamientoVisible="false" panelBusquedaVisible="false" />
+  <sqlscript />
+  <ruta>[General][Complementos]</ruta>
+</report>

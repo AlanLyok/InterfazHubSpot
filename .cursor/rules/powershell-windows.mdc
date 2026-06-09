@@ -22,9 +22,9 @@ Entorno real: **Windows 10**, shell por defecto **Windows PowerShell 5.1** (`pow
 Usar siempre los wrappers canónicos con `pwsh`:
 
 ```powershell
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
 ```
 
 No improvisar `msbuild`/`dotnet build` directo salvo depuración puntual.

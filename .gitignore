@@ -17,6 +17,7 @@ obj/
 # Config con credenciales locales (usar plantillas o variables de entorno en deploy)
 **/Web.config
 **/App.config
+**/*.exe.config
 **/Web.*.config
 !**/*.config.example
 

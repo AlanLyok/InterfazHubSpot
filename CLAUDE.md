@@ -27,14 +27,15 @@ Run from repo root. PowerShell wrappers handle nuget restore + MSBuild discovery
 
 | Action | Command |
 |---|---|
-| Full build | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1` |
-| Libraries only (skip MVC site) | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly` |
-| Tests (xUnit, excludes `Category=Live`) | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1` |
-| Build + tests + legacy-grep check | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1` |
+| Full build | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1` |
+| Libraries only (skip MVC site) | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly` |
+| Tests (xUnit, excludes `Category=Live`) | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1` |
+| Build + tests + legacy-grep check | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1` |
+| Deploy servicio Windows | `pwsh -NoProfile -File implementacion/Deploy-ServicioHubSpot.ps1` |
 
 Single test: pass `dotnet test` filter via the script (e.g. `... -Filter "FullyQualifiedName~HttpSpertaApiClient"`), or run `dotnet test InterfazHubSpot.Tests.Unit\InterfazHubSpot.Tests.Unit.csproj --filter "<expr>"` directly.
 
-The MVC web project imports `Microsoft.WebApplication.targets` — open `InterfazHubSpot.sln` in Visual Studio for full IDE builds.
+The MVC web project imports `Microsoft.WebApplication.targets` — open `SolucionInterfazHubSpot/InterfazHubSpot.sln` in Visual Studio for full IDE builds. SQL, docs and Windows service package live at repo root (`scriptsSQL/`, `docs/`, `implementacion/`).
 
 ## Architecture
 
@@ -51,7 +52,7 @@ Componentes/                       # Mastersoft framework DLLs (binary, required
 ```
 
 **One connection string** in `Web.config`/`App.config`:
-- `MSGestion` — ERP DB; EF6 context **and** the host for all data SPs the integration calls (queue `dbo.ProcesosSpertaHubSpot`, log `dbo.ProcesosSpertaHubSpotLog`, `InterfazHubSpot_Cliente_Obtener` 004, `InterfazHubSpot_Clientes_Contactos_Obtener` 005, `InterfazHubSpot_CuentaCorriente_Pagina` 006, función `InterfazHubSpot_ManejoCuentaCorriente_Texto` 007, `USER_POS_Clientes_Agregar`, etc.). SQL deploy canónico en `scriptsSQL/` (`000_Deploy_All.sql` + 001–007); copias versionadas en `sql/`.
+- `MSGestion` — ERP DB; EF6 context **and** the host for all data SPs the integration calls (queue `dbo.ProcesosSpertaHubSpot`, log `dbo.ProcesosSpertaHubSpotLog`, `InterfazHubSpot_Cliente_Obtener` 004, `InterfazHubSpot_Clientes_Contactos_Obtener` 005, `InterfazHubSpot_CuentaCorriente_Pagina` 006, `InterfazHubSpot_VendedoresHabilitados` 008, `USER_POS_Clientes_Agregar`, etc.). SQL deploy canónico en `scriptsSQL/` (`000_Deploy_All.sql` + 001–006, 008–009); copias versionadas en `sql/`.
 
 `MSFwk` is no longer required — the MVC site is an internal tool with no user authentication.
 

@@ -46,22 +46,24 @@ flowchart LR
 ```powershell
 git clone https://github.com/AlanLyok/InterfazHubSpot.git
 cd InterfazHubSpot
-copy Web.config.example Web.config
+copy SolucionInterfazHubSpot\Web.config.example SolucionInterfazHubSpot\InterfazHubSpot\Web.config
 # Editar Web.config: connectionString MSGestion + HubSpot:PrivateAppToken (o UseDevelopmentMock=true en dev)
 
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
 ```
 
 Verificación completa (build + tests + grep legacy):
 
 ```powershell
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
 ```
+
+Servicio Windows (batch producción): ver [`implementacion/README.md`](implementacion/README.md) y [`docs/BatchProcess_Desarrollo_e_Implementacion.md`](docs/BatchProcess_Desarrollo_e_Implementacion.md). Deploy: `implementacion/Deploy-ServicioHubSpot.ps1`.
 
 ### Consola MVC (desarrollo)
 
-Abrir `InterfazHubSpot.sln` en Visual Studio, ejecutar el proyecto web y usar la Home para lanzar jobs o trazas JSON (`POST /Home/ProcesarColaHubSpot`, `…TrazaCola`, `…TrazaCliente?clienteId=n`).
+Abrir `SolucionInterfazHubSpot/InterfazHubSpot.sln` en Visual Studio, ejecutar el proyecto web y usar la Home para lanzar jobs o trazas JSON (`POST /Home/ProcesarColaHubSpot`, `…TrazaCola`, `…TrazaCliente?clienteId=n`).
 
 ---
 
@@ -70,7 +72,10 @@ Abrir `InterfazHubSpot.sln` en Visual Studio, ejecutar el proyecto web y usar la
 | Recurso | Descripción |
 |---------|-------------|
 | [`docs/PRD_Integracion_HubSpot_2A_2B.md`](docs/PRD_Integracion_HubSpot_2A_2B.md) | Requisitos funcionales y técnicos |
+| [`docs/BatchProcess_Desarrollo_e_Implementacion.md`](docs/BatchProcess_Desarrollo_e_Implementacion.md) | Servicio Windows, jobs batch, TLS, emails |
 | [`docs/integracion_hubspot_mastersoft.md`](docs/integracion_hubspot_mastersoft.md) | Notas de integración |
+| [`SolucionInterfazHubSpot/README.md`](SolucionInterfazHubSpot/README.md) | Código fuente .NET (sln y proyectos) |
+| [`implementacion/README.md`](implementacion/README.md) | Paquete `MSScheduler452Service` |
 | [`AGENTS.md`](AGENTS.md) | Guía para agentes AI / desarrolladores |
 | [`CLAUDE.md`](CLAUDE.md) | Contexto de arquitectura y convenciones |
 
@@ -89,20 +94,21 @@ Abrir `InterfazHubSpot.sln` en Visual Studio, ejecutar el proyecto web y usar la
 
 ---
 
-## Estructura
+## Estructura del repositorio
 
 ```
-InterfazHubSpot.sln
-├── InterfazHubSpot/                    # MVC
-├── InterfazHubSpot.Business/           # Managers + ClienteIntegracionManager + cola integraciones
-├── InterfazHubSpot.Business/HubSpot/   # Runners CRM HubSpot (2A cola + 2B cuenta corriente)
-├── InterfazHubSpot.Entities/
-├── InterfazHubSpot.Interfaces/
-├── InterfazHubSpot.Mapping/
-├── InterfazHubSpot.BatchProcess/       # IScheduler (jobs + HubSpot)
-├── sql/                                # Scripts SQL (cola + SPs integración)
-├── InterfazHubSpot.IntegrationTests/
-└── Componentes/                      # DLL Mastersoft mínimas para compilar
+INTERFAZHUBSPOT/
+├── SolucionInterfazHubSpot/              # Solución .NET (todo el código)
+│   ├── InterfazHubSpot.sln
+│   ├── InterfazHubSpot/                  # MVC consola
+│   ├── InterfazHubSpot.Business/HubSpot/ # Runners 2A y 2B
+│   ├── InterfazHubSpot.BatchProcess/     # Jobs IScheduler
+│   └── Componentes/                      # DLL Mastersoft
+├── implementacion/                       # Servicio Windows (MSScheduler452Service)
+├── docs/                                 # PRD, guías
+├── scriptsSQL/                           # Deploy MSGestion
+├── sql/                                  # Copias versionadas
+└── publish/                              # Publish MVC (gitignored)
 ```
 
 ---
@@ -118,14 +124,15 @@ Ejecutar en `MSGestion` (orden canónico vía orquestador):
 
 | Script | Contenido |
 |--------|-----------|
-| [`scriptsSQL/000_Deploy_All.sql`](scriptsSQL/000_Deploy_All.sql) | Orquestador (cleanup legacy + 001–007) |
+| [`scriptsSQL/000_Deploy_All.sql`](scriptsSQL/000_Deploy_All.sql) | Orquestador (cleanup legacy + 001–006, 008–009) |
 | [`scriptsSQL/001_ProcesosSpertaHubSpot.sql`](scriptsSQL/001_ProcesosSpertaHubSpot.sql) | Tabla cola `dbo.ProcesosSpertaHubSpot` |
 | [`scriptsSQL/002_ProcesosSpertaHubSpotLog.sql`](scriptsSQL/002_ProcesosSpertaHubSpotLog.sql) | Log `dbo.ProcesosSpertaHubSpotLog` |
 | [`scriptsSQL/003_USER_CALZETTA_POS_Clientes_Agregar.sql`](scriptsSQL/003_USER_CALZETTA_POS_Clientes_Agregar.sql) | SP outbox `USER_POS_Clientes_Agregar` |
 | [`scriptsSQL/004_InterfazHubSpot_Cliente_Obtener.sql`](scriptsSQL/004_InterfazHubSpot_Cliente_Obtener.sql) | Empresa + direcciones flujo 2A |
 | [`scriptsSQL/005_InterfazHubSpot_Clientes_Contactos_Obtener.sql`](scriptsSQL/005_InterfazHubSpot_Clientes_Contactos_Obtener.sql) | Contactos cliente flujo 2A |
 | [`scriptsSQL/006_InterfazHubSpot_CuentaCorriente_Pagina.sql`](scriptsSQL/006_InterfazHubSpot_CuentaCorriente_Pagina.sql) | Paginación cuenta corriente 2B |
-| [`scriptsSQL/007_InterfazHubSpot_ManejoCuentaCorriente_Texto.sql`](scriptsSQL/007_InterfazHubSpot_ManejoCuentaCorriente_Texto.sql) | Función texto CC compartida 2A/2B |
+| [`scriptsSQL/008_InterfazHubSpot_VendedoresHabilitados.sql`](scriptsSQL/008_InterfazHubSpot_VendedoresHabilitados.sql) | Vendedores habilitados HubSpot |
+| [`scriptsSQL/009_Indices.sql`](scriptsSQL/009_Indices.sql) | Índices de performance SPs 004/006 |
 
 Desde el ERP WinForms se insertan filas pendientes en la cola (`Destino=HubSpot`, columna `Identificador`). Detalle en el PRD § outbox.
 
@@ -154,6 +161,8 @@ No se requiere `MSFwk`; el sitio MVC es consola interna sin autenticación.
 | `HubSpot:UseDevelopmentMock` | Mock CRM v3 en desarrollo; no usar en producción. |
 
 Plantillas: [`Web.config.example`](Web.config.example) (MVC), [`InterfazHubSpot.BatchProcess/App.config.example`](InterfazHubSpot.BatchProcess/App.config.example) (servicio Windows).
+
+**Desarrollo e implementación del batch (servicio Windows, `Config.xml`, despliegue DLLs):** [docs/BatchProcess_Desarrollo_e_Implementacion.md](docs/BatchProcess_Desarrollo_e_Implementacion.md).
 
 ---
 
@@ -198,8 +207,10 @@ Variables opcionales de build: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EX
 ## Seguridad
 
 - **Nunca** commitear `Web.config`, `App.config` ni tokens HubSpot.
-- Errores en cola 2A → estado `Error`; **no** hay reintento automático.
-- Rate limit HubSpot: 120 ms entre calls; backoff en 429 (máx. 3); detener en 401.
+- Errores en cola 2A → estado `Error`; **no** hay reintento automático de cola (reclamar de nuevo manualmente).
+- **Intentos** en cola: incrementa al **reclamar** (Pendiente→EnProceso) y en cada fallo HTTP **reintentable** (429/5xx) durante el procesamiento 2A.
+- HTTP HubSpot: delay 120 ms entre calls; **401 fail-fast** (sin reintentos); **429/500/502/503/504** reintentan hasta `HubSpot:MaxHttpRetries` (default 3) con backoff `HubSpot:HttpRetryBackoffMilliseconds` (default 1000 ms).
+- Email de error por fila 2A al fallar; por batch 2B si agotan reintentos; 401 detiene job 2B con email de autenticación.
 
 ---
 

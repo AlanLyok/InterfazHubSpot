@@ -23,7 +23,6 @@ ELSE IF OBJECT_ID(N'dbo.' + @target, N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.ProcesosSpertaHubSpot (
         ProcesoId              BIGINT IDENTITY(1,1) NOT NULL,
-        TenantId               NVARCHAR(64) NULL,
         EmpresaId              INT NULL,
         Destino                NVARCHAR(50) NOT NULL,
         TipoEntidad            NVARCHAR(50) NOT NULL,
@@ -56,5 +55,19 @@ BEGIN
         ON dbo.ProcesosSpertaHubSpot (Destino, Estado, FechaCreacion)
         INCLUDE (Identificador, TipoEntidad, Intentos);
     PRINT 'Indice IX_ProcesosSpertaHubSpot_DestinoEstadoFecha creado.';
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE object_id = OBJECT_ID(N'dbo.ProcesosSpertaHubSpot')
+      AND name = N'UX_ProcesosSpertaHubSpot_ActivoCliente'
+)
+BEGIN
+    CREATE UNIQUE NONCLUSTERED INDEX UX_ProcesosSpertaHubSpot_ActivoCliente
+        ON dbo.ProcesosSpertaHubSpot (Destino, TipoEntidad, Identificador)
+        WHERE Estado IN (0, 1);
+    PRINT 'Indice UX_ProcesosSpertaHubSpot_ActivoCliente creado.';
 END
 GO

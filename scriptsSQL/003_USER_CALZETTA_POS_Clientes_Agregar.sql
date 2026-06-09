@@ -1,17 +1,12 @@
 /*
   Post-grabación WinForms — encola cliente para sincronización HubSpot (flujo 2A).
-
   Uso:
     EXEC dbo.USER_POS_Clientes_Agregar @ClienteID = 77;
-	
-	
- 
 */
 
 IF OBJECT_ID(N'dbo.USER_POS_Clientes_Agregar', N'P') IS NOT NULL
     DROP PROCEDURE dbo.USER_POS_Clientes_Agregar;
 GO
-
 SET ANSI_NULLS ON;
 GO
 SET QUOTED_IDENTIFIER ON;
@@ -26,27 +21,30 @@ BEGIN
     IF @ClienteID IS NULL OR @ClienteID <= 0
         RETURN;
 
+    -- Sólo encolar clientes activos con vendedor habilitado para HubSpot.
+ 
     IF NOT EXISTS (
         SELECT 1
         FROM dbo.Clientes AS c
-        WHERE c.ClienteID = @ClienteID
-		AND c.VendedorID not in (107,37,91)
+        INNER JOIN dbo.InterfazHubSpot_VendedoresHabilitados AS v
+            ON v.VendedorID = c.VendedorID
+        WHERE c.ClienteID    = @ClienteID
+          AND c.InHabilitado = 0
     )
         RETURN;
 
+    -- No encolar si ya hay una entrada activa (Pendiente o EnProceso) para este cliente.
     IF EXISTS (
         SELECT 1
         FROM dbo.ProcesosSpertaHubSpot AS p
-        WHERE p.Destino = N'HubSpot'
-          AND p.TipoEntidad = N'Cliente'
+        WHERE p.Destino       = N'HubSpot'
+          AND p.TipoEntidad   = N'Cliente'
           AND p.Identificador = @ClienteID
-          AND p.Estado = 0
-		  
+          AND p.Estado IN (0, 1)
     )
         RETURN;
 
     INSERT INTO dbo.ProcesosSpertaHubSpot (
-        TenantId,
         EmpresaId,
         Destino,
         TipoEntidad,
@@ -60,7 +58,6 @@ BEGIN
         FechaFinProceso
     )
     VALUES (
-        N'MS',
         1,
         N'HubSpot',
         N'Cliente',

@@ -6,6 +6,7 @@ Guía para agentes AI (Cursor) trabajando en este repositorio.
 
 **Integración HubSpot Flujos 2A y 2B** — Batch que sincroniza ERP Mastersoft → HubSpot CRM.  
 **PRD:** `docs/PRD_Integracion_HubSpot_2A_2B.md`  
+**BatchProcess (desarrollo + servicio Windows):** `docs/BatchProcess_Desarrollo_e_Implementacion.md`  
 **Planificación GSD:** `.planning/`
 
 ## Stack (este repo)
@@ -13,9 +14,10 @@ Guía para agentes AI (Cursor) trabajando en este repositorio.
 | Componente | Tecnología |
 |------------|------------|
 | Framework | **.NET Framework 4.5.2** (NO .NET 8) |
-| Web | ASP.NET MVC (`InterfazHubSpot/`) |
-| Batch | `InterfazHubSpot.BatchProcess` / IScheduler |
-| HubSpot runners | `InterfazHubSpot.Business/HubSpot/` |
+| Web | ASP.NET MVC (`SolucionInterfazHubSpot/InterfazHubSpot/`) |
+| Batch | `SolucionInterfazHubSpot/InterfazHubSpot.BatchProcess` / IScheduler |
+| HubSpot runners | `SolucionInterfazHubSpot/InterfazHubSpot.Business/HubSpot/` |
+| Servicio Windows | `implementacion/ServicioInterfazHubSpot_Implementacion/` |
 | Datos cola | SQL Server — tabla `dbo.ProcesosSpertaHubSpot` |
 | Datos ERP | SPs en MSGestion — `ClienteIntegracionManager` (`dbo.InterfazHubSpot_Cliente_Obtener` 004, `dbo.InterfazHubSpot_Clientes_Contactos_Obtener` 005, `dbo.InterfazHubSpot_CuentaCorriente_Pagina` 006) |
 | API externa | HubSpot CRM v3 — Private App Token |
@@ -39,10 +41,11 @@ Preferir scripts canónicos con `pwsh -NoProfile -File ...` en lugar de encadena
 
 | Acción | Comando |
 |--------|---------|
-| Build completo | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1` |
-| Solo librerías | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly` |
-| Tests | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1` |
-| Verificar todo | `pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1` |
+| Build completo | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1` |
+| Solo librerías | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly` |
+| Tests | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1` |
+| Verificar todo | `pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1` |
+| Deploy servicio | `pwsh -NoProfile -File implementacion/Deploy-ServicioHubSpot.ps1` |
 
 Variables MSBuild: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
 
@@ -71,14 +74,17 @@ Variables MSBuild: `SPERTA_MSBUILD`, `MSBUILD_EXE`, `SPERTA_NUGET_EXE`.
 ## Estructura clave
 
 ```
-InterfazHubSpot.sln
-├── InterfazHubSpot/                  # MVC
-├── InterfazHubSpot.Business/HubSpot/ # Runners 2A y 2B
-├── InterfazHubSpot.BatchProcess/     # Jobs scheduler
-├── scriptsSQL/                       # Deploy canónico MSGestion (000_Deploy_All + 001–007)
-├── sql/                              # Copias versionadas alineadas con scriptsSQL
-├── InterfazHubSpot/Scripts/agent/    # Build, Test, Verify PS1
-└── docs/PRD_Integracion_HubSpot_2A_2B.md
+INTERFAZHUBSPOT/                      # Raíz repo
+├── SolucionInterfazHubSpot/           # Código .NET (sln + proyectos)
+│   ├── InterfazHubSpot.sln
+│   ├── InterfazHubSpot/                # MVC
+│   ├── InterfazHubSpot.Business/HubSpot/
+│   ├── InterfazHubSpot.BatchProcess/
+│   └── InterfazHubSpot/Scripts/agent/ # Build, Test, Verify PS1
+├── implementacion/                   # Paquete servicio Windows + Deploy-ServicioHubSpot.ps1
+├── docs/                             # PRD, guía BatchProcess
+├── scriptsSQL/                       # Deploy canónico MSGestion
+└── sql/                              # Copias versionadas scriptsSQL
 ```
 
 ## MCP SQL (desarrollo)

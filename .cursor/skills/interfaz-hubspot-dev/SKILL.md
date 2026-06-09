@@ -20,6 +20,7 @@ Datos vía **stored procedures** en MSGestion; runtime **no** usa SpertaAPI.
 |---------|-----------|
 | Guía agentes | `AGENTS.md`, `CLAUDE.md` |
 | PRD | `docs/PRD_Integracion_HubSpot_2A_2B.md` |
+| BatchProcess dev/deploy | `docs/BatchProcess_Desarrollo_e_Implementacion.md` |
 | Planificación | `.planning/ROADMAP.md`, `.planning/STATE.md` |
 | Reglas nombres/build | `.cursor/rules/interfaz-hubspot.mdc` |
 | PowerShell Windows | `.cursor/rules/powershell-windows.mdc` |
@@ -37,10 +38,11 @@ Datos vía **stored procedures** en MSGestion; runtime **no** usa SpertaAPI.
 ## Comandos canónicos
 
 ```powershell
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
-pwsh -NoProfile -File InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Build-InterfazHubSpot.ps1 -LibrariesOnly
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Test-InterfazHubSpot.ps1
+pwsh -NoProfile -File SolucionInterfazHubSpot/InterfazHubSpot/Scripts/agent/Verify-InterfazHubSpot.ps1
+pwsh -NoProfile -File implementacion/Deploy-ServicioHubSpot.ps1
 ```
 
 Verificar antes de declarar trabajo completo (`verification-before-completion`).
