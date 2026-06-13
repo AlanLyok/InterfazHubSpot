@@ -42,13 +42,13 @@ namespace InterfazHubSpot.Business.Managers
             GrabarEmailErrores(asunto, proceso, errores);
         }
 
-        public void GrabarEmailErrores(string asunto, string proceso, IEnumerable<string> errores = null)
+        public void GrabarEmailErrores(string asunto, string proceso, IEnumerable<string> errores = null, string procesoId = null)
         {
             var emailPara = ConfigurationManager.AppSettings["EmailErrPara"];
             if (string.IsNullOrWhiteSpace(emailPara))
                 return;
 
-            var cuerpo = ConstruirHtmlErrores(proceso, errores);
+            var cuerpo = ConstruirHtmlErrores(proceso, errores, procesoId: procesoId);
 
             var emailDE = ResolverRemitente(ConfigurationManager.AppSettings["EmailErrDE"]);
             var emailCc = ConfigurationManager.AppSettings["EmailErrCc"] ?? string.Empty;
@@ -109,7 +109,7 @@ namespace InterfazHubSpot.Business.Managers
             return "<html><body><h2>Error en {{Proceso}}</h2><p>{{Fecha}}</p>{{Detalle}}</body></html>";
         }
 
-        public string ConstruirHtmlErrores(string proceso, IEnumerable<string> errores = null, DateTime? fecha = null)
+        public string ConstruirHtmlErrores(string proceso, IEnumerable<string> errores = null, DateTime? fecha = null, string procesoId = null)
         {
             var template = LoadTemplateOrFallback();
             var procesoSafe = HttpUtility.HtmlEncode(proceso ?? "Desconocido");
@@ -125,10 +125,15 @@ namespace InterfazHubSpot.Business.Managers
                 detalle = "<div>No se pudieron obtener los detalles del error.</div>";
             }
 
+            var procesoIdBlock = string.IsNullOrWhiteSpace(procesoId)
+                ? string.Empty
+                : $"<div class=\"proceso-id\">Proceso ID: <span class=\"highlight\">{HttpUtility.HtmlEncode(procesoId)}</span></div>";
+
             var fechaStr = (fecha ?? DateTime.Now).ToString("yyyy-MM-dd HH:mm");
 
             return template
                 .Replace("{{Proceso}}", procesoSafe)
+                .Replace("{{ProcesoIdBlock}}", procesoIdBlock)
                 .Replace("{{Detalle}}", detalle)
                 .Replace("{{Fecha}}", HttpUtility.HtmlEncode(fechaStr));
         }

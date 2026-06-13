@@ -30,7 +30,7 @@ namespace InterfazHubSpot.Business.Integration
         {
             var asunto = $"[HubSpot 2A] Error ProcesoId={procesoId} ClienteId={clienteId} Fase={fase ?? "desconocida"}";
             var proceso = "HubSpot integración 2A";
-            _emails.GrabarEmailErrores(asunto, proceso, ConstruirLineasError(fase, ex));
+            _emails.GrabarEmailErrores(asunto, proceso, ConstruirLineasError(fase, ex), procesoId: procesoId.ToString());
         }
 
         public void NotificarErrorBatch2B(int lote, Exception ex)

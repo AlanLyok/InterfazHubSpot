@@ -47,7 +47,7 @@ namespace InterfazHubSpot.Tests.Unit.Security
                 GrabarEmailErrores(entidad, entidad, errores);
             }
 
-            public void GrabarEmailErrores(string asunto, string proceso, System.Collections.Generic.IEnumerable<string> errores = null)
+            public void GrabarEmailErrores(string asunto, string proceso, System.Collections.Generic.IEnumerable<string> errores = null, string procesoId = null)
             {
                 Calls.Add(new EmailCallRecord { Asunto = asunto, Proceso = proceso, Errores = errores });
             }

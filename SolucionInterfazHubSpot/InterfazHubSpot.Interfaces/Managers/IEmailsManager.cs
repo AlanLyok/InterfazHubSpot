@@ -11,6 +11,7 @@ namespace InterfazHubSpot.Interfaces.Managers
         void GrabarEmailErrores(
             string asunto,
             string proceso,
-            IEnumerable<string> errores = null);
+            IEnumerable<string> errores = null,
+            string procesoId = null);
     }
 }

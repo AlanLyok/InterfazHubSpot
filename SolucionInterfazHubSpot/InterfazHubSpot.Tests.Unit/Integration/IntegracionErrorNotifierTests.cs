@@ -68,7 +68,7 @@ namespace InterfazHubSpot.Tests.Unit.Integration
                 GrabarEmailErrores(entidad + " - Errores en procesamiento", entidad, errores);
             }
 
-            public void GrabarEmailErrores(string asunto, string proceso, IEnumerable<string> errores = null)
+            public void GrabarEmailErrores(string asunto, string proceso, IEnumerable<string> errores = null, string procesoId = null)
             {
                 Calls.Add(new EmailCallRecord { Asunto = asunto, Proceso = proceso, Errores = errores });
             }
