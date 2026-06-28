@@ -47,29 +47,29 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             };
 
         // ---------------------------------------------------------------
-        // SearchCompanyIdByMastersoftIdAsync
+        // SearchCompanyIdByCuitCuilUnicaAsync
         // ---------------------------------------------------------------
 
         [Fact]
-        public async Task SearchCompanyIdByMastersoftIdAsync_TotalCero_DevuelveNull()
+        public async Task SearchCompanyIdByCuitCuilUnicaAsync_TotalCero_DevuelveNull()
         {
             _handler.EnqueueResponse(JsonOk("{\"total\":0,\"results\":[]}"));
             var sut = CreateSut();
 
-            var result = await sut.SearchCompanyIdByMastersoftIdAsync("99").ConfigureAwait(false);
+            var result = await sut.SearchCompanyIdByCuitCuilUnicaAsync("30123456789").ConfigureAwait(false);
 
             Assert.Null(result);
         }
 
         [Fact]
-        public async Task SearchCompanyIdByMastersoftIdAsync_ConResultado_DevuelveIdYVerificaRequestCorrect()
+        public async Task SearchCompanyIdByCuitCuilUnicaAsync_ConResultado_DevuelveIdYVerificaRequestCorrect()
         {
-            const string mastersoftId = "42";
+            const string cuitCuilUnica = "30123456789";
             const string expectedHubId = "HS-123";
             _handler.EnqueueResponse(JsonOk("{\"total\":1,\"results\":[{\"id\":\"" + expectedHubId + "\"}]}"));
             var sut = CreateSut();
 
-            var result = await sut.SearchCompanyIdByMastersoftIdAsync(mastersoftId).ConfigureAwait(false);
+            var result = await sut.SearchCompanyIdByCuitCuilUnicaAsync(cuitCuilUnica).ConfigureAwait(false);
 
             Assert.Equal(expectedHubId, result);
 
@@ -78,9 +78,8 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             Assert.Contains("/crm/v3/objects/companies/search", req.RequestUri.AbsolutePath);
             Assert.Equal("Bearer", req.Headers.Authorization.Scheme);
             var bodyText = _handler.RequestBodies[0];
-            // La propiedad puede ser "mastersoft_id_" (default) o lo configurado en App.config
-            Assert.Contains(_cfg.PropertyMastersoftId, bodyText);
-            Assert.Contains(mastersoftId, bodyText);
+            Assert.Contains(_cfg.PropertyCuitCuilUnica, bodyText);
+            Assert.Contains(cuitCuilUnica, bodyText);
         }
 
         // ---------------------------------------------------------------

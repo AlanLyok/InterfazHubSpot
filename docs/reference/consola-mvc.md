@@ -22,7 +22,7 @@ Consola interna **sin login**. Todos los endpoints abajo son accesibles vía POS
 |--------|------|----------|
 | POST | `/Home/ProcesarColaHubSpotTrazaCola` | Vista previa filas cola pendientes |
 | POST | `/Home/ProcesarColaHubSpotTrazaCliente?clienteId={n}` | SP 004 solo (sin HubSpot) |
-| POST | `/Home/TrazaHubSpotBuscarEmpresa?clienteId={n}` | Search company por `mastersoft_id_` |
+| POST | `/Home/TrazaHubSpotBuscarEmpresa?clienteId={n}` | Search company por `cuitcuil_unica` (NroDocumento del SP 004) |
 | POST | `/Home/TrazaHubSpotUpsertEmpresa?clienteId={n}` | SP 004 + create/patch company |
 | POST | `/Home/TrazaHubSpotBuscarContacto?email={e}` | Search contact por email |
 | POST | `/Home/TrazaHubSpotSincronizarContactos?clienteId={n}&hubCompanyId={id}` | SP 005 + upsert/asociar contactos |

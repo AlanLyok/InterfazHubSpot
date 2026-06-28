@@ -34,7 +34,7 @@
 
 - [ ] **2A-01**: Job `ProcesarColaHubSpotJob` cada 5 min, batch size configurable (default 50)
 - [ ] **2A-02**: Procesar cola: EnProceso → sync compañía → sync contactos → Ok/Error
-- [ ] **2A-03**: Buscar compañía por `mastersoft_id_` si `HubSpotCompanyId` es NULL
+- [ ] **2A-03**: Buscar compañía por `cuitcuil_unica` (NroDocumento normalizado) si `HubSpotCompanyId` es NULL
 - [ ] **2A-04**: Persistir `HubSpotCompanyId` tras crear/encontrar compañía
 - [ ] **2A-05**: Deduplicar contactos por email en HubSpot
 - [ ] **2A-06**: No reintentar automáticamente registros en Error

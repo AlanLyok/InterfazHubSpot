@@ -4,22 +4,22 @@ overview: Migrar la correlación ERP↔HubSpot de `mastersoft_id_` (ClienteId) a
 todos:
   - id: config-helper
     content: Agregar HubSpot:PropertyCuitCuilUnica + HubSpotCuitCuilHelper (normalizar/validar NroDocumento)
-    status: pending
+    status: completed
   - id: crm-client-search
     content: Refactorizar HubSpotCrmClient search por cuitcuil_unica y actualizar tests de endpoints
-    status: pending
+    status: completed
   - id: runner-2a
     content: "HubSpotIntegracionRunner 2A: validación NroDocumento, search/upsert, BuildCompanyProperties (sin cuitcuil), diagnóstico MVC"
-    status: pending
+    status: completed
   - id: sql-dto-2b
     content: SP 006 NumeroDocumento + ItemCuentaCorrienteDto/mapper + loop 2B por cuitcuil_unica
-    status: pending
+    status: completed
   - id: tests-verify
     content: Actualizar payload/mapper tests; ejecutar Verify-InterfazHubSpot.ps1 -LibrariesOnly
-    status: pending
+    status: completed
   - id: docs-postman
     content: PRD, reference, explanation, Postman env/collection/README + Web.config.example
-    status: pending
+    status: completed
 isProject: false
 ---
 

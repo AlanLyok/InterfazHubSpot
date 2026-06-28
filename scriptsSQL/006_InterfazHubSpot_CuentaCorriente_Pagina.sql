@@ -216,6 +216,7 @@ BEGIN
     ─────────────────────────────────────────────────────────────────────── */
     SELECT
         ClienteId             = pc.ClienteID,
+        NumeroDocumento       = REPLACE(REPLACE(REPLACE(c.NroDocumento, '-',''), '.',''), ',',''),
         ManejoCuentaCorriente = CASE
             WHEN da.ManejoCuentaCorriente IS NOT NULL
                 -- Con deuda:
@@ -235,6 +236,8 @@ BEGIN
                 N'Cuenta Corriente al ' + @HoyTexto + N'. Deuda: $0'
         END
     FROM PaginaClientes AS pc
+    INNER JOIN dbo.Clientes AS c
+        ON c.ClienteID = pc.ClienteID
     LEFT JOIN DeudaAgregada AS da
         ON da.ClienteID = pc.ClienteID
     ORDER BY pc.ClienteID;

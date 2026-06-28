@@ -21,7 +21,7 @@ scriptsSQL/000_Deploy_All.sql  →  ejecutar contra MSGestion (SSMS o sqlcmd)
 | `003_USER_CALZETTA_POS_Clientes_Agregar.sql` | `USER_POS_Clientes_Agregar` | ERP inserta en cola |
 | `004_InterfazHubSpot_Cliente_Obtener.sql` | `InterfazHubSpot_Cliente_Obtener` | Empresa + direcciones (2A) |
 | `005_InterfazHubSpot_Clientes_Contactos_Obtener.sql` | `InterfazHubSpot_Clientes_Contactos_Obtener` | Contactos cliente (2A) |
-| `006_InterfazHubSpot_CuentaCorriente_Pagina.sql` | `InterfazHubSpot_CuentaCorriente_Pagina` | Paginación CC (2B) |
+| `006_InterfazHubSpot_CuentaCorriente_Pagina.sql` | `InterfazHubSpot_CuentaCorriente_Pagina` | Paginación CC (2B); devuelve `ClienteId`, `NumeroDocumento`, `ManejoCuentaCorriente` |
 | `008_InterfazHubSpot_VendedoresHabilitados.sql` | `InterfazHubSpot_VendedoresHabilitados` | Filtro vendedores SP 004/006 |
 | `009_Indices.sql` | Índices | Performance SPs 004/006 |
 | `010_InterfazHubSpot_Atributo_IdHubSpot.sql` | `InterfazHubSpot_Cliente_GuardarIdHubSpot` + atributo `id_hubspot` | Persistir ID company en ERP |

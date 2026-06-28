@@ -70,6 +70,8 @@
 
     <add key="HubSpot:PropertyMastersoftId" value="mastersoft_id_" />
 
+    <add key="HubSpot:PropertyCuitCuilUnica" value="cuitcuil_unica" />
+
     <add key="HubSpot:PropertyManejoCuentaCorriente" value="manejo_cuenta_corriente" />
 
     <add key="HubSpot:DelayMillisecondsBetweenCalls" value="120" />

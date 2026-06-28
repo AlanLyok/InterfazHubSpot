@@ -265,7 +265,7 @@ namespace InterfazHubSpot.Controllers
             return CrearJsonTrazaSalida(correlacionId, ok, errorFatal, null, collector);
         }
 
-        /// <summary>Diagnóstico paso 3: busca la empresa en HubSpot por mastersoft_id_ para el clienteId dado.</summary>
+        /// <summary>Diagnóstico paso 3: busca la empresa en HubSpot por cuitcuil_unica (NroDocumento del SP) para el clienteId dado.</summary>
         [HttpPost]
         public JsonResult TrazaHubSpotBuscarEmpresa(int? clienteId = null)
         {
@@ -277,7 +277,7 @@ namespace InterfazHubSpot.Controllers
                 ProcesoPasoSeverity.Information,
                 ProcesoPasoCategoria.Infraestructura,
                 "batchmvc.ejecucion_inicio",
-                "Inicio traza: buscar empresa en HubSpot por mastersoft_id_.",
+                "Inicio traza: buscar empresa en HubSpot por cuitcuil_unica.",
                 new { correlacionId, clienteId });
 
             var ok = true;

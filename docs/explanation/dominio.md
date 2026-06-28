@@ -41,9 +41,10 @@ flowchart TB
   subgraph crm [Dominio HubSpot CRM]
     Company[(Company)]
     ContactHS[(Contact)]
-    PropCC[manejo_cuenta_corriente]
+    PropCuit[cuitcuil_unica]
     PropMS[mastersoft_id_]
     Company --> PropCC
+    Company --> PropCuit
     Company --> PropMS
     ContactHS -->|asociación| Company
   end
@@ -73,7 +74,7 @@ flowchart TB
 ### Cliente (ERP)
 
 - **Identificador:** `ClienteID` / `Identificador` en cola.
-- **Correlación HubSpot:** propiedad `mastersoft_id_` en company; opcionalmente `id_hubspot` persistido en ERP vía `InterfazHubSpot_Cliente_GuardarIdHubSpot`.
+- **Correlación HubSpot:** propiedad `cuitcuil_unica` (NroDocumento normalizado) para búsqueda/upsert; `mastersoft_id_` informativo (ClienteId); opcionalmente `id_hubspot` persistido en ERP vía `InterfazHubSpot_Cliente_GuardarIdHubSpot`.
 - **Eventos que importan:** alta, modificación (disparan outbox 2A).
 
 ### Cola outbox (`ProcesosSpertaHubSpot`)

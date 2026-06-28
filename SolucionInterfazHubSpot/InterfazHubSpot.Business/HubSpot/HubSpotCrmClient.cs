@@ -17,6 +17,7 @@ namespace InterfazHubSpot.Business.HubSpot
             BaseUrl = (ConfigurationManager.AppSettings["HubSpot:BaseUrl"] ?? "https://api.hubapi.com").TrimEnd('/');
             PrivateAppToken = ConfigurationManager.AppSettings["HubSpot:PrivateAppToken"] ?? string.Empty;
             PropertyMastersoftId = ConfigurationManager.AppSettings["HubSpot:PropertyMastersoftId"] ?? "mastersoft_id_";
+            PropertyCuitCuilUnica = ConfigurationManager.AppSettings["HubSpot:PropertyCuitCuilUnica"] ?? "cuitcuil_unica";
             PropertyManejoCuentaCorriente =
                 ConfigurationManager.AppSettings["HubSpot:PropertyManejoCuentaCorriente"] ?? "manejo_cuenta_corriente";
             DelayMsBetweenCalls = ParseInt(ConfigurationManager.AppSettings["HubSpot:DelayMillisecondsBetweenCalls"], 120);
@@ -31,6 +32,8 @@ namespace InterfazHubSpot.Business.HubSpot
         internal string PrivateAppToken { get; }
 
         internal string PropertyMastersoftId { get; }
+
+        internal string PropertyCuitCuilUnica { get; }
 
         internal string PropertyManejoCuentaCorriente { get; }
 
@@ -99,13 +102,13 @@ namespace InterfazHubSpot.Business.HubSpot
             _http = httpClient ?? SharedHttp;
         }
 
-        internal async Task<string> SearchCompanyIdByMastersoftIdAsync(string mastersoftId)
+        internal async Task<string> SearchCompanyIdByCuitCuilUnicaAsync(string cuitCuilUnica)
         {
-            return await SearchCompanyIdByMastersoftIdAsync(mastersoftId, null, null).ConfigureAwait(false);
+            return await SearchCompanyIdByCuitCuilUnicaAsync(cuitCuilUnica, null, null).ConfigureAwait(false);
         }
 
-        internal async Task<string> SearchCompanyIdByMastersoftIdAsync(
-            string mastersoftId,
+        internal async Task<string> SearchCompanyIdByCuitCuilUnicaAsync(
+            string cuitCuilUnica,
             long? procesoId,
             IHubSpotColaIntentosReporter reporter)
         {
@@ -121,14 +124,14 @@ namespace InterfazHubSpot.Business.HubSpot
                         {
                             new JObject
                             {
-                                ["propertyName"] = _cfg.PropertyMastersoftId,
+                                ["propertyName"] = _cfg.PropertyCuitCuilUnica,
                                 ["operator"] = "EQ",
-                                ["value"] = mastersoftId ?? string.Empty,
+                                ["value"] = cuitCuilUnica ?? string.Empty,
                             },
                         },
                     },
                 },
-                ["properties"] = new JArray(_cfg.PropertyMastersoftId, "name"),
+                ["properties"] = new JArray(_cfg.PropertyCuitCuilUnica, "name"),
                 ["limit"] = 1,
             };
 

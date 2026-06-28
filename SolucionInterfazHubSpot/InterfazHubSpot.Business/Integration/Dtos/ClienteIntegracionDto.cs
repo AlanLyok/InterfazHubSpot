@@ -70,6 +70,7 @@ namespace InterfazHubSpot.Business.Integration.Dtos
     public sealed class ItemCuentaCorrienteDto
     {
         public int ClienteId { get; set; }
+        public string NumeroDocumento { get; set; }
         public string ManejoCuentaCorriente { get; set; }
     }
 }

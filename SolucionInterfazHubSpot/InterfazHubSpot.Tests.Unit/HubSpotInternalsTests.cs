@@ -37,7 +37,7 @@ namespace InterfazHubSpot.Tests.Unit
             using (var http = new HttpClient(handler))
             {
                 var sut = new HubSpotCrmClient(cfg, http);
-                var id = await sut.SearchCompanyIdByMastersoftIdAsync("42").ConfigureAwait(false);
+                var id = await sut.SearchCompanyIdByCuitCuilUnicaAsync("30123456789").ConfigureAwait(false);
                 Assert.Null(id);
                 Assert.NotNull(captured?.Headers.Authorization);
                 Assert.Equal("Bearer", captured.Headers.Authorization.Scheme);

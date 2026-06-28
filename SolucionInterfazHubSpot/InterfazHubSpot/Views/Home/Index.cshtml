@@ -20,10 +20,10 @@
 </fieldset>
 
 <fieldset style="margin-bottom:12px;padding:10px;">
-    <legend><strong>Paso 3 &mdash; Buscar empresa en HubSpot (por mastersoft_id_)</strong></legend>
-    ClienteId arriba <span style="color:#777;">&#8593;</span> (mismo campo)
+    <legend><strong>Paso 3 &mdash; Buscar empresa en HubSpot (por cuitcuil_unica)</strong></legend>
+    ClienteId arriba <span style="color:#777;">&#8593;</span> (mismo campo; el SP resuelve el CUIT/CUIL)
     <button type="button" onclick="TrazaHubSpotBuscarEmpresa()">Buscar empresa en HubSpot</button>
-    <small>&nbsp;- POST /crm/v3/objects/companies/search por mastersoft_id_</small>
+    <small>&nbsp;- POST /crm/v3/objects/companies/search por cuitcuil_unica (NroDocumento normalizado)</small>
 </fieldset>
 
 <fieldset style="margin-bottom:12px;padding:10px;">

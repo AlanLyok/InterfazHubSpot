@@ -163,9 +163,9 @@ Devuelve los datos de la compañía para sincronizar en HubSpot dado un `Cliente
 |---|---|---|
 | RazonSocial | `name` | |
 | NombreFantasia | `nombre_fantasia` | |
-| CUIT | `cuitcuil` | |
+| CUIT / NroDocumento | `cuitcuil_unica` | Normalizado (sin `-`, `.`, `,`) — clave de correlación |
 | NroCliente | `nro_cliente` | |
-| ClienteId | `mastersoft_id_` | Como string |
+| ClienteId | `mastersoft_id_` | Como string (informativo) |
 | HubSpotCompanyId | — | ID HubSpot almacenado en Mastersoft; NULL si no existe aún |
 | Calle | `address` | |
 | Puerta | `puerta` | |
@@ -221,7 +221,7 @@ Paginación keyset (`@Cursor`, `@PageSize`). El batch C# itera páginas hasta ag
 | Campo SQL | Descripción |
 |---|---|
 | ClienteId | ID Mastersoft |
-| IdHubSpot / HubSpotCompanyId | ID company en HubSpot (atributo `id_hubspot` en ERP) |
+| NumeroDocumento | NroDocumento normalizado (sin `-`, `.`, `,`) — búsqueda HubSpot `cuitcuil_unica` |
 | ManejoCuentaCorriente | Texto preformateado para propiedad HubSpot |
 
 El job 2B envía el texto en batch de 100 companies vía `POST /crm/v3/objects/companies/batch/update`.
@@ -238,7 +238,7 @@ Persiste el `HubSpotCompanyId` devuelto por HubSpot en la tabla de clientes de M
 - `@ClienteId INT`
 - `@IdHubSpot VARCHAR(50)` — ID company devuelto por HubSpot
 
-Persiste en atributo variable `CLIENTES.id_hubspot` (script 010). Si no existe company en HubSpot aún, 2A busca por `mastersoft_id_` antes de create/patch.
+Persiste en atributo variable `CLIENTES.id_hubspot` (script 010). Si no existe company en HubSpot aún, 2A busca por `cuitcuil_unica` (NroDocumento normalizado) antes de create/patch.
 
 ---
 
@@ -260,7 +260,7 @@ El ERP WinForms llama a `USER_POS_Clientes_Agregar @ClienteId` tras crear o modi
    a. Marcar `Estado=1` (EnProceso) vía `ProcesosSpertaHubSpotManager`.
    b. Ejecutar `InterfazHubSpot_Cliente_Obtener @ClienteId` → cabecera + direcciones; incluye `HubSpotCompanyId` / `id_hubspot` si existe.
    c. **Buscar/crear compañía en HubSpot:**
-      - Si no hay ID conocido → buscar por `mastersoft_id_` via `POST /crm/v3/objects/companies/search`.
+      - Si no hay ID conocido → buscar por `cuitcuil_unica` via `POST /crm/v3/objects/companies/search` (valor = NroDocumento normalizado del SP 004).
         - Si existe → `PATCH /crm/v3/objects/companies/{id}`.
         - Si no existe → `POST /crm/v3/objects/companies`.
       - Si hay ID HubSpot → `PATCH` directo.
@@ -305,7 +305,7 @@ Job programado diario. **Hora propuesta: 3:00 AM** (antes del inicio de jornada 
 
 1. Registrar inicio en `dbo.ProcesosSpertaHubSpotLog` (fase de corrida 2B).
 2. Iterar páginas con `InterfazHubSpot_CuentaCorriente_Pagina @Cursor, @PageSize` hasta agotar clientes activos.
-3. Por cada fila de página: el SP devuelve texto `ManejoCuentaCorriente` listo para HubSpot (formato §7.3).
+3. Por cada fila de página: resolver company HubSpot por `cuitcuil_unica` (= `NumeroDocumento` del SP); omitir si falta documento o no hay company.
 4. Dividir en grupos de 100 compañías (límite HubSpot batch).
 5. Por cada grupo: `POST /crm/v3/objects/companies/batch/update`.
 6. Delay configurable entre calls/batches (`HubSpot:DelayMillisecondsBetweenCalls`, default 120 ms).
@@ -366,6 +366,7 @@ Las claves ya existentes en el proyecto se conservan tal cual. A continuación e
   <!-- <add key="HubSpot:PrivateAppToken"               value="pat-na1-..." /> -->
   <!-- <add key="HubSpot:BaseUrl"                       value="https://api.hubapi.com" /> -->
   <!-- <add key="HubSpot:PropertyMastersoftId"          value="mastersoft_id_" /> -->
+  <!-- <add key="HubSpot:PropertyCuitCuilUnica"       value="cuitcuil_unica" /> -->
   <!-- <add key="HubSpot:PropertyManejoCuentaCorriente" value="manejo_cuenta_corriente" /> -->
   <!-- <add key="HubSpot:DelayMillisecondsBetweenCalls" value="120" /> -->
   <!-- <add key="HubSpot:CuentaCorrientePageSize"       value="500" /> -->

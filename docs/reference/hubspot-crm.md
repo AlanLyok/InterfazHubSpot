@@ -37,7 +37,8 @@ Base URL: `HubSpot:BaseUrl` (default `https://api.hubapi.com`).
 
 | Config | Default | Uso |
 |--------|---------|-----|
-| `HubSpot:PropertyMastersoftId` | `mastersoft_id_` | Correlación ERP ↔ company |
+| `HubSpot:PropertyCuitCuilUnica` | `cuitcuil_unica` | Correlación ERP ↔ company (búsqueda y upsert). Valor: dígitos ERP formateados con `.` cada 3 desde la derecha (ej. DNI `13018824` → `13.018.824`). |
+| `HubSpot:PropertyMastersoftId` | `mastersoft_id_` | ClienteId ERP en payload (informativo) |
 | `HubSpot:PropertyManejoCuentaCorriente` | `manejo_cuenta_corriente` | Texto saldo CC (2B) |
 
 Otras propiedades company/contact vienen del mapper SP→payload (validar enums/options en portal HubSpot).

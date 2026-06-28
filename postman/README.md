@@ -14,6 +14,7 @@ Colección y environment para probar los endpoints HubSpot (2A, 2B) y la consola
    - `clientSecret` → opcional; solo si probás webhooks Flujo 1.
    - `localUrl` → puerto donde corre el sitio MVC.
    - `mastersoftId` → ClienteId ERP para SP 004/005 y trazas MVC.
+   - `cuitCuilUnica` → NroDocumento normalizado para búsqueda HubSpot directa.
    - `hubspotCompanyId` → se completa en Paso 4 o manualmente.
    - `useDevelopmentMock` → informativo; alinear con `Web.config` si usás mock.
 
@@ -33,7 +34,7 @@ Incluye cola `ProcesosSpertaHubSpot`, SP 004 `InterfazHubSpot_Cliente_Obtener`, 
 
 1. **0 — Auth y conexión → POST Verificar PAT (scopes)** — confirma token y permisos.
 2. **0 — Auth y conexión → GET Propiedades de compañía** — smoke mínimo (200 = OK).
-3. **Flujo 2A — Compañías → POST Buscar por mastersoft_id_**
+3. **Flujo 2A — Compañías → POST Buscar por cuitcuil_unica**
 4. **POST Crear compañía** (o PATCH si ya existe) — guarda `hubspotCompanyId` automáticamente. Body incluye `manejo_cuenta_corriente`, `puerta` y `direccion_1_*`.
 5. **Flujo 2A — Contactos** — buscar → crear → asociar a compañía.
 6. **Flujo 2B — Batch update** — actualizar `manejo_cuenta_corriente`.
@@ -60,7 +61,7 @@ Carpeta **Consola MVC (local)** — requiere sitio corriendo, `Web.config` con `
 |-----------------|------|----------|
 | Paso 1 — Traza cola | `/Home/ProcesarColaHubSpotTrazaCola` | Lectura cola SQL |
 | Paso 2 — Traza SP 004 | `/Home/ProcesarColaHubSpotTrazaCliente?clienteId=` | SP 004: empresa + direcciones (no contactos) |
-| Paso 3 — TrazaHubSpotBuscarEmpresa | `/Home/TrazaHubSpotBuscarEmpresa?clienteId=` | Search compañía por `mastersoft_id_` |
+| Paso 3 — TrazaHubSpotBuscarEmpresa | `/Home/TrazaHubSpotBuscarEmpresa?clienteId=` | SP 004 + search compañía por `cuitcuil_unica` |
 | Paso 4 — TrazaHubSpotUpsertEmpresa | `/Home/TrazaHubSpotUpsertEmpresa?clienteId=` | SP 004 + crear/actualizar compañía |
 | Paso 5 — TrazaHubSpotBuscarContacto | `/Home/TrazaHubSpotBuscarContacto?email=` | Search contacto por email |
 | Paso 6 — TrazaHubSpotSincronizarContactos | `/Home/TrazaHubSpotSincronizarContactos?clienteId=&hubCompanyId=` | SP 005 + upsert/asociar contactos |

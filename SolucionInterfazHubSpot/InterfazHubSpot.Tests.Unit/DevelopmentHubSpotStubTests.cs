@@ -53,7 +53,7 @@ namespace InterfazHubSpot.Tests.Unit
             })
             {
                 var sut = new HubSpotCrmClient(cfg, http);
-                var idSearch = await sut.SearchCompanyIdByMastersoftIdAsync("999").ConfigureAwait(false);
+                var idSearch = await sut.SearchCompanyIdByCuitCuilUnicaAsync("30999999990").ConfigureAwait(false);
                 Assert.Null(idSearch);
 
                 var props = new JObject { ["name"] = "Unit" };

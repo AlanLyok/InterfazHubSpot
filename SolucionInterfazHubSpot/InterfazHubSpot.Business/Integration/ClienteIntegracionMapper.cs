@@ -98,6 +98,7 @@ namespace InterfazHubSpot.Business.Integration
                 items.Add(new ItemCuentaCorrienteDto
                 {
                     ClienteId = GetInt(r, "ClienteId"),
+                    NumeroDocumento = GetStr(r, "NumeroDocumento"),
                     ManejoCuentaCorriente = GetStr(r, "ManejoCuentaCorriente"),
                 });
             }

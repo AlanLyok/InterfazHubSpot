@@ -43,7 +43,7 @@ sequenceDiagram
 **Puntos clave:**
 
 - Identificador de fila cola: columna `Identificador` (cliente ERP).
-- Búsqueda company por propiedad custom `mastersoft_id_` (configurable).
+- Búsqueda company por propiedad custom `cuitcuil_unica` (NroDocumento normalizado; configurable).
 - Fallo → estado `Error` en cola; **no** reintento automático de fila (ver PRD).
 - Reintentos HTTP solo para 429/5xx durante el procesamiento (ver [`../reference/hubspot-crm.md`](../reference/hubspot-crm.md)).
 

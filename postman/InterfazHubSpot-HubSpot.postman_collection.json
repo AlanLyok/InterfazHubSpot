@@ -85,12 +85,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/crm/v3/objects/companies?limit=1&properties=name,{{propertyMastersoftId}}",
+              "raw": "{{baseUrl}}/crm/v3/objects/companies?limit=1&properties=name,{{propertyCuitCuilUnica}},{{propertyMastersoftId}}",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "companies"],
               "query": [
                 { "key": "limit", "value": "1" },
-                { "key": "properties", "value": "name,{{propertyMastersoftId}}" }
+                { "key": "properties", "value": "name,{{propertyCuitCuilUnica}},{{propertyMastersoftId}}" }
               ]
             },
             "description": "Smoke adicional de lectura CRM objects."
@@ -102,7 +102,7 @@
       "name": "Flujo 2A — Compañías",
       "item": [
         {
-          "name": "POST Buscar compañía por mastersoft_id_",
+          "name": "POST Buscar compañía por cuitcuil_unica",
           "event": [
             {
               "listen": "test",
@@ -125,14 +125,14 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"propertyName\": \"{{propertyMastersoftId}}\",\n          \"operator\": \"EQ\",\n          \"value\": \"{{mastersoftId}}\"\n        }\n      ]\n    }\n  ],\n  \"properties\": [\"name\", \"{{propertyMastersoftId}}\", \"{{propertyManejoCc}}\"],\n  \"limit\": 1\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": [\n        {\n          \"propertyName\": \"{{propertyCuitCuilUnica}}\",\n          \"operator\": \"EQ\",\n          \"value\": \"{{cuitCuilUnica}}\"\n        }\n      ]\n    }\n  ],\n  \"properties\": [\"name\", \"{{propertyCuitCuilUnica}}\", \"{{propertyMastersoftId}}\", \"{{propertyManejoCc}}\"],\n  \"limit\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/companies/search",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "companies", "search"]
             },
-            "description": "Igual que HubSpotCrmClient.SearchCompanyIdByMastersoftIdAsync. Si total > 0 → PATCH; si no → POST."
+            "description": "Igual que HubSpotCrmClient.SearchCompanyIdByCuitCuilUnicaAsync. Si total > 0 → PATCH; si no → POST."
           }
         },
         {
@@ -159,7 +159,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"properties\": {\n    \"name\": \"EMPRESA DE PRUEBA SA\",\n    \"{{propertyMastersoftId}}\": \"{{mastersoftId}}\",\n    \"nro_cliente\": \"99999\",\n    \"cuitcuil\": \"30-99999999-0\",\n    \"nombre_fantasia\": \"Empresa Prueba\",\n    \"address\": \"Av. Corrientes 1234\",\n    \"puerta\": \"1234\",\n    \"city\": \"Buenos Aires\",\n    \"zip\": \"C1043\",\n    \"state\": \"Buenos Aires\",\n    \"Country\": \"Argentina\",\n    \"{{propertyManejoCc}}\": \"15/03/2026 --- $125.400,00\\n02/04/2026 --- $89.200,50\",\n    \"direccion_1_domicilio\": \"Deposito Norte — Av. del Libertador 500\",\n    \"direccion_1_cp\": \"1426\",\n    \"direccion_1_localidad\": \"Belgrano\",\n    \"direccion_1_provincia\": \"Buenos Aires\",\n    \"direccion_1_pais\": \"Argentina\",\n    \"zona_vta\": \"CABA\",\n    \"vendedor\": \"VENDEDOR TEST\",\n    \"responsable_de_cuenta\": \"ALAN L\",\n    \"lista_de_precios\": \"Lista A\",\n    \"condicion_de_venta\": \"30 dias\",\n    \"dias_para_deuda\": \"30\",\n    \"limite_de_credito\": \"100000\",\n    \"categoria_cliente\": \"A\"\n  }\n}"
+              "raw": "{\n  \"properties\": {\n    \"name\": \"EMPRESA DE PRUEBA SA\",\n    \"{{propertyCuitCuilUnica}}\": \"{{cuitCuilUnica}}\",\n    \"{{propertyMastersoftId}}\": \"{{mastersoftId}}\",\n    \"nro_cliente\": \"99999\",\n    \"nombre_fantasia\": \"Empresa Prueba\",\n    \"address\": \"Av. Corrientes 1234\",\n    \"puerta\": \"1234\",\n    \"city\": \"Buenos Aires\",\n    \"zip\": \"C1043\",\n    \"state\": \"Buenos Aires\",\n    \"Country\": \"Argentina\",\n    \"{{propertyManejoCc}}\": \"15/03/2026 --- $125.400,00\\n02/04/2026 --- $89.200,50\",\n    \"direccion_1_domicilio\": \"Deposito Norte — Av. del Libertador 500\",\n    \"direccion_1_cp\": \"1426\",\n    \"direccion_1_localidad\": \"Belgrano\",\n    \"direccion_1_provincia\": \"Buenos Aires\",\n    \"direccion_1_pais\": \"Argentina\",\n    \"zona_vta\": \"CABA\",\n    \"vendedor\": \"VENDEDOR TEST\",\n    \"responsable_de_cuenta\": \"ALAN L\",\n    \"lista_de_precios\": \"Lista A\",\n    \"condicion_de_venta\": \"30 dias\",\n    \"dias_para_deuda\": \"30\",\n    \"limite_de_credito\": \"100000\",\n    \"categoria_cliente\": \"A\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/crm/v3/objects/companies",
@@ -192,11 +192,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/crm/v3/objects/companies/{{hubspotCompanyId}}?properties=name,{{propertyMastersoftId}},{{propertyManejoCc}}",
+              "raw": "{{baseUrl}}/crm/v3/objects/companies/{{hubspotCompanyId}}?properties=name,{{propertyCuitCuilUnica}},{{propertyMastersoftId}},{{propertyManejoCc}}",
               "host": ["{{baseUrl}}"],
               "path": ["crm", "v3", "objects", "companies", "{{hubspotCompanyId}}"],
               "query": [
-                { "key": "properties", "value": "name,{{propertyMastersoftId}},{{propertyManejoCc}}" }
+                { "key": "properties", "value": "name,{{propertyCuitCuilUnica}},{{propertyMastersoftId}},{{propertyManejoCc}}" }
               ]
             }
           }
@@ -453,7 +453,7 @@
               "path": ["Home", "TrazaHubSpotBuscarEmpresa"],
               "query": [{ "key": "clienteId", "value": "{{mastersoftId}}" }]
             },
-            "description": "Busca compañía en HubSpot por `mastersoft_id_` (POST /crm/v3/objects/companies/search). Usa `mastersoftId` del environment."
+            "description": "Busca compañía en HubSpot por `cuitcuil_unica` (POST /crm/v3/objects/companies/search). Usa `cuitCuilUnica` del environment; `clienteId` en trazas MVC resuelve el CUIT vía SP 004."
           }
         },
         {

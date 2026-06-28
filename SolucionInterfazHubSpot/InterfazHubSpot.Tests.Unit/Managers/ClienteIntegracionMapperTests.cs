@@ -124,14 +124,16 @@ namespace InterfazHubSpot.Tests.Unit.Managers
         {
             var tabla = new DataTable();
             tabla.Columns.Add("ClienteId", typeof(int));
+            tabla.Columns.Add("NumeroDocumento", typeof(string));
             tabla.Columns.Add("ManejoCuentaCorriente", typeof(string));
-            tabla.Rows.Add(100, "SI");
-            tabla.Rows.Add(200, "NO");
+            tabla.Rows.Add(100, "20123456789", "SI");
+            tabla.Rows.Add(200, "20987654321", "NO");
 
             var result = ClienteIntegracionMapper.MapearPaginaCuentaCorriente(tabla, 10);
 
             Assert.False(result.HayMas);
             Assert.Equal(2, result.Items.Count);
+            Assert.Equal("20123456789", result.Items[0].NumeroDocumento);
         }
 
         [Fact]
@@ -139,9 +141,10 @@ namespace InterfazHubSpot.Tests.Unit.Managers
         {
             var tabla = new DataTable();
             tabla.Columns.Add("ClienteId", typeof(int));
+            tabla.Columns.Add("NumeroDocumento", typeof(string));
             tabla.Columns.Add("ManejoCuentaCorriente", typeof(string));
-            tabla.Rows.Add(100, "SI");
-            tabla.Rows.Add(200, "NO");
+            tabla.Rows.Add(100, "20123456789", "SI");
+            tabla.Rows.Add(200, "20987654321", "NO");
             tabla.Rows.Add(300, "SI");
 
             var result = ClienteIntegracionMapper.MapearPaginaCuentaCorriente(tabla, 2);

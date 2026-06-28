@@ -26,7 +26,8 @@ Leídas por `HubSpotConfiguration` (`InterfazHubSpot.Business/HubSpot/HubSpotCrm
 | `HubSpot:PrivateAppToken` | *(vacío)* | PAT HubSpot. Obligatorio si `UseDevelopmentMock=false` |
 | `HubSpot:UseDevelopmentMock` | `false` | `true` → stub HTTP sin llamadas reales |
 | `HubSpot:BaseUrl` | `https://api.hubapi.com` | Base API |
-| `HubSpot:PropertyMastersoftId` | `mastersoft_id_` | Propiedad company para id ERP |
+| `HubSpot:PropertyMastersoftId` | `mastersoft_id_` | Propiedad company informativa (ClienteId ERP) |
+| `HubSpot:PropertyCuitCuilUnica` | `cuitcuil_unica` | Correlación ERP ↔ company (NroDocumento normalizado) |
 | `HubSpot:PropertyManejoCuentaCorriente` | `manejo_cuenta_corriente` | Propiedad texto flujo 2B |
 | `HubSpot:DelayMillisecondsBetweenCalls` | `120` | Pausa entre REST |
 | `HubSpot:CuentaCorrientePageSize` | `500` | Tamaño página SP 006 |

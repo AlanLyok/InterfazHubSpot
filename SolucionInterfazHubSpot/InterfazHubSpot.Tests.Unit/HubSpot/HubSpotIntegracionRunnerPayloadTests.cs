@@ -33,6 +33,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
 
                 // Setear las propiedades requeridas por BuildCompanyProperties via sus backing fields
                 SetPrivateField(cfg, "<PropertyMastersoftId>k__BackingField", "mastersoft_id_");
+                SetPrivateField(cfg, "<PropertyCuitCuilUnica>k__BackingField", "cuitcuil_unica");
                 SetPrivateField(cfg, "<PropertyManejoCuentaCorriente>k__BackingField", "manejo_cuenta_corriente");
                 SetPrivateField(cfg, "<BaseUrl>k__BackingField", "https://api.hubapi.com");
                 SetPrivateField(cfg, "<PrivateAppToken>k__BackingField", "test-token");
@@ -51,12 +52,12 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             field?.SetValue(target, value);
         }
 
-        private static JObject InvokeBuildCompanyProperties(HubSpotIntegracionRunner runner, ClienteDatosDto dto, int pk, string codigo)
+        private static JObject InvokeBuildCompanyProperties(HubSpotIntegracionRunner runner, ClienteDatosDto dto, int pk, string codigo, string cuitCuilUnica)
         {
             var method = typeof(HubSpotIntegracionRunner).GetMethod(
                 "BuildCompanyProperties",
                 BindingFlags.NonPublic | BindingFlags.Instance);
-            return (JObject)method.Invoke(runner, new object[] { dto, pk, codigo });
+            return (JObject)method.Invoke(runner, new object[] { dto, pk, codigo, cuitCuilUnica });
         }
 
         private static JObject InvokeBuildContactProperties(ContactoDto c)
@@ -174,7 +175,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             dto.RazonSocial = "Mi Empresa SA";
             dto.ApellidoYNombre = "Apellido Corp";
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             Assert.Equal("Mi Empresa SA", (string)result["name"]);
         }
@@ -187,7 +188,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             dto.RazonSocial = null;
             dto.ApellidoYNombre = "Apellido Y Nombre";
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             Assert.Equal("Apellido Y Nombre", (string)result["name"]);
         }
@@ -201,9 +202,21 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             dto.ApellidoYNombre = null;
             dto.Contacto = "El Contacto";
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             Assert.Equal("El Contacto", (string)result["name"]);
+        }
+
+        [Fact]
+        public void BuildCompanyProperties_MapeaCuitCuilUnicaConNombrePropiedadConfigurado()
+        {
+            var runner = CreateUninitializedRunner();
+            var dto = BuildMinimalDto();
+
+            var result = InvokeBuildCompanyProperties(runner, dto, 999, "C999", "30.123.456.789");
+
+            Assert.Equal("30.123.456.789", (string)result["cuitcuil_unica"]);
+            Assert.False(result.ContainsKey("cuitcuil"));
         }
 
         [Fact]
@@ -212,7 +225,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             var runner = CreateUninitializedRunner();
             var dto = BuildMinimalDto();
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 999, "C999");
+            var result = InvokeBuildCompanyProperties(runner, dto, 999, "C999", "30.123.456.789");
 
             // _hubCfg fue creado con PropertyMastersoftId = "mastersoft_id_" en CreateUninitializedRunner
             Assert.Equal("999", (string)result["mastersoft_id_"]);
@@ -231,7 +244,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
                 new DireccionEntregaDto { Domicilio = "Calle 4", CodigoPostal = "4000", Localidad = "Ciudad 4", ProvinciaId = "MZA", Pais = "Argentina" },
             };
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             // Las 3 primeras deben estar mapeadas
             Assert.NotNull(result["direccion_1_domicilio"]);
@@ -248,7 +261,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             var runner = CreateUninitializedRunner();
             var dto = BuildMinimalDto();
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             Assert.Equal("Cuenta Corriente al 01/01/2026. Deuda: $0", (string)result["manejo_cuenta_corriente"]);
         }
@@ -260,7 +273,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             var dto = BuildMinimalDto();
             dto.Calle = "Av. Corrientes 1234";
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             Assert.Equal("Av. Corrientes 1234", (string)result["address"]);
             Assert.False(result.ContainsKey("adress"));
@@ -273,7 +286,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             var dto = BuildMinimalDto();
             dto.CodigoPais = "Argentina";
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             Assert.Equal("Argentina", (string)result["country"]);
             Assert.False(result.ContainsKey("Country"));
@@ -289,7 +302,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
                 new DireccionEntregaDto { Domicilio = "Calle 1", CodigoPostal = "1000", Localidad = "Ciudad 1", ProvinciaId = "BA", Pais = "Argentina" },
             };
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             foreach (var prop in result.Properties())
             {
@@ -310,7 +323,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
                 new DireccionEntregaDto { Domicilio = "Calle 1", CodigoPostal = "1000", Localidad = "Ciudad 1", ProvinciaId = "BA", Pais = "Argentina" },
             };
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001");
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789");
 
             Assert.Equal("Argentina", (string)result["direccion_1_pais"]);
         }
@@ -322,7 +335,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             var dto = BuildMinimalDto();
             dto.ListaDireccionEntregas = null;
 
-            var ex = Record.Exception(() => InvokeBuildCompanyProperties(runner, dto, 1, "C001"));
+            var ex = Record.Exception(() => InvokeBuildCompanyProperties(runner, dto, 1, "C001", "30123456789"));
 
             Assert.Null(ex);
         }
@@ -341,7 +354,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
                 Puerta = null,
             };
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 1, null);
+            var result = InvokeBuildCompanyProperties(runner, dto, 1, null, string.Empty);
 
             // Verificar que no hay nulos JSON (todos string.Empty o tienen valor)
             foreach (var prop in result.Properties())

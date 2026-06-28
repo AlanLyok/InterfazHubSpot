@@ -58,6 +58,7 @@ namespace InterfazHubSpot.Business.HubSpot
                 {
                     baseUrl = _hubCfg.BaseUrl,
                     propertyMastersoftId = _hubCfg.PropertyMastersoftId,
+                    propertyCuitCuilUnica = _hubCfg.PropertyCuitCuilUnica,
                     propertyManejoCuentaCorriente = _hubCfg.PropertyManejoCuentaCorriente,
                     delayMsEntreLlamadas = _hubCfg.DelayMsBetweenCalls,
                     cuentaCorrientePageSize = _hubCfg.CuentaCorrientePageSize,
@@ -280,11 +281,18 @@ namespace InterfazHubSpot.Business.HubSpot
                         if (clienteId <= 0)
                             continue;
 
-                        var mastersoftKey = clienteId.ToString(CultureInfo.InvariantCulture);
+                        string cuitCuilUnica;
+                        if (!HubSpotCuitCuilHelper.TryGetClaveUnica(it.NumeroDocumento, out cuitCuilUnica, out var docErr))
+                        {
+                            _log.Registrar(null, IntegracionDestinos.HubSpot, clienteId, "BatchCcSinNroDocumento", false,
+                                docErr + " ClienteId=" + clienteId.ToString(CultureInfo.InvariantCulture) + ".");
+                            continue;
+                        }
+
                         string hubCompanyId;
                         try
                         {
-                            hubCompanyId = await _hub.SearchCompanyIdByMastersoftIdAsync(mastersoftKey).ConfigureAwait(false);
+                            hubCompanyId = await _hub.SearchCompanyIdByCuitCuilUnicaAsync(cuitCuilUnica).ConfigureAwait(false);
                         }
                         catch (HubSpotAuthException ex)
                         {
@@ -296,7 +304,7 @@ namespace InterfazHubSpot.Business.HubSpot
                         if (string.IsNullOrEmpty(hubCompanyId))
                         {
                             _log.Registrar(null, IntegracionDestinos.HubSpot, clienteId, "BatchCcSinCompanyHubSpot", false,
-                                "Sin compañía HubSpot para " + _hubCfg.PropertyMastersoftId + "=" + mastersoftKey + ".");
+                                "Sin compañía HubSpot para " + _hubCfg.PropertyCuitCuilUnica + "=" + cuitCuilUnica + ".");
                             continue;
                         }
 
@@ -401,6 +409,11 @@ namespace InterfazHubSpot.Business.HubSpot
             var clientePk = dto.ClienteId > 0 ? dto.ClienteId : clienteIdCola;
             var codigoCliente = dto.CodigoCliente;
 
+            string cuitCuilUnica;
+            string cuitErr;
+            if (!HubSpotCuitCuilHelper.TryGetClaveUnica(dto.Cliente != null ? dto.Cliente.NumeroDocumento : null, out cuitCuilUnica, out cuitErr))
+                throw new InvalidOperationException(cuitErr);
+
             _pasos.RegistrarPaso(
                 ProcesoPasoSeverity.Information,
                 ProcesoPasoCategoria.Mapeo,
@@ -411,20 +424,19 @@ namespace InterfazHubSpot.Business.HubSpot
                     procesoId,
                     clientePk,
                     codigoCliente,
+                    cuitCuilUnica,
                     muestraDatosTruncada = DiagnosticsTextHelper.TruncateForTrace(Newtonsoft.Json.JsonConvert.SerializeObject(dto)),
                 });
 
-            var mastersoftKey = clientePk.ToString(CultureInfo.InvariantCulture);
-
-            var hubCompanyExistingId = await _hub.SearchCompanyIdByMastersoftIdAsync(mastersoftKey, procesoId, _intentosReporter).ConfigureAwait(false);
+            var hubCompanyExistingId = await _hub.SearchCompanyIdByCuitCuilUnicaAsync(cuitCuilUnica, procesoId, _intentosReporter).ConfigureAwait(false);
             _pasos.RegistrarPaso(
                 ProcesoPasoSeverity.Information,
                 ProcesoPasoCategoria.DestinoExterno,
-                "destinoexterno.hubspot.company.search_by_mastersoft",
-                hubCompanyExistingId == null ? "Sin compañía existente por mastersoft id." : "Compañía existente encontrada.",
-                new { procesoId, mastersoftKey, hubSpotCompanyId = hubCompanyExistingId ?? "(crear nueva)" });
+                "destinoexterno.hubspot.company.search_by_cuitcuil_unica",
+                hubCompanyExistingId == null ? "Sin compañía existente por cuitcuil_unica." : "Compañía existente encontrada.",
+                new { procesoId, cuitCuilUnica, hubSpotCompanyId = hubCompanyExistingId ?? "(crear nueva)" });
 
-            var companyProps = BuildCompanyProperties(dto.Cliente, clientePk, codigoCliente);
+            var companyProps = BuildCompanyProperties(dto.Cliente, clientePk, codigoCliente, cuitCuilUnica);
             var envelopeCompany = new JObject { ["properties"] = companyProps };
             _pasos.RegistrarPaso(
                 ProcesoPasoSeverity.Information,
@@ -523,17 +535,16 @@ namespace InterfazHubSpot.Business.HubSpot
             }
         }
 
-        private JObject BuildCompanyProperties(ClienteDatosDto ms, int clientePk, string codigoCliente)
+        private JObject BuildCompanyProperties(ClienteDatosDto ms, int clientePk, string codigoCliente, string cuitCuilUnica)
         {
             var raz = Coalesce(ms.RazonSocial, ms.ApellidoYNombre, ms.Contacto);
             var fantasy = ms.ApellidoYNombre;
-            var nroDoc = ms.NumeroDocumento;
 
             var props = new JObject
             {
                 ["name"] = raz ?? string.Empty,
                 ["nombre_fantasia"] = fantasy ?? string.Empty,
-                ["cuitcuil"] = nroDoc ?? string.Empty,
+                [_hubCfg.PropertyCuitCuilUnica] = cuitCuilUnica ?? string.Empty,
                 ["nro_cliente"] = codigoCliente ?? string.Empty,
                 [_hubCfg.PropertyMastersoftId] = clientePk.ToString(CultureInfo.InvariantCulture),
                 ["address"] = ms.Calle ?? string.Empty,
@@ -600,20 +611,29 @@ namespace InterfazHubSpot.Business.HubSpot
 
         // ── Métodos diagnóstico granular (sin tocar cola) ──────────────────────────
 
-        /// <summary>Diagnóstico paso 3: busca una compañía en HubSpot por mastersoft_id_.</summary>
+        /// <summary>Diagnóstico paso 3: busca una compañía en HubSpot por cuitcuil_unica (NroDocumento del SP).</summary>
         public void DiagnosticarBuscarEmpresaHubSpot(int clienteId)
         {
             EnsureHubClient();
-            var mastersoftKey = clienteId.ToString(CultureInfo.InvariantCulture);
-            var hubId = RunSync(() => _hub.SearchCompanyIdByMastersoftIdAsync(mastersoftKey));
+
+            var dto = _cli.ObtenerClienteParaHubSpot(clienteId);
+            if (dto == null)
+                throw new InvalidOperationException("SP no devolvió datos para clienteId " + clienteId + ".");
+
+            string cuitCuilUnica;
+            string cuitErr;
+            if (!HubSpotCuitCuilHelper.TryGetClaveUnica(dto.Cliente != null ? dto.Cliente.NumeroDocumento : null, out cuitCuilUnica, out cuitErr))
+                throw new InvalidOperationException(cuitErr);
+
+            var hubId = RunSync(() => _hub.SearchCompanyIdByCuitCuilUnicaAsync(cuitCuilUnica));
             _pasos.RegistrarPaso(
                 hubId != null ? ProcesoPasoSeverity.Information : ProcesoPasoSeverity.Warning,
                 ProcesoPasoCategoria.DestinoExterno,
-                "destinoexterno.hubspot.company.search_by_mastersoft",
+                "destinoexterno.hubspot.company.search_by_cuitcuil_unica",
                 hubId != null
                     ? "Compañía encontrada en HubSpot."
-                    : "Compañía NO encontrada en HubSpot para ese mastersoft_id_.",
-                new { clienteId, mastersoftKey, hubSpotCompanyId = hubId ?? "(no encontrada)" });
+                    : "Compañía NO encontrada en HubSpot para ese cuitcuil_unica.",
+                new { clienteId, cuitCuilUnica, hubSpotCompanyId = hubId ?? "(no encontrada)" });
         }
 
         /// <summary>Diagnóstico pasos 2-4: SP datos cliente + búsqueda + upsert compañía HubSpot (sin cola ni contactos).</summary>
@@ -633,7 +653,11 @@ namespace InterfazHubSpot.Business.HubSpot
                 throw new InvalidOperationException("SP no devolvió datos para clienteId " + clienteId + ".");
 
             var clientePk = dto.ClienteId > 0 ? dto.ClienteId : clienteId;
-            var mastersoftKey = clientePk.ToString(CultureInfo.InvariantCulture);
+
+            string cuitCuilUnica;
+            string cuitErr;
+            if (!HubSpotCuitCuilHelper.TryGetClaveUnica(dto.Cliente != null ? dto.Cliente.NumeroDocumento : null, out cuitCuilUnica, out cuitErr))
+                throw new InvalidOperationException(cuitErr);
 
             _pasos.RegistrarPaso(
                 ProcesoPasoSeverity.Information,
@@ -644,21 +668,22 @@ namespace InterfazHubSpot.Business.HubSpot
                 {
                     clientePk,
                     codigoCliente = dto.CodigoCliente,
+                    cuitCuilUnica,
                     muestraDatosTruncada = DiagnosticsTextHelper.TruncateForTrace(
                         Newtonsoft.Json.JsonConvert.SerializeObject(dto)),
                 });
 
-            var hubCompanyExistingId = RunSync(() => _hub.SearchCompanyIdByMastersoftIdAsync(mastersoftKey));
+            var hubCompanyExistingId = RunSync(() => _hub.SearchCompanyIdByCuitCuilUnicaAsync(cuitCuilUnica));
             _pasos.RegistrarPaso(
                 ProcesoPasoSeverity.Information,
                 ProcesoPasoCategoria.DestinoExterno,
-                "destinoexterno.hubspot.company.search_by_mastersoft",
+                "destinoexterno.hubspot.company.search_by_cuitcuil_unica",
                 hubCompanyExistingId == null
                     ? "Sin compañía existente en HubSpot — se creará."
                     : "Compañía existente en HubSpot — se actualizará.",
-                new { mastersoftKey, hubSpotCompanyId = hubCompanyExistingId ?? "(crear nueva)" });
+                new { cuitCuilUnica, hubSpotCompanyId = hubCompanyExistingId ?? "(crear nueva)" });
 
-            var companyProps = BuildCompanyProperties(dto.Cliente, clientePk, dto.CodigoCliente);
+            var companyProps = BuildCompanyProperties(dto.Cliente, clientePk, dto.CodigoCliente, cuitCuilUnica);
             var resp = RunSync(() => _hub.UpsertCompanyAsync(hubCompanyExistingId, companyProps));
 
             var joCompany = JObject.Parse(resp);

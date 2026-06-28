@@ -99,6 +99,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\CombosQueries.cs" />
     <Compile Include="Integration\ClienteIntegracionMapper.cs" />
+    <Compile Include="Integration\HubSpotCuitCuilHelper.cs" />
     <Compile Include="Integration\Dtos\ClienteIntegracionDto.cs" />
     <Compile Include="Managers\ClienteIntegracionManager.cs" />
   </ItemGroup>
