@@ -213,9 +213,9 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             var runner = CreateUninitializedRunner();
             var dto = BuildMinimalDto();
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 999, "C999", "30.123.456.789");
+            var result = InvokeBuildCompanyProperties(runner, dto, 999, "C999", "30123456789");
 
-            Assert.Equal("30.123.456.789", (string)result["cuitcuil_unica"]);
+            Assert.Equal("30123456789", (string)result["cuitcuil_unica"]);
             Assert.False(result.ContainsKey("cuitcuil"));
         }
 
@@ -225,7 +225,7 @@ namespace InterfazHubSpot.Tests.Unit.HubSpot
             var runner = CreateUninitializedRunner();
             var dto = BuildMinimalDto();
 
-            var result = InvokeBuildCompanyProperties(runner, dto, 999, "C999", "30.123.456.789");
+            var result = InvokeBuildCompanyProperties(runner, dto, 999, "C999", "30123456789");
 
             // _hubCfg fue creado con PropertyMastersoftId = "mastersoft_id_" en CreateUninitializedRunner
             Assert.Equal("999", (string)result["mastersoft_id_"]);

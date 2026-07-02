@@ -25,51 +25,26 @@ namespace InterfazHubSpot.Tests.Unit.Integration
         }
 
         [Fact]
-        public void FormatearParaHubSpot_CuitEjemploHubSpot()
-        {
-            Assert.Equal("30.547.981.029", HubSpotCuitCuilHelper.FormatearParaHubSpot("30547981029"));
-        }
-
-        [Fact]
-        public void FormatearParaHubSpot_DniEjemploHubSpot()
-        {
-            Assert.Equal("13.018.824", HubSpotCuitCuilHelper.FormatearParaHubSpot("13018824"));
-        }
-
-        [Fact]
-        public void FormatearParaHubSpot_MilesCorto()
-        {
-            Assert.Equal("1.234.567", HubSpotCuitCuilHelper.FormatearParaHubSpot("1234567"));
-        }
-
-        [Fact]
-        public void FormatearParaHubSpot_TresODMenosDigitos_SinPuntos()
-        {
-            Assert.Equal("123", HubSpotCuitCuilHelper.FormatearParaHubSpot("123"));
-            Assert.Equal("12", HubSpotCuitCuilHelper.FormatearParaHubSpot("12"));
-        }
-
-        [Fact]
-        public void TryGetClaveUnica_ConDocumentoValido_DevuelveFormatoHubSpot()
-        {
-            string clave;
-            string err;
-            var ok = HubSpotCuitCuilHelper.TryGetClaveUnica("30-12345678-9", out clave, out err);
-
-            Assert.True(ok);
-            Assert.Equal("30.123.456.789", clave);
-            Assert.Null(err);
-        }
-
-        [Fact]
-        public void TryGetClaveUnica_CuitCalzetta_FormatoConPuntos()
+        public void TryGetClaveUnica_Cuit_DevuelveSoloDigitos()
         {
             string clave;
             string err;
             var ok = HubSpotCuitCuilHelper.TryGetClaveUnica("30-54798102-9", out clave, out err);
 
             Assert.True(ok);
-            Assert.Equal("30.547.981.029", clave);
+            Assert.Equal("30547981029", clave);
+            Assert.Null(err);
+        }
+
+        [Fact]
+        public void TryGetClaveUnica_Dni_DevuelveSoloDigitos()
+        {
+            string clave;
+            string err;
+            var ok = HubSpotCuitCuilHelper.TryGetClaveUnica("13.018.824", out clave, out err);
+
+            Assert.True(ok);
+            Assert.Equal("13018824", clave);
             Assert.Null(err);
         }
 

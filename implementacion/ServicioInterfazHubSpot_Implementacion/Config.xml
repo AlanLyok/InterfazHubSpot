@@ -6,7 +6,7 @@
              clase="ProcesarColaIntegracionesHubSpotJob"
              horafija=""
              minutosespera="1"
-             habilitado="true">
+             habilitado="false">
       <mscfg cnprefix="MSGestion" cn="" empresaid="1" />
       <parametros multitenant="N" enablelog="S" />
     </proceso>
@@ -16,7 +16,7 @@
              clase="HubSpotSincronizarCuentaCorrienteJob"
              horafija="3:00"
              minutosespera=""
-             habilitado="true">
+             habilitado="false">
       <mscfg cnprefix="MSGestion" cn="" empresaid="1" />
       <parametros multitenant="N" enablelog="S" />
     </proceso>

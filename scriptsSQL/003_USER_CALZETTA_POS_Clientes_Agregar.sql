@@ -1,5 +1,5 @@
 /*
-  Post-grabaciÃ³n WinForms â€” encola cliente para sincronizaciÃ³n HubSpot (flujo 2A).
+  Post-grabación WinForms — encola cliente para sincronización HubSpot (flujo 2A).
   Uso:
     EXEC dbo.USER_POS_Clientes_Agregar @ClienteID = 77;
 */
@@ -21,7 +21,7 @@ BEGIN
     IF @ClienteID IS NULL OR @ClienteID <= 0
         RETURN;
 
-    -- SÃ³lo encolar clientes activos con vendedor habilitado para HubSpot.
+    -- Sólo encolar clientes activos con vendedor habilitado para HubSpot.
  
     IF NOT EXISTS (
         SELECT 1

@@ -1,0 +1,25 @@
+<msscheduler debug="true" debugstatus="false">
+  <procesos>
+
+    <proceso id="01"
+             assembly="InterfazHubSpot.BatchProcess"
+             clase="ProcesarColaIntegracionesHubSpotJob"
+             horafija=""
+             minutosespera="1"
+             habilitado="false">
+      <mscfg cnprefix="MSGestion" cn="" empresaid="1" />
+      <parametros multitenant="N" enablelog="S" />
+    </proceso>
+
+    <proceso id="02"
+             assembly="InterfazHubSpot.BatchProcess"
+             clase="HubSpotSincronizarCuentaCorrienteJob"
+             horafija="3:00"
+             minutosespera=""
+             habilitado="false">
+      <mscfg cnprefix="MSGestion" cn="" empresaid="1" />
+      <parametros multitenant="N" enablelog="S" />
+    </proceso>
+
+  </procesos>
+</msscheduler>
